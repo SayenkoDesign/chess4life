@@ -1,0 +1,8 @@
+<wpml-config>
+	<admin-texts>
+		<key name="theme_mods_kidix">
+			<key name="phone_number" />
+			<key name="contact_address" />
+		</key>
+	</admin-texts>
+</wpml-config>

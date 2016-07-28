@@ -1,0 +1,632 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Kidix WordPress\n"
+"POT-Creation-Date: 2015-05-27 21:29+0200\n"
+"PO-Revision-Date: 2015-05-27 21:29+0200\n"
+"Last-Translator: \n"
+"Language-Team: StylishThemes\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: _e;__;_n;_x\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: admin/customizer.php:112
+msgid "General Options"
+msgstr ""
+
+#: admin/customizer.php:116
+msgid "Header Options"
+msgstr ""
+
+#: admin/customizer.php:120
+msgid "Layout Options"
+msgstr ""
+
+#: admin/customizer.php:124
+msgid "Footer Options"
+msgstr ""
+
+#: admin/customizer.php:129
+msgid "Load internal links with AJAX"
+msgstr ""
+
+#: admin/customizer.php:135
+msgid "Light Site Logo"
+msgstr ""
+
+#: admin/customizer.php:140
+msgid "Dark Site Logo"
+msgstr ""
+
+#: admin/customizer.php:145
+msgid "Class Archive Layout"
+msgstr ""
+
+#: admin/customizer.php:149 admin/customizer.php:159 admin/customizer.php:169
+#: inc/meta-boxes.php:36
+msgid "Full Width"
+msgstr ""
+
+#: admin/customizer.php:150 admin/customizer.php:160 admin/customizer.php:170
+#: inc/meta-boxes.php:37
+msgid "Content / Sidebar"
+msgstr ""
+
+#: admin/customizer.php:155
+msgid "Teacher Archive Layout"
+msgstr ""
+
+#: admin/customizer.php:165
+msgid "Album Archive Layout"
+msgstr ""
+
+#: admin/customizer.php:175
+msgid "Phone Number"
+msgstr ""
+
+#: admin/customizer.php:180
+msgid "Contact Address"
+msgstr ""
+
+#: comments.php:39
+msgid "Add yours"
+msgstr ""
+
+#: footer.php:22
+#, php-format
+msgid "&copy; Copyright %1$s %2$s"
+msgstr ""
+
+#: footer.php:31
+#, php-format
+msgid "Handcrafted by %s"
+msgstr ""
+
+#: footer.php:38
+msgid "Footer Menu"
+msgstr ""
+
+#: header.php:58
+msgid "Social Media Menu"
+msgstr ""
+
+#: inc/extras.php:119
+#, php-format
+msgid "%s <span class=\"says\">says:</span>"
+msgstr ""
+
+#: inc/extras.php:125
+#, php-format
+msgid "%1$s at %2$s"
+msgstr ""
+
+#: inc/extras.php:128
+msgid "Edit"
+msgstr ""
+
+#: inc/extras.php:142
+msgid "Your comment is awaiting moderation."
+msgstr ""
+
+#: inc/extras.php:338 inc/extras.php:339
+msgid "Name"
+msgstr ""
+
+#: inc/extras.php:342 inc/extras.php:343
+msgid "Email"
+msgstr ""
+
+#: inc/extras.php:345 inc/extras.php:346 inc/template-tags.php:143
+msgid "Website"
+msgstr ""
+
+#: inc/extras.php:364
+msgid "Comment"
+msgstr ""
+
+#: inc/extras.php:365
+msgid "Your thoughts&#8230;"
+msgstr ""
+
+#: inc/extras.php:369
+msgid "Leave a comment"
+msgstr ""
+
+#: inc/extras.php:370
+#, php-format
+msgid "Leave a comment for %s"
+msgstr ""
+
+#: inc/extras.php:378
+msgid "Extra profile information"
+msgstr ""
+
+#: inc/extras.php:382 inc/template-tags.php:147
+msgid "Facebook"
+msgstr ""
+
+#: inc/extras.php:386
+msgid "Please enter your Facebook URL."
+msgstr ""
+
+#: inc/extras.php:391 inc/template-tags.php:151
+msgid "Twitter"
+msgstr ""
+
+#: inc/extras.php:395
+msgid "Please enter your Twitter username."
+msgstr ""
+
+#: inc/meta-boxes.php:13
+msgid "Cover Image"
+msgstr ""
+
+#: inc/meta-boxes.php:28
+msgid "Post Layout"
+msgstr ""
+
+#: inc/meta-boxes.php:45
+msgid "Social Profiles"
+msgstr ""
+
+#: inc/meta-boxes.php:58 single-teacher.php:80
+msgid "Schedule"
+msgstr ""
+
+#: inc/meta-boxes.php:76
+msgid "Class Teacher"
+msgstr ""
+
+#: inc/meta-boxes.php:89
+msgid "Class Price"
+msgstr ""
+
+#: inc/meta-boxes.php:96
+msgid "Price / Day"
+msgstr ""
+
+#: inc/meta-boxes.php:102
+msgid "Class Age"
+msgstr ""
+
+#: inc/meta-boxes.php:109 sidebar-class.php:41 single-class.php:38
+#: template-parts/content-class.php:50 vc_templates/vc_classes_grid.php:52
+msgid "Years old"
+msgstr ""
+
+#: inc/meta-boxes.php:115 sidebar-class.php:48
+msgid "Class Size"
+msgstr ""
+
+#: inc/meta-boxes.php:122
+msgid "Number of Seats"
+msgstr ""
+
+#: inc/meta-boxes.php:128 sidebar-class.php:65
+msgid "Class Duration"
+msgstr ""
+
+#: inc/meta-boxes.php:135
+msgid "Time of Day"
+msgstr ""
+
+#: inc/meta-boxes.php:162
+msgid "Select Cover Image"
+msgstr ""
+
+#: inc/meta-boxes.php:163 inc/meta-boxes.php:170
+msgid "Set cover image"
+msgstr ""
+
+#: inc/meta-boxes.php:178
+msgid "Remove cover image"
+msgstr ""
+
+#: inc/meta-boxes.php:272 single-teacher.php:14
+msgid "Monday"
+msgstr ""
+
+#: inc/meta-boxes.php:273 single-teacher.php:15
+msgid "Tuesday"
+msgstr ""
+
+#: inc/meta-boxes.php:274 single-teacher.php:16
+msgid "Wednesday"
+msgstr ""
+
+#: inc/meta-boxes.php:275 single-teacher.php:17
+msgid "Thursday"
+msgstr ""
+
+#: inc/meta-boxes.php:276 single-teacher.php:18
+msgid "Friday"
+msgstr ""
+
+#: inc/meta-boxes.php:277 single-teacher.php:19
+msgid "Saturday"
+msgstr ""
+
+#: inc/meta-boxes.php:278 single-teacher.php:20
+msgid "Sunday"
+msgstr ""
+
+#: inc/template-tags.php:322
+msgid "Categories"
+msgstr ""
+
+#: inc/template-tags.php:342
+msgid "Class Types"
+msgstr ""
+
+#: inc/template-tags.php:362
+msgid "Teacher Types"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:226
+msgid "Install Required Plugins"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:227
+msgid "Install Plugins"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:228
+#, php-format
+msgid "Installing Plugin: %s"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:229
+msgid "Something went wrong."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:240
+msgid "Return to Required Plugins Installer"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:241
+msgid "Return to the dashboard"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:242
+#: inc/tgm/class-tgm-plugin-activation.php:2188
+msgid "Plugin activated successfully."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:243
+#: inc/tgm/class-tgm-plugin-activation.php:1845
+msgid "The following plugin was activated successfully:"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:244
+#, php-format
+msgid "All plugins installed and activated successfully. %1$s"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:245
+msgid "Dismiss this notice"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1352
+#: inc/tgm/class-tgm-plugin-activation.php:1527
+msgid "Private Repository"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1356
+#: inc/tgm/class-tgm-plugin-activation.php:1531
+msgid "Pre-Packaged"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1361
+msgid "WordPress Repository"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1364
+msgid "Required"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1364
+msgid "Recommended"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1367
+msgid "Not Installed"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1370
+msgid "Installed But Not Activated"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1552
+#, php-format
+msgid ""
+"No plugins to install or activate. <a href=\"%1$s\">Return to the Dashboard</"
+"a>"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1568
+msgid "Plugin"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1569
+msgid "Source"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1570
+msgid "Type"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1571
+msgid "Status"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1589
+msgid "Install"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:1590
+msgid "Activate"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2171
+msgid "Install package not available."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2172
+#, php-format
+msgid "Downloading install package from <span class=\"code\">%s</span>&#8230;"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2173
+msgid "Unpacking the package&#8230;"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2174
+msgid "Installing the plugin&#8230;"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2175
+msgid "Plugin install failed."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2176
+msgid "Plugin installed successfully."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2187
+msgid "Plugin activation failed."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2310
+#, php-format
+msgid "An error occurred while installing %1$s: <strong>%2$s</strong>."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2311
+#, php-format
+msgid "The installation of %1$s failed."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2315
+msgid ""
+"The installation and activation process is starting. This process may take a "
+"while on some hosts, so please be patient."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2316
+#, php-format
+msgid "%1$s installed and activated successfully."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2317
+msgid "All installations and activations have been completed."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2318
+#, php-format
+msgid "Installing and Activating Plugin %1$s (%2$d/%3$d)"
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2322
+msgid ""
+"The installation process is starting. This process may take a while on some "
+"hosts, so please be patient."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2324
+msgid "All installations have been completed."
+msgstr ""
+
+#: inc/tgm/class-tgm-plugin-activation.php:2325
+#, php-format
+msgid "Installing Plugin %1$s (%2$d/%3$d)"
+msgstr ""
+
+#: inc/visual-composer.php:12
+msgid "Contain Elements"
+msgstr ""
+
+#: inc/visual-composer.php:14
+msgid "Wrap elements inside a fixed-width container"
+msgstr ""
+
+#: inc/visual-composer.php:24
+msgid "Headline"
+msgstr ""
+
+#: inc/visual-composer.php:27 inc/visual-composer.php:47
+#: inc/visual-composer.php:67 inc/visual-composer.php:108
+#: inc/visual-composer.php:137 inc/visual-composer.php:159
+#: inc/visual-composer.php:190
+msgid "Kidix Shortcodes"
+msgstr ""
+
+#: inc/visual-composer.php:28
+msgid "A headline with description for your page sections."
+msgstr ""
+
+#: inc/visual-composer.php:32 inc/visual-composer.php:164
+msgid "Title"
+msgstr ""
+
+#: inc/visual-composer.php:37
+msgid "Description"
+msgstr ""
+
+#: inc/visual-composer.php:44
+msgid "Header Group"
+msgstr ""
+
+#: inc/visual-composer.php:48
+msgid "A group of headings to style your headlines."
+msgstr ""
+
+#: inc/visual-composer.php:52 inc/visual-composer.php:72
+msgid "First Heading"
+msgstr ""
+
+#: inc/visual-composer.php:57 inc/visual-composer.php:77
+msgid "Second Heading"
+msgstr ""
+
+#: inc/visual-composer.php:64
+msgid "Header Intro"
+msgstr ""
+
+#: inc/visual-composer.php:68
+msgid "A nice intro of headings with scroll animation."
+msgstr ""
+
+#: inc/visual-composer.php:82
+msgid "Third Heading"
+msgstr ""
+
+#: inc/visual-composer.php:105
+msgid "Classes Grid"
+msgstr ""
+
+#: inc/visual-composer.php:109
+msgid "A grid of class posts."
+msgstr ""
+
+#: inc/visual-composer.php:113
+msgid "Classes"
+msgstr ""
+
+#: inc/visual-composer.php:119 inc/visual-composer.php:148
+msgid "Grid Columns"
+msgstr ""
+
+#: inc/visual-composer.php:134
+msgid "Teachers Grid"
+msgstr ""
+
+#: inc/visual-composer.php:138
+msgid "A grid of teacher posts."
+msgstr ""
+
+#: inc/visual-composer.php:142
+msgid "Teachers"
+msgstr ""
+
+#: inc/visual-composer.php:156
+msgid "Google Map"
+msgstr ""
+
+#: inc/visual-composer.php:160
+msgid "A Google Map with set coordinates."
+msgstr ""
+
+#: inc/visual-composer.php:169
+msgid "Latitude"
+msgstr ""
+
+#: inc/visual-composer.php:174
+msgid "Longitude"
+msgstr ""
+
+#: inc/visual-composer.php:179
+msgid "Zoom"
+msgstr ""
+
+#: inc/visual-composer.php:187
+msgid "Fullwidth Gallery"
+msgstr ""
+
+#: inc/visual-composer.php:191
+msgid "A fullwidth gallery with images."
+msgstr ""
+
+#: inc/visual-composer.php:195
+msgid "Images"
+msgstr ""
+
+#: inc/visual-composer.php:198
+msgid "Select images from media library."
+msgstr ""
+
+#: inc/visual-composer.php:202
+msgid "Button Text"
+msgstr ""
+
+#: inc/visual-composer.php:207
+msgid "Button URL"
+msgstr ""
+
+#: inc/visual-composer.php:212
+msgid "Custom class"
+msgstr ""
+
+#: searchform.php:2
+msgid "Search for:"
+msgstr ""
+
+#: searchform.php:5
+msgid "Click to search"
+msgstr ""
+
+#: searchform.php:9
+msgid "Search"
+msgstr ""
+
+#: sidebar-class.php:17
+msgid "Class Sidebar"
+msgstr ""
+
+#: sidebar-class.php:20
+msgid "Class Details"
+msgstr ""
+
+#: sidebar-class.php:58
+msgid "Class Type"
+msgstr ""
+
+#: sidebar-class.php:71
+msgid "p/h"
+msgstr ""
+
+#: sidebar-class.php:76
+msgid "Enroll"
+msgstr ""
+
+#: template-parts/content-album.php:41
+#, php-format
+msgid "%d <small>Photos</small>"
+msgstr ""
+
+#: template-parts/content-class.php:36 vc_templates/vc_classes_grid.php:38
+msgid "p/day"
+msgstr ""
+
+#: template-parts/content-class.php:54 vc_templates/vc_classes_grid.php:56
+msgid "Class size"
+msgstr ""
+
+#: template-parts/content.php:37
+msgid "Discover"
+msgstr ""
