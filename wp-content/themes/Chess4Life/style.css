@@ -521,6 +521,9 @@ hr { height: 55px; margin-top: 30px; margin-bottom: 40px; background: transparen
 
 @media (min-width: 992px) {
 .hentry > .row { display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; }
+.blog .hentry > .row { display: block; }
+.archive .hentry > .row { display: block; }
+.search .hentry > .row { display: block; }
 }
 .hentry .col-md-5, .hentry .col-md-push-2 { text-align: center; }
 .single .hentry .col-md-push-2, .page .hentry .col-md-push-2 { text-align: inherit; }
@@ -542,9 +545,8 @@ hr { height: 55px; margin-top: 30px; margin-bottom: 40px; background: transparen
 .page .hentry > .entry-header { position: relative; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; /*min-height: 600px;*/ height: 260px; padding-top: 120px; background-color: #f28705; background-image: url(./images/entry-header-class.jpg); text-align: center; overflow: hidden; transition: transform .4s ease-in-out, opacity .6s ease-in-out; }
 
 .blog #page .site-content .content-area .site-main .page-header { position: relative; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; /*min-height: 600px;*/ height: 200px; padding-top: 120px; background-color: #f28705; background-image: url(./images/header-blog.jpg); text-align: center; transition: transform .4s ease-in-out, opacity .6s ease-in-out; margin:0px 0 30px 0; }
-
-
 .archive #page .site-content .content-area .site-main .page-header { position: relative; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; /*min-height: 600px;*/ height: 200px; padding-top: 120px; background-color: #f28705; background-image: url(./images/header-blog.jpg); text-align: center; transition: transform .4s ease-in-out, opacity .6s ease-in-out; margin:0px 0 30px 0; }
+.search #page .site-content .content-area .site-main .page-header { position: relative; display: -webkit-flex; display: flex; -webkit-align-items: center; align-items: center; /*min-height: 600px;*/ height: 200px; padding-top: 120px; background-color: #f28705; background-image: url(./images/header-blog.jpg); text-align: center; transition: transform .4s ease-in-out, opacity .6s ease-in-out; margin:0px 0 30px 0; }
 
 .page .hentry.post-942 > .entry-header { height: auto; background: #fff; }
 
@@ -583,7 +585,7 @@ hr { height: 55px; margin-top: 30px; margin-bottom: 40px; background: transparen
 .entry-media { position: relative; margin-bottom: 30px; overflow: hidden; }
 
 @media (min-width: 992px) {
-.entry-media { margin-bottom: 0; }
+/*.entry-media { margin-bottom: 0; }*/
 }
 .single-post .entry-media, .single-class .entry-media { z-index: 1; margin-top: 30px; margin-bottom: -77px; }
 
@@ -1414,3 +1416,11 @@ embed, iframe, object { max-width: 100%; }
 /* updated css */
 
 
+.widget select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	width: 100%;
+	background: rgb(255, 255, 255) url("images/select-arrow.png") no-repeat scroll right top;
+	color: rgb(167, 167, 167);
+}

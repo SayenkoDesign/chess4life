@@ -17,14 +17,13 @@ $stylish_post_counter++;
 ?>
 
 
-
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
 	<div class="row">
 
 		<?php if( has_post_thumbnail() ) : ?>
 
-		<figure class="entry-media col-md-7<?php echo 0 === $stylish_post_counter % 2 ? ' col-md-push-5' : ''; ?>">
+		<figure class="entry-media col-md-12">
 
 			<a href="<?php the_permalink(); ?>"><?php the_post_thumbnail( 'stylish-blog-thumb' ); ?></a>
 
@@ -32,11 +31,11 @@ $stylish_post_counter++;
 
 		
 
-		<div class="col-md-5<?php echo 0 === $stylish_post_counter % 2 ? ' col-md-pull-7' : ''; ?>">
+		<div class="col-md-12">
 
 		<?php else : ?>
 
-		<div class="col-md-8 col-md-push-2">
+		<div class="col-md-12">
 
 		<?php endif; ?>
 
