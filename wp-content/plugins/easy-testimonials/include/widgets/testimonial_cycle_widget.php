@@ -19,13 +19,19 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 */
 
 class cycledTestimonialWidget extends WP_Widget
-{
-	function __construct(){
+{	
+	var $config;
+	
+	function __construct(){		
+		// load config
+		$this->config = new easyTestimonialsConfig();
+		
 		$widget_ops = array(
 			'classname' => 'cycledTestimonialWidget',
 			'description' => 'Displays a rotating slideshow of your Testimonials.' 
 		);
-		parent::__construct('cycledTestimonialWidget', 'Easy Testimonials Cycle', $widget_ops);		
+		
+		parent::__construct('cycledTestimonialWidget', 'Easy Testimonials Cycle', $widget_ops);	
 	}
 		
 	function cycledTestimonialWidget()
@@ -34,11 +40,6 @@ class cycledTestimonialWidget extends WP_Widget
 	}
 
 	function form($instance){
-		
-		// load config
-		$curr_dir = dirname(dirname(__FILE__));
-		$config_path = $curr_dir . "/lib/config.php";
-		include ( $config_path );
 		$defaults = array(
 			'title' => '',
 			'count' => 5,
@@ -80,7 +81,7 @@ class cycledTestimonialWidget extends WP_Widget
 		$show_other = $instance['show_other'];
 		$theme = $instance['theme'];
 		$testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' );				
-		$ip = isValidKey();
+		$ip = $this->config->is_pro;
 		
 		$testimonials_per_slide = $instance['testimonials_per_slide'];
 		$show_pager_icons = $instance['show_pager_icons'];
@@ -92,6 +93,10 @@ class cycledTestimonialWidget extends WP_Widget
 		$auto_height = $instance['auto_height'];
 		$display_pagers_above = $instance['display_pagers_above'];
 		$hide_view_more = $instance['hide_view_more'];
+	
+		$free_theme_array = $this->config->free_theme_array;
+		$pro_theme_array = $this->config->pro_theme_array;
+		$cycle_transitions = $this->config->cycle_transitions;
 		?>
 		<div class="gp_widget_form_wrapper">
 			<p class="hide_in_popup">
@@ -332,6 +337,8 @@ class cycledTestimonialWidget extends WP_Widget
 
 	function widget($args, $instance){
 		global $easy_t_in_widget;
+		global $easy_testimonials;
+		
 		$easy_t_in_widget = true;
 		
 		extract($args, EXTR_SKIP);
@@ -406,7 +413,7 @@ class cycledTestimonialWidget extends WP_Widget
 			'hide_view_more' => $hide_view_more
 		);
 		
-		echo outputTestimonialsCycle( $args );
+		echo $easy_testimonials->outputTestimonialsCycle( $args );
 
 		echo $after_widget;
 		

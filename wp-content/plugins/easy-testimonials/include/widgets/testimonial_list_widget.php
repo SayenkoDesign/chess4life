@@ -20,9 +20,14 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 
 class listTestimonialsWidget extends WP_Widget
 {
+	var $config;
+	
 	function __construct(){
+		//load config
+		$this->config = new easyTestimonialsConfig();
+	
 		$widget_ops = array('classname' => 'listTestimonialsWidget', 'description' => 'Displays a List of Testimonials.' );
-		parent::__construct('listTestimonialsWidget', 'Easy Testimonials List', $widget_ops);		
+		parent::__construct('listTestimonialsWidget', 'Easy Testimonials List', $widget_ops);
 	}
 		
 	function listTestimonialsWidget()
@@ -31,11 +36,6 @@ class listTestimonialsWidget extends WP_Widget
 	}
 
 	function form($instance){
-		
-		// load config
-		$curr_dir = dirname(dirname(__FILE__));
-		$config_path = $curr_dir . "/lib/config.php";
-		include ( $config_path );
 		$defaults = array(
 			'title' => '',
 			'count' => 5,
@@ -72,7 +72,10 @@ class listTestimonialsWidget extends WP_Widget
 		$hide_view_more = $instance['hide_view_more'];
 		$testimonials_per_page = $instance['testimonials_per_page'];
 		$testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' );				
-		$ip = isValidKey();
+		$ip = $this->config->is_pro;
+	
+		$free_theme_array = $this->config->free_theme_array;
+		$pro_theme_array = $this->config->pro_theme_array;
 		?>
 		<div class="gp_widget_form_wrapper">
 			<p class="hide_in_popup">
@@ -260,6 +263,8 @@ class listTestimonialsWidget extends WP_Widget
 
 	function widget($args, $instance){
 		global $easy_t_in_widget;
+		global $easy_testimonials;
+		
 		$easy_t_in_widget = true;
 		extract($args, EXTR_SKIP);
 
@@ -310,7 +315,7 @@ class listTestimonialsWidget extends WP_Widget
 			'hide_view_more' => $hide_view_more
 		);
 		
-		echo outputTestimonials( $args );
+		echo $easy_testimonials->outputTestimonials( $args );
 
 		echo $after_widget;
 		

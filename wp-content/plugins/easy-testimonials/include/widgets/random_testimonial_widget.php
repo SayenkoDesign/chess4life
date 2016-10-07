@@ -19,10 +19,15 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 */
 
 class randomTestimonialWidget extends WP_Widget
-{
+{	
+	var $config;
+
 	function __construct(){
+		//load config
+		$this->config = new easyTestimonialsConfig();
+		
 		$widget_ops = array('classname' => 'randomTestimonialWidget', 'description' => 'Displays a Random Testimonial.' );
-		parent::__construct('randomTestimonialWidget', 'Easy Testimonials Random Testimonial', $widget_ops);		
+		parent::__construct('randomTestimonialWidget', 'Easy Testimonials Random Testimonial', $widget_ops);
 	}
 		
 	function randomTestimonialWidget()
@@ -31,11 +36,6 @@ class randomTestimonialWidget extends WP_Widget
 	}
 
 	function form($instance){
-		
-		// load config
-		$curr_dir = dirname(dirname(__FILE__));
-		$config_path = $curr_dir . "/lib/config.php";
-		include ( $config_path );
 		$defaults = array(
 			'title' => '',
 			'count' => 5,
@@ -68,7 +68,10 @@ class randomTestimonialWidget extends WP_Widget
 		$theme = $instance['theme'];
 		$testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' );
 		$hide_view_more = $instance['hide_view_more'];				
-		$ip = isValidKey();
+		$ip = $this->config->is_pro;
+	
+		$free_theme_array = $this->config->free_theme_array;
+		$pro_theme_array = $this->config->pro_theme_array;
 		?>
 		<div class="gp_widget_form_wrapper">
 			<p class="hide_in_popup">
@@ -213,6 +216,8 @@ class randomTestimonialWidget extends WP_Widget
 
 	function widget($args, $instance){
 		global $easy_t_in_widget;
+		global $easy_testimonials;
+		
 		$easy_t_in_widget = true;
 		
 		extract($args, EXTR_SKIP);
@@ -249,7 +254,7 @@ class randomTestimonialWidget extends WP_Widget
 			'theme' => $theme,
 			'hide_view_more' => $hide_view_more
 		);
-		echo outputRandomTestimonial( $args );
+		echo $easy_testimonials->outputRandomTestimonial( $args );
 
 		echo $after_widget;
 		

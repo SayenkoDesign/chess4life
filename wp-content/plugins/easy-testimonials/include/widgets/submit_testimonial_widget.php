@@ -20,9 +20,14 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 
 class submitTestimonialWidget extends WP_Widget
 {
+	var $config;
+	
 	function __construct(){
+		//load config
+		$this->config = new easyTestimonialsConfig();
+		
 		$widget_ops = array('classname' => 'submitTestimonialWidget', 'description' => 'Displays a Testimonial Submission Form.' );
-		parent::__construct('submitTestimonialWidget', 'Easy Testimonials Submit a Testimonial', $widget_ops);		
+		parent::__construct('submitTestimonialWidget', 'Easy Testimonials Submit a Testimonial', $widget_ops);	
 	}
 		
 	function submitTestimonialWidget()
@@ -31,7 +36,7 @@ class submitTestimonialWidget extends WP_Widget
 	}
 
 	function form($instance){	
-		if(isValidKey()){			
+		if($this->config->is_pro){			
 			$instance = wp_parse_args( 
 				(array) $instance, 
 				array( 
@@ -76,6 +81,8 @@ class submitTestimonialWidget extends WP_Widget
 	}
 
 	function widget($args, $instance){
+		global $easy_testimonials;
+		
 		extract($args, EXTR_SKIP);
 
 		echo $before_widget;
@@ -90,7 +97,14 @@ class submitTestimonialWidget extends WP_Widget
 			'submit_to_category' => ( isset($submit_to_category) && strlen($submit_to_category) > 1 ) ? $submit_to_category : '',
 		);
 		
-		echo submitTestimonialForm($atts);
+		$atts = array(
+			'media_buttons' => '',
+			'config' => $this->config
+		);
+		
+		$testimonial_submission_form = new GP_TestimonialForm( $atts );
+		
+		echo $testimonial_submission_form->submitTestimonialForm($atts);
 
 		echo $after_widget;
 	} 

@@ -20,9 +20,14 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 
 class TestimonialsGridWidget extends WP_Widget
 {
+	var $config;
+	
 	function __construct() {
+		//load config
+		$this->config = new easyTestimonialsConfig();
+		
 		$widget_ops = array('classname' => 'TestimonialsGridWidget', 'description' => 'Display a Grid of your Testimonials.' );
-		parent::__construct('TestimonialsGridWidget', 'Easy Testimonials Grid', $widget_ops);		
+		parent::__construct('TestimonialsGridWidget', 'Easy Testimonials Grid', $widget_ops);
 	}
 	
 	function TestimonialsGridWidget()
@@ -31,11 +36,6 @@ class TestimonialsGridWidget extends WP_Widget
 	}
 
 	function form($instance) {
-		
-		// load config
-		$curr_dir = dirname(dirname(__FILE__));
-		$config_path = $curr_dir . "/lib/config.php";
-		include ( $config_path );
 		$defaults = array(
 			'title' => '',
 			'count' => 10,
@@ -78,10 +78,10 @@ class TestimonialsGridWidget extends WP_Widget
 		$responsive = isset($instance['responsive']) ? $instance['responsive'] : 1;
 		$equal_height_rows = isset($instance['equal_height_rows']) ? $instance['equal_height_rows'] : 0;
 		$hide_view_more = $instance['hide_view_more'];
-		$ip = isValidKey();
-
-
-
+		$ip = $this->config->is_pro;
+	
+		$free_theme_array = $this->config->free_theme_array;
+		$pro_theme_array = $this->config->pro_theme_array;
 		?>
 		<div class="gp_widget_form_wrapper">
 			<p class="hide_in_popup">
@@ -329,6 +329,8 @@ class TestimonialsGridWidget extends WP_Widget
 
 	function widget($args, $instance){
 		global $easy_t_in_widget;
+		global $easy_testimonials;
+		
 		$easy_t_in_widget = true;
 		
 		extract($args, EXTR_SKIP);
@@ -400,7 +402,7 @@ class TestimonialsGridWidget extends WP_Widget
 			'testimonials_per_page' => $testimonials_per_page,
 			'hide_view_more' => $hide_view_more
 		);
-		echo easy_t_testimonials_grid_shortcode( $args );
+		echo $easy_testimonials->easy_t_testimonials_grid_shortcode( $args );
 
 		echo $after_widget;
 		

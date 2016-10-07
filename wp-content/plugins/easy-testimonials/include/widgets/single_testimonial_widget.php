@@ -19,10 +19,15 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 */
 
 class singleTestimonialWidget extends WP_Widget
-{
+{	
+	var $config;
+
 	function __construct(){
+		//load config
+		$this->config = new easyTestimonialsConfig();
+		
 		$widget_ops = array('classname' => 'singleTestimonialWidget', 'description' => 'Displays a Single Testimonial.' );
-		parent::__construct('singleTestimonialWidget', 'Easy Testimonials Single Testimonial', $widget_ops);		
+		parent::__construct('singleTestimonialWidget', 'Easy Testimonials Single Testimonial', $widget_ops);	
 	}
 		
 	function singleTestimonialWidget()
@@ -31,11 +36,6 @@ class singleTestimonialWidget extends WP_Widget
 	}
 
 	function form($instance){
-		
-		// load config
-		$curr_dir = dirname(dirname(__FILE__));
-		$config_path = $curr_dir . "/lib/config.php";
-		include ( $config_path );
 		$defaults = array(
 			'testimonial_id' => '',
 			'title' => '',
@@ -70,7 +70,10 @@ class singleTestimonialWidget extends WP_Widget
 		$theme = $instance['theme'];
 		$testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' );
 		$hide_view_more = $instance['hide_view_more'];				
-		$ip = isValidKey();
+		$ip = $this->config->is_pro;
+	
+		$free_theme_array = $this->config->free_theme_array;
+		$pro_theme_array = $this->config->pro_theme_array;
 		?>
 		<div class="gp_widget_form_wrapper">
 			<p class="hide_in_popup">
@@ -186,23 +189,25 @@ class singleTestimonialWidget extends WP_Widget
 	
 	function update($new_instance, $old_instance){
 		$instance = $old_instance;
-		$instance['title'] = $new_instance['title'];
-		$instance['testimonial_id'] = $new_instance['testimonial_id'];
-		$instance['show_title'] = $new_instance['show_title'];
-		$instance['show_rating'] = $new_instance['show_rating'];
-		$instance['use_excerpt'] = $new_instance['use_excerpt'];
-		$instance['show_date'] = $new_instance['show_date'];	
-		$instance['width'] = $new_instance['width'];
-		$instance['show_testimonial_image'] = $new_instance['show_testimonial_image'];
-		$instance['show_other'] = $new_instance['show_other'];
-		$instance['theme'] = $new_instance['theme'];
-		$instance['hide_view_more'] = $new_instance['hide_view_more'];
+		$instance['title'] = !empty($new_instance['title']) ? $new_instance['title'] : '';
+		$instance['testimonial_id'] = !empty($new_instance['testimonial_id']) ? $new_instance['testimonial_id'] : '';
+		$instance['show_title'] = !empty($new_instance['show_title']) ? $new_instance['show_title'] : 0;
+		$instance['show_rating'] = !empty($new_instance['show_rating']) ? $new_instance['show_rating'] : false;
+		$instance['use_excerpt'] = !empty($new_instance['use_excerpt']) ? $new_instance['use_excerpt'] : 0;
+		$instance['show_date'] = !empty($new_instance['show_date']) ? $new_instance['show_date'] : false;	
+		$instance['width'] = !empty($new_instance['width']) ? $new_instance['width'] : false;
+		$instance['show_testimonial_image'] = !empty($new_instance['show_testimonial_image']) ? $new_instance['show_testimonial_image'] : 0;
+		$instance['show_other'] = !empty($new_instance['show_other']) ? $new_instance['show_other'] : 0;
+		$instance['theme'] = !empty($new_instance['theme']) ? $new_instance['theme'] : get_option('testimonials_style', 'default_style');
+		$instance['hide_view_more'] = !empty($new_instance['hide_view_more']) ? $new_instance['hide_view_more'] : 0;
 				
 		return $instance;
 	}
 
 	function widget($args, $instance){
 		global $easy_t_in_widget;
+		global $easy_testimonials;
+		
 		$easy_t_in_widget = true;
 		
 		extract($args, EXTR_SKIP);
@@ -239,7 +244,7 @@ class singleTestimonialWidget extends WP_Widget
 			'hide_view_more' => $hide_view_more
 		);
 		
-		echo outputSingleTestimonial( $args );
+		echo $easy_testimonials->outputSingleTestimonial( $args );
 
 		echo $after_widget;
 		

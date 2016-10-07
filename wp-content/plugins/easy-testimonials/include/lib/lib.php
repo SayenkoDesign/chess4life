@@ -2,6 +2,12 @@
 include("etkg.php");
 
 function isValidKey(){
+	$option_key = '_easy_testimonials_pro_license_status';
+	$opt_val = get_option($option_key);
+	if ($opt_val == 'ACTIVE') {
+		return true;
+	}
+	
 	global $gp_etkg_memo;
 	if ( empty($gp_etkg_memo) )
 	{
@@ -20,7 +26,7 @@ function isValidKey(){
 			
 			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			
-			if(is_plugin_active($plugin)){
+			if(is_plugin_active($plugin) && class_exists('easyTestimonialsPro') ){
 				$gp_etkg_memo = true;
 			}
 			else {
@@ -36,7 +42,7 @@ function isValidMSKey(){
 	
 	include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 	
-	if(is_plugin_active($plugin)){
+	if(is_plugin_active($plugin) && class_exists('easyTestimonialsPro') ){
 		return true;
 	}
 	else {
