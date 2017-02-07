@@ -1,9 +1,9 @@
 === Google Analytics ===
-Contributors: Kevin Sylvestre
+Contributors: kevinsylvestre
 Tags: javascript, google, analytics
 Requires at least: 2.7
-Tested up to: 4.1
-Stable tag: 1.0.6
+Tested up to: 4.6.1
+Stable tag: 1.0.7
 
 Enables google analytics on all pages.
 

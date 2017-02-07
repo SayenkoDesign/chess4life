@@ -26,10 +26,12 @@ get_header(); ?>
         font-family: Arial;
         font-size: 14px;
       }
+
+/** height was 550px  **/
       #panel {
         float: left;
         width: 300px;
-        height: 550px;
+        height: 750px;
       }
       #map-container {
         margin-left: 300px;
@@ -165,6 +167,7 @@ get_header(); ?>
                                           <option value="100">100</option>
                                           <option value="500">500</option>
                                           <option value="1000">1000</option>
+ <option value="5000">5000</option>
                                         </select>
                                 
                                         <span>Time used: <span id="timetaken"></span> ms</span>
