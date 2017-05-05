@@ -11,21 +11,21 @@ class LeadpagesCronJobs
      */
     public static function addCronScheduleTimes()
     {
-        add_filter( 'cron_schedules', array(get_called_class(), 'add25DaySchedule'));
+        add_filter( 'cron_schedules', array(get_called_class(), 'add5DaySchedule'));
     }
 
     /**
-     * Add 25 day schedule to cron schedule times
+     * Add 5 day schedule to cron schedule times
      *
      * @param $schedules
      *
      * @return mixed
      */
-    public static function add25DaySchedule($schedules)
+    public static function add5DaySchedule($schedules)
     {
-        $schedules['25days'] = array(
-          'interval' => 2160000,
-          'display' => __('Every 25 Days')
+        $schedules['5days'] = array(
+            'interval' => 432000,
+            'display' => __('Every 5 Days')
         );
         return $schedules;
     }
@@ -35,6 +35,7 @@ class LeadpagesCronJobs
      */
     public static function registerCronJobs()
     {
+
         //check users account to ensure its active
         if (! wp_next_scheduled ( 'check_user_leadpages_account' )) {
             wp_schedule_event(time(), 'hourly', 'check_user_leadpages_account');
@@ -42,7 +43,7 @@ class LeadpagesCronJobs
 
         //check users account to ensure its active
         if (! wp_next_scheduled ( 'refresh_leadpages_token' )) {
-            wp_schedule_event(time(), '25days', 'refresh_leadpages_token');
+            wp_schedule_event(time(), '5days', 'refresh_leadpages_token');
         }
 
         add_action('check_user_leadpages_account', array(get_called_class(), 'checkUsersAccountStatus'));
@@ -64,11 +65,12 @@ class LeadpagesCronJobs
         global $leadpagesApp;
         $loginService = $leadpagesApp['leadpagesLogin'];
 
-        //get the token to makesure it is set
+        //get the token to make sure it is set
         $loginService->getToken();
         if($loginService->token !='') {
             $response = $leadpagesApp['leadpagesLogin']->checkCurrentUserSession();
-            if(!array_key_exists('LEADPAGES_20160216' ,$response['profiles'])){
+            if($response['_status']['code'] != 200){return false;}
+            if(!array_key_exists('LEADPAGES_20160216' ,$response['profiles']) && $response['profiles']){
                 $loginService->deleteToken();
             }
         }

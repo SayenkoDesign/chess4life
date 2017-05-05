@@ -154,7 +154,7 @@ class IWP_MMB_S3_MULTICALL extends IWP_MMB_Backup_Multicall
 					'Bucket'     => $as3_bucket,
 					'SourceFile' => $backup_file,
 					'Key'        => $as3_file,
-					'ACL' => 'public-read'
+					'ACL' => 'authenticated-read'
 					));
 					$current_file_num += 1;
 					$resArray = array (
@@ -207,7 +207,7 @@ class IWP_MMB_S3_MULTICALL extends IWP_MMB_Backup_Multicall
 						$result = $s3->createMultipartUpload(array(
 						'Bucket'       => $as3_bucket,
 						'Key'          => $as3_file,
-						'ACL'          => 'public-read',
+						'ACL'          => 'authenticated-read',
 					
 						));
 					
@@ -307,7 +307,7 @@ class IWP_MMB_S3_MULTICALL extends IWP_MMB_Backup_Multicall
 								$partNumber++;
 							}
 						}
-						fclose($file);
+						@fclose($file);
 					}
 					catch (S3Exception $e) {
 						$this->statusLog($this -> hisID, array('stage' => 's3MultiCall', 'status' => 'partiallyCompleted', 'statusMsg' => 'retracingValues','nextFunc' => 'amazons3_backup', 'task_result' => $task_result, 'responseParams' => $result_arr));
@@ -619,7 +619,7 @@ class IWP_MMB_S3_SINGLECALL extends IWP_MMB_Backup_Multicall
 						'Bucket'     => $as3_bucket,
 						'SourceFile' => $backup_file,
 						'Key'        => $as3_file,
-						'ACL' => 'public-read'
+						'ACL' => 'authenticated-read'
 					));
                    return true;
         }catch (Exception $e){
@@ -642,7 +642,7 @@ class IWP_MMB_S3_SINGLECALL extends IWP_MMB_Backup_Multicall
 				$result = $s3->createMultipartUpload(array(
 					'Bucket'       => $as3_bucket,
 					'Key'          => $as3_file,
-					'ACL'          => 'public-read',
+					'ACL'          => 'authenticated-read',
 				  
 				));
 

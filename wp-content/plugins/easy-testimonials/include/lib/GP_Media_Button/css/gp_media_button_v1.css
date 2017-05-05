@@ -1,8 +1,10 @@
 /* Media Button */
+.wp-admin  .wp-media-buttons .gold_plugins_media_button,
 #wp-content-wrap .wp-media-buttons .gold_plugins_media_button {
 	color: #555;
 	padding-left: 5px;
 }
+.wp-admin .gold_plugins_media_button .dashicons,
 #wp-content-wrap .gold_plugins_media_button .dashicons {
 	color:#82878c;
 	display: inline-block;
@@ -94,7 +96,8 @@
 .gp_media_button_group {
 	display: inline-block;
     height: 28px;
-    padding-right: 20px;
+	margin-bottom: 4px;
+	margin-right: 5px;
 	position: relative;
 }
 
@@ -115,7 +118,7 @@
     margin: 0 0 5px 4px;
     padding: 0 7px 4px 5px;
     text-decoration: none;
-    white-space: nowrap;
+    white-space: nowrap !important;
     vertical-align: top;
 }
 
@@ -136,6 +139,7 @@
 
 .gp_media_button_group .gp_media_button_group_dropdown a {
 	margin-right: 0;
+    white-space: nowrap !important;	
 }
 
 .gp_media_button_group .button {

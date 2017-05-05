@@ -4,7 +4,7 @@ Plugin Name: Easy Testimonials
 Plugin URI: https://goldplugins.com/our-plugins/easy-testimonials-details/
 Description: Easy Testimonials - Provides custom post type, shortcode, sidebar widget, and other functionality for testimonials.
 Author: Gold Plugins
-Version: 2.0.14
+Version: 2.2.5
 Author URI: https://goldplugins.com
 Text Domain: easy-testimonials
 
@@ -30,13 +30,17 @@ require_once( plugin_dir_path( __FILE__ ) . "include/lib/lib.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/BikeShed/bikeshed.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Media_Button/gold-plugins-media-button.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Janus/gp-janus.class.php" );
+require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Aloha/gp_aloha.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Sajak/gp_sajak.class.php" );
+require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_SmartTextAvatars/GP_SmartTextAvatarGenerator.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial-importer.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial-exporter.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial-form.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/ik-custom-post-type.php" );
+require_once( plugin_dir_path( __FILE__ ) . "include/lib/easy_testimonials_custom_columns.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/settings/testimonial.options.php" );	
+require_once( plugin_dir_path( __FILE__ ) . "include/maintenance/maintenance.php" );	
 
 class easyTestimonials
 {	
@@ -66,9 +70,25 @@ class easyTestimonials
 		
 		//for use in upgrade, settings links
 		$this->plugin = plugin_basename(__FILE__);
-
-		// load Janus
-		new GP_Janus();
+		
+		//only load Aloha and Janus on Admin screens
+		if( is_admin() ){			
+			// load Janus
+			new GP_Janus();
+			
+			// load Aloha
+			$aloha_page_title = $this->config->is_pro
+								? __('Welcome To Easy Testimonials Pro')
+								: __('Welcome To Easy Testimonials');
+			$aloha_config = array(
+				'menu_label' => __('About Plugin'),
+				'page_title' => $aloha_page_title,
+				'top_level_menu' => 'easy-testimonials-settings',
+			);
+			
+			$this->Aloha = new GP_Aloha($aloha_config);
+			add_filter( 'gp_aloha_welcome_page_content_easy-testimonials-settings', array($this, 'get_welcome_template') );
+		}
 
 		//add editor widgets
 		add_action( 'admin_init', array($this, 'add_media_buttons') );
@@ -100,10 +120,6 @@ class easyTestimonials
 		//load text domain for translation purposes
 		add_action( 'plugins_loaded', array($this, 'easy_t_load_textdomain') );
 
-		//add custom columns to testimonial post list
-		add_filter( 'manage_testimonial_posts_columns', array($this, 'easy_t_column_head'), 10 );  
-		add_action( 'manage_testimonial_posts_custom_column', array($this, 'easy_t_columns_content'), 10, 2 ); 
-
 		//add custom columns to testimonial category list
 		add_filter( 'manage_edit-easy-testimonial-category_columns', array($this, 'easy_t_cat_column_head'), 10 );  
 		add_action( 'manage_easy-testimonial-category_custom_column', array($this, 'easy_t_cat_columns_content'), 10, 3 ); 
@@ -115,8 +131,8 @@ class easyTestimonials
 		//add query var for paging
 		add_filter( 'query_vars', array($this, 'easy_t_add_pagination_query_var' ));
 
-		//flush rewrite rules - only do this once!
-		register_activation_hook( __FILE__, array($this, 'easy_testimonials_rewrite_flush' ));
+		//run activation steps
+		register_activation_hook( __FILE__, array($this, 'easy_testimonials_activation_hook' ));
 		
 		// first override blog post content function by avada to prevent it running on testimonials
 		// then apply our own content filter instead
@@ -153,6 +169,41 @@ class easyTestimonials
 		global $gp_testimonial_class;
 		$gp_testimonial_class = new GP_Testimonial(false, $this->config);
 		add_filter( 'the_content', array($gp_testimonial_class, 'single_testimonial_content_filter'), 10 );
+		
+		//clean broken images from testimonials, preventing occasional fatal errors on edit screens
+		add_action( 'load-post.php', array($this,'fix_testimonial_featured_images') );
+		
+		// setup custom columns on View All Testimonials screen
+		$ezt_testionials_cols = new Easy_Testimonials_Custom_Columns();
+	}
+	
+	function get_welcome_template()
+	{
+		$base_path = plugin_dir_path( __FILE__ );
+		$template_path = $base_path . '/include/content/welcome.php';
+		$is_pro = $this->config->is_pro;
+		$content = file_exists($template_path)
+				   ? include($template_path)
+				   : '';
+		return $content;
+	}
+	
+	//checks for a WP_Error on this testimonial's featured image
+	//if there is an error, we unset the image to prevent edit screen from breaking
+	function fix_testimonial_featured_images()
+	{
+		//if there is a post
+		if ( !empty($_GET['post']) ){
+			// Get the post object
+			$post = get_post($_GET['post']);
+			//and its a testimonial
+			if( !empty($post->post_type) && $post->post_type == "testimonial" ){
+				// If the post has a bad featured image, remove the meta
+				if ( is_wp_error(get_post_thumbnail_id($post->ID)) ) {
+					delete_post_meta($post->ID, '_thumbnail_id');
+				}
+			}
+		}
 	}
 	
 	//add media buttons
@@ -213,24 +264,28 @@ class easyTestimonials
 				array( 'jquery' )
 		);
 		
-		if(!$disable_cycle2){
-			wp_enqueue_script(
-				'gp_cycle2',
-				plugins_url('include/assets/js/jquery.cycle2.min.js', __FILE__),
-				array( 'jquery' ),
-				false,
-				true
-			);  
-		}
+		// pro scripts for pro users
+		if($this->config->is_pro){ 	
+			if(!$disable_cycle2){
+				wp_enqueue_script(
+					'gp_cycle2',
+					plugins_url('include/assets/js/jquery.cycle2.pro.min.js', __FILE__),
+					array( 'jquery' ),
+					false,
+					true
+				);  
+			} else {
+				//if we aren't including our cycle2, we want to use 
+				//the old method of adding the advanced transitions
+				wp_enqueue_script(
+					'easy-testimonials',
+					plugins_url('include/assets/js/easy-testimonials.js', __FILE__),
+					array( 'jquery' ),
+					false,
+					true
+				);
+			}
 			
-		if($this->config->is_pro){  
-			wp_enqueue_script(
-				'easy-testimonials',
-				plugins_url('include/assets/js/easy-testimonials.js', __FILE__),
-				array( 'jquery' ),
-				false,
-				true
-			);
 			wp_enqueue_script(
 				'rateit',
 				plugins_url('include/assets/js/jquery.rateit.min.js', __FILE__),
@@ -238,6 +293,16 @@ class easyTestimonials
 				false,
 				true
 			);
+		} else {		
+			if(!$disable_cycle2){
+				wp_enqueue_script(
+					'gp_cycle2',
+					plugins_url('include/assets/js/jquery.cycle2.min.js', __FILE__),
+					array( 'jquery' ),
+					false,
+					true
+				);  
+			}
 		}
 			
 		if($use_cycle_fix){
@@ -256,11 +321,8 @@ class easyTestimonials
 		wp_register_style( 'easy_testimonial_style', plugins_url('include/assets/css/style.css', __FILE__) );
 		
 		$cache_key = '_easy_t_testimonial_style';
-		$style = get_transient($cache_key);
-		if ($style == false) {
-			$style = get_option('testimonials_style', 'x');
-			set_transient($cache_key, $style);
-		}
+		
+		$style = get_option('testimonials_style', '');
 
 		// enqueue the base style unless "no_style" has been specified
 		if($style != 'no_style') {
@@ -386,17 +448,22 @@ class easyTestimonials
 	}
 
 	//setup custom post type for testimonials
-	function easy_testimonials_setup_testimonials(){
-		
-				
+	function easy_testimonials_setup_testimonials()
+	{
 		//setup post type for testimonials
-		$postType = array('name' => 'Testimonial', 'plural' =>'Testimonials', 'slug' => 'testimonial', 'exclude_from_search' => !get_option('easy_t_show_in_search', true));
+		$postType = array(
+			'name' => 'Testimonial',
+			'plural' =>'Testimonials',
+			'slug' => 'testimonial',
+			'exclude_from_search' => !get_option('easy_t_show_in_search', true),
+			'supports' => array('title','editor','thumbnail','excerpt','custom-fields')
+		);
 		$fields = array(); 
 		$fields[] = array('name' => 'client', 'title' => 'Client Name', 'description' => "Name of the Client giving the testimonial.  Appears below the Testimonial.", 'type' => 'text');
 		$fields[] = array('name' => 'email', 'title' => 'E-Mail Address', 'description' => "The client's e-mail address.  This field is used to check for a Gravatar, if that option is enabled in your settings.", 'type' => 'text'); 
 		$fields[] = array('name' => 'position', 'title' => 'Position / Web Address / Other', 'description' => "The information that appears below the client's name.", 'type' => 'text');  
 		$fields[] = array('name' => 'other', 'title' => 'Location Reviewed / Product Reviewed / Item Reviewed', 'description' => "The information that appears below the second custom field, Position / Web Address / Other.  Display of this field is required for proper structured data output.", 'type' => 'text');  
-		$fields[] = array('name' => 'rating', 'title' => 'Rating', 'description' => "The client's rating, if submitted along with their testimonial.  This can be displayed below the client's position, or name if the position is hidden, or it can be displayed above the testimonial text.", 'type' => 'text');  
+		$fields[] = array('name' => 'rating', 'title' => 'Rating', 'description' => "The client's rating, if submitted along with their testimonial.  This can be displayed below the client's position, or name if the position is hidden, or it can be displayed above the testimonial text.", 'type' => 'number', 'min' => 1, 'max' => 5);  
 		$myCustomType = new ikTestimonialsCustomPostType($postType, $fields);
 		register_taxonomy( 'easy-testimonial-category', 'testimonial', array( 'hierarchical' => true, 'label' => __('Testimonial Category', 'easy-testimonials'), 'rewrite' => array('slug' => 'testimonial-category', 'with_front' => true) ) ); 
 		
@@ -425,20 +492,6 @@ class easyTestimonials
 		add_meta_box( 'testimonial_shortcodes', 'Shortcodes', array($this, 'easy_t_display_shortcodes_meta_box'), 'testimonial', 'side', 'default' );
 	}
 	 
-	//this is the heading of the new column we're adding to the testimonial posts list
-	function easy_t_column_head($defaults) {  
-		$defaults = array_slice($defaults, 0, 2, true) +
-		array("single_shortcode" => "Shortcode") +
-		array_slice($defaults, 2, count($defaults)-2, true);
-		return $defaults;  
-	}  
-
-	//this content is displayed in the testimonial post list
-	function easy_t_columns_content($column_name, $post_ID) {  
-		if ($column_name == 'single_shortcode') {  
-			echo "<input type=\"text\" value=\"[single_testimonial id={$post_ID}]\" />";
-		}  
-	} 
 
 	//this is the heading of the new column we're adding to the testimonial category list
 	function easy_t_cat_column_head($defaults) {  
@@ -489,11 +542,11 @@ class easyTestimonials
 			'short_version' => false,
 			'use_excerpt' => false,
 			'category' => '',
-			'show_thumbs' => get_option('testimonials_image'),
-			'show_rating' => false,
+			'show_thumbs' => get_option('testimonials_image', true),
+			'show_rating' => 'stars',
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'width' => false,
 			'hide_view_more' => 0
 		), $atts );
@@ -541,13 +594,13 @@ class easyTestimonials
 			'author_class' => 'testimonial_author',
 			'id' => '',
 			'use_excerpt' => false,
-			'show_thumbs' => get_option('testimonials_image'),
+			'show_thumbs' => get_option('testimonials_image', true),
 			'short_version' => false,
 			'word_limit' => false,
-			'show_rating' => false,
+			'show_rating' => 'stars',
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'width' => false,
 			'hide_view_more' => 0
 		), $atts );
@@ -593,16 +646,16 @@ class easyTestimonials
 			'id' => '',
 			'use_excerpt' => false,
 			'category' => '',
-			'show_thumbs' => get_option('testimonials_image'),
+			'show_thumbs' => get_option('testimonials_image', true),
 			'short_version' => false,
 			'orderby' => 'date',//'none','ID','author','title','name','date','modified','parent','rand','menu_order'
-			'order' => 'ASC',//'DESC'
-			'show_rating' => false,
+			'order' => 'DESC', // 'ASC, DESC''
+			'show_rating' => 'stars',
 			'paginate' => false,
 			'testimonials_per_page' => 10,
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'width' => false,
 			'hide_view_more' => true
 		), $atts );
@@ -746,16 +799,16 @@ class easyTestimonials
 			'ids' => '', // i've heard it both ways
 			'use_excerpt' => false,
 			'category' => '',
-			'show_thumbs' => NULL,
+			'show_thumbs' => get_option('testimonials_image', true),
 			'short_version' => false,
 			'orderby' => 'date',//'none','ID','author','title','name','date','modified','parent','rand','menu_order'
-			'order' => 'ASC',//'DESC'
-			'show_rating' => false,
+			'order' => 'DESC', // 'ASC, DESC''
+			'show_rating' => 'stars',
 			'paginate' => false,
 			'testimonials_per_page' => 10,
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'width' => false,
 			'cols' => 3, // 1-10
 			'grid_width' => false,
@@ -967,16 +1020,16 @@ class easyTestimonials
 			'id' => '',
 			'use_excerpt' => false,
 			'category' => '',
-			'show_thumbs' => get_option('testimonials_image'),
+			'show_thumbs' => get_option('testimonials_image', true),
 			'short_version' => false,
 			'orderby' => 'date',//'none','ID','author','title','name','date','modified','parent','rand','menu_order'
-			'order' => 'ASC',//'DESC'
-			'show_rating' => false,
+			'order' => 'DESC', // 'ASC, DESC''
+			'show_rating' => 'stars',
 			'paginate' => false,
 			'testimonials_per_page' => 10,
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'show_free_themes' => false,
 			'width' => false
 		), $atts );
@@ -1051,30 +1104,31 @@ class easyTestimonials
 			'show_title' => 0,
 			'count' => -1,
 			'transition' => 'scrollHorz',
-			'show_thumbs' => get_option('testimonials_image'),
-			'timer' => '2000',
+			'show_thumbs' => get_option('testimonials_image', true),
+			'timer' => '5000',
 			'container' => false,//deprecated, use auto_height instead
 			'use_excerpt' => false,
-			'auto_height' => false,
+			'auto_height' => 'container',
 			'category' => '',
 			'body_class' => 'testimonial_body',
 			'author_class' => 'testimonial_author',
 			'random' => '',
 			'orderby' => 'date',//'none','ID','author','title','name','date','modified','parent','rand','menu_order'
-			'order' => 'ASC',//'DESC'
+			'order' => 'DESC', // 'ASC, DESC''
 			'pager' => false,
 			'show_pager_icons' => false,
-			'show_rating' => false,
+			'show_rating' => 'stars',
 			'testimonials_per_slide' => 1,
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'pause_on_hover' => false,
 			'prev_next' => false,
 			'width' => false,
 			'paused' => false,
 			'display_pagers_above' => false,
-			'hide_view_more' => 0
+			'hide_view_more' => 0,
+			'show_log' => ( defined('WP_DEBUG') && true === WP_DEBUG ) ? 1 : 0
 		), $atts );
 
 		extract($atts);
@@ -1150,7 +1204,14 @@ class easyTestimonials
 					'data_cycle_prev'           => ( $prev_next ) ? 'data-cycle-prev=".easy-t-' . $target .' .easy-t-cycle-prev"' : '',
 					'data_cycle_next'           => ( $prev_next ) ? 'data-cycle-next=".easy-t-' . $target .' .easy-t-cycle-next"' : '',
 					'data_cycle_pager'          => ( $pager || $show_pager_icons ) ? 'data-cycle-pager=".easy-t-'. $target .' .easy-t-cycle-pager"' : '',
+					'data-cycle-log'			=> ( !$show_log ) ? 'data-cycle-log="false"' : '',
+					'data-cycle-fix-carousel'	=> ( $transition == "carousel" ) ? 'data-cycle-fix-carousel="1"' : ''
 				);
+				
+				if ($transition == "carousel"){		
+					$data_cycle_array['data-cycle-fix-carousel-visible'] = 'data-cycle-carousel-visible="'.$testimonials_per_slide.'"';
+					$data_cycle_array['data-cycle-fix-carousel-fluid'] = 'data-cycle-carousel-fluid="true"';
+				}
 
 				$data_cycle = implode( ' ', $data_cycle_array );
 				$data_cycle = rtrim( $data_cycle );
@@ -1169,7 +1230,8 @@ class easyTestimonials
 				}
 				
 				//create slide div
-				if($counter%$testimonials_per_slide == 0){
+				//if this is a carousel, bypass the wrapping multiple testimonials in one slide step
+				if($counter%$testimonials_per_slide == 0 || $transition == "carousel"){
 					echo "<div {$testimonial_display} class=\"testimonial_slide\">";
 				}
 				
@@ -1187,7 +1249,8 @@ class easyTestimonials
 				$testimonial->render();				
 				
 				//close slide
-				if($counter%$testimonials_per_slide == 0){
+				//if this is a carousel, bypass the wrapping multiple testimonials in one slide step
+				if($counter%$testimonials_per_slide == 0 || $transition == "carousel"){
 					echo "</div>";
 				}
 			}
@@ -1216,11 +1279,14 @@ class easyTestimonials
 		return apply_filters( 'easy_t_testimonials_cyle_html', $content);
 	}
 
-	//only do this once
-	function easy_testimonials_rewrite_flush() {
+	//things to do on plugin activation
+	function easy_testimonials_activation_hook() {
+		//flush rewrite rules
 		$this->easy_testimonials_setup_testimonials();
-		
 		flush_rewrite_rules();
+				
+		// make sure the welcome screen gets seen again
+		$this->Aloha->reset_welcome_screen();	
 	}
 
 	//register any widgets here
@@ -1281,21 +1347,12 @@ class easyTestimonials
 		wp_register_style( 'easy_testimonials_admin_stylesheet_global', plugins_url('include/assets/css/admin_style_global.css', __FILE__) );
 		wp_enqueue_style( 'easy_testimonials_admin_stylesheet_global' );		
 	}
-
+	
 	//check for installed plugins with known conflicts
 	//if any are found, display appropriate messaging with suggested steps
 	//currently only checks for woothemes testimonials
 	function easy_testimonials_conflict_check($hook_suffix){
-		/* WooThemes Testimonials Check */
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );	
-		$woothemes_testimonials = "testimonials-by-woothemes/woothemes-testimonials.php";
-		
-		if(is_plugin_active($woothemes_testimonials)){//woothemes testimonials found		
-			if (strpos($hook_suffix,'easy-testimonials') !== false) {
-				add_action('admin_notices', array($this, 'easy_t_woothemes_testimonials_admin_notice') );
-			}
-		}
-		
+	
 		/* Avada Check */
 		$my_theme = wp_get_theme();
 		if( strpos( $my_theme->get('Name'), "Avada" ) === 0 ) {
@@ -1305,6 +1362,31 @@ class easyTestimonials
 				add_action('admin_notices', array($this, 'easy_t_avada_admin_notice') );
 			}
 		}
+
+		// only run the rest of the checks on Easy Testimonials pages
+		if (strpos($hook_suffix,'easy-testimonials') === false) {
+			return;
+		}
+
+		/* WooThemes Testimonials Check */
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );	
+		$woothemes_testimonials = "testimonials-by-woothemes/woothemes-testimonials.php";
+		
+		if(is_plugin_active($woothemes_testimonials)){//woothemes testimonials found		
+			add_action('admin_notices', array($this, 'easy_t_woothemes_testimonials_admin_notice') );
+		}
+		
+		/* WP Engine Check */
+		if( class_exists( 'WpeCommon' ) ){
+			add_action('admin_notices', array($this, 'easy_t_wpengine_admin_notice') );
+		}
+	}
+
+	//output warning message about wpengine conflicts
+	function easy_t_wpengine_admin_notice(){
+		echo '<div class="gp_error fade"><p>';
+		echo '<strong>ALERT:</strong> We have detected that this site us running on WP Engine.<br/><br/>  Random Testimonials will not work if you have disabled Random SQL Queries under your WP Engine Options.';
+		echo "</p></div>";
 	}
 
 	//output warning message about woothemes testimonials conflicts
@@ -1335,7 +1417,7 @@ class easyTestimonials
 		if ( $file == $this->plugin )
 		{		
 			$new_links['settings_link'] = '<a href="admin.php?page=easy-testimonials-settings">Settings</a>';
-			$new_links['support_link'] = '<a href="https://goldplugins.com/contact/?utm-source=plugin_menu&utm_campaign=support&utm_banner=bananaphone" target="_blank">Get Support</a>';
+			$new_links['support_link'] = '<a href="https://goldplugins.com/contact/?utm-source=plugin_menu&utm_campaign=support&utm_banner=plugin_list_support_link" target="_blank">Get Support</a>';
 				
 			if(!$this->config->is_pro){
 				$new_links['upgrade_to_pro'] = '<a href="https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=plugin_menu&utm_campaign=upgrade" target="_blank">Upgrade to Pro</a>';

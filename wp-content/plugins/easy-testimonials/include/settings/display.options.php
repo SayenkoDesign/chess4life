@@ -23,6 +23,7 @@ class easyTestimonialDisplayOptions extends easyTestimonialOptions{
 		register_setting( 'easy-testimonials-display-settings-group', 'testimonials_image' );
 		register_setting( 'easy-testimonials-display-settings-group', 'meta_data_position' );
 		register_setting( 'easy-testimonials-display-settings-group', 'easy_t_mystery_man' );
+		register_setting( 'easy-testimonials-display-settings-group', 'easy_t_fallback_image_method' );
 		register_setting( 'easy-testimonials-display-settings-group', 'easy_t_gravatar' );
 		register_setting( 'easy-testimonials-display-settings-group', 'easy_t_image_size' );
 		register_setting( 'easy-testimonials-display-settings-group', 'easy_t_width' );
@@ -108,17 +109,22 @@ class easyTestimonialDisplayOptions extends easyTestimonialOptions{
 	}
 
 	function output_image_options(){
+		//fix for legacy users
+		if (get_option('easy_t_mystery_man', 1)){
+			update_option('easy_t_fallback_image_method', 'mystery_person');
+			update_option('easy_t_mystery_man', 0);			
+		}	
 		?>
 		<h3>Testimonial Images</h3>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="testimonials_image">Show Testimonial Image</label></th>
 				<td><input type="checkbox" name="testimonials_image" id="testimonials_image" value="1" <?php if(get_option('testimonials_image', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="testimonials_image">Show Testimonial Image</label>
 				<p class="description">If checked, the Image will be shown next to the Testimonial.</p>
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_image_size">Testimonial Image Size</a></th>
+				<th scope="row"><label for="easy_t_image_size">Testimonial Image Size</label></th>
 				<td>
 					<select name="easy_t_image_size" id="easy_t_image_size">	
 						<?php $this->easy_t_output_image_options(); ?>
@@ -127,15 +133,27 @@ class easyTestimonialDisplayOptions extends easyTestimonialOptions{
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_gravatar">Use Gravatar</label></th>
 				<td><input type="checkbox" name="easy_t_gravatar" id="easy_t_gravatar" value="1" <?php if(get_option('easy_t_gravatar', true)){ ?> checked="CHECKED" <?php } ?>/>
-				<p class="description">If checked, and you are displaying Testimonial Images, we will use a Gravatar if one is found matching the E-Mail Address on the Testimonial.</p>
+				<label for="easy_t_gravatar">Use Gravatars</label>
+				<p class="description">Use a Gravatar if one is found matching the E-Mail Address on the Testimonial.</p>
 				</td>
 			</tr>
-			<tr valign="top">
-				<th scope="row"><label for="easy_t_mystery_man">Use Mystery Man</label></th>
-				<td><input type="checkbox" name="easy_t_mystery_man" id="easy_t_mystery_man" value="1" <?php if(get_option('easy_t_mystery_man', true)){ ?> checked="CHECKED" <?php } ?>/>
-				<p class="description">If checked, and you are displaying Testimonial Images, the Mystery Man avatar will be used for any missing images.</p>
+			<tr valign="top">			
+				<th scope="row">
+				<label for="easy_t_gravatar">Fallback Images</label><br>
+				<p class="description" style="font-weight:normal">If no Featured Image is set and no Gravatar is found, a fallback image can be used.</p>
+				</th>
+				<td>
+				<input type="radio" name="easy_t_fallback_image_method" id="easy_t_fallback_image_method_mystery_person" value="mystery_person" <?php if(get_option('easy_t_fallback_image_method', '') == "mystery_person" ){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_fallback_image_method_mystery_person">Mystery Person</label>
+				<p class="description">Use the Mystery Person avatar for any missing images.</p>
+				<br>
+				<input type="radio" name="easy_t_fallback_image_method" id="easy_t_fallback_image_method_smart_text_avatars" value="smart_text_avatars" <?php if(get_option('easy_t_fallback_image_method', '') == "smart_text_avatars" ){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_fallback_image_method_smart_text_avatars">Smart Text Avatars</label>
+				<p class="description">Use the Client's initials overlayed on top of bold colors as an avatar for any missing images.</p>
+				<br>
+				<input type="radio" name="easy_t_fallback_image_method" id="easy_t_fallback_image_method_no_image" value="no_image" <?php if(get_option('easy_t_fallback_image_method', '') == "no_image" ){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_fallback_image_method_no_image">No Fallback Image</label>
 				</td>
 			</tr>
 		</table>
@@ -159,8 +177,8 @@ class easyTestimonialDisplayOptions extends easyTestimonialOptions{
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_link_excerpt_to_full">Link Excerpts to Full Testimonial</label></th>
 				<td><input type="checkbox" name="easy_t_link_excerpt_to_full" id="easy_t_link_excerpt_to_full" value="1" <?php if(get_option('easy_t_link_excerpt_to_full', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_link_excerpt_to_full">Link Excerpts to Full Testimonial</label>
 				<p class="description">If checked, shortened testimonials will end with a link that goes to the full length Testimonial.</p>
 				</td>
 			</tr>
@@ -185,8 +203,8 @@ class easyTestimonialDisplayOptions extends easyTestimonialOptions{
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_show_view_more_link">Show View More Testimonials Link</label></th>
 				<td><input type="checkbox" name="easy_t_show_view_more_link" id="easy_t_show_view_more_link" value="1" <?php if(get_option('easy_t_show_view_more_link', false)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_show_view_more_link">Show View More Testimonials Link</label>
 				<p class="description">If checked, the View More Testimonials Link will be displayed after each testimonial.  This is useful to direct visitors to a page that has many more Testimonials on it to read.</p>
 				</td>
 			</tr>
@@ -219,8 +237,8 @@ class easyTestimonialDisplayOptions extends easyTestimonialOptions{
 		<h3>Custom Fields</h3>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="meta_data_position">Show Testimonial Info Above Testimonial</label></th>
 				<td><input type="checkbox" name="meta_data_position" id="meta_data_position" value="1" <?php if(get_option('meta_data_position', false)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="meta_data_position">Show Testimonial Info Above Testimonial</label>
 				<p class="description">If checked, the Testimonial Custom Fields will be displayed Above the Testimonial.  Defaults to Displaying Below the Testimonial.  Note: the Testimonial Image will be displayed to the left of this information.  NOTE: Checking this may have adverse affects on certain Styles.</p>
 				</td>
 			</tr>

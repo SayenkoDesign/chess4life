@@ -25,7 +25,9 @@ class GP_Testimonial{
 		
 		//if we have a testimonial, create a cache key
 		if( isset($this->testimonial->ID) ){
-			$this->cache_key = "easy_t_" . $this->testimonial->ID . md5(serialize($this->atts) . $this->config->typography_cache_key);
+			$this->cache_key =	"easy_t_" . $this->testimonial->ID . 
+								md5(serialize($this->atts) . 
+								$this->config->typography_cache_key);
 		}
 		
 		//add any declared default atts from our theme
@@ -84,19 +86,20 @@ class GP_Testimonial{
 			'id' => '',
 			'use_excerpt' => false,
 			'category' => '',
-			'show_thumbs' => get_option('testimonials_image'),
+			'show_thumbs' => get_option('testimonials_image', true),
 			'short_version' => false,
 			'orderby' => 'date',//'none','ID','author','title','name','date','modified','parent','rand','menu_order'
-			'order' => 'ASC',//'DESC'
-			'show_rating' => false,
+			'order' => 'DESC',//'ASC, DESC'
+			'show_rating' => 'stars',
 			'paginate' => false,
 			'testimonials_per_page' => 10,
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'show_date' => false,
-			'show_other' => false,
+			'show_date' => true,
+			'show_other' => true,
 			'width' => false,
 			'hide_view_more' => true,
-			'meta_data_position' => get_option('meta_data_position') ? "above" : "below"
+			'meta_data_position' => get_option('meta_data_position') ? "above" : "below",
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		);
 		
 		//will be empty coming from the single content filter
@@ -186,7 +189,7 @@ class GP_Testimonial{
 			return $excerpt;
 		}
 		
-		return '';//$this->easy_t_trim_excerpt($excerpt, $post);
+		return wp_trim_words($excerpt, 20);
 	}
 
 	/**
@@ -321,6 +324,72 @@ class GP_Testimonial{
 	}
 	
 	/*
+	 * Assemble the json-ld review markup for an individual testimonial
+	 * TBD: support for type of and image of item reviewed
+	 */
+	 function output_jsonld_markup($testimonial){			
+		/* json ld example:
+		<script type="application/ld+json">
+			{
+			  "@context": "http://schema.org/",
+			  "@type": "Review",
+			  "itemReviewed": {
+				"@type": "Restaurant",
+				"image": "http://www.example.com/seafood-restaurant.jpg",
+				"name": "Legal Seafood"
+			  },
+			  "reviewRating": {
+				"@type": "Rating",
+				"ratingValue": "4"
+			  },
+			  "name": "A good seafood place.",
+			  "author": {
+				"@type": "Person",
+				"name": "Bob Smith"
+			  },
+			  "reviewBody": "The seafood is great.",
+			  "publisher": {
+				"@type": "Organization",
+				"name": "Washington Times"
+			  }
+			}
+		</script>
+		*/
+		
+		//prevent errors from unset rating		
+		if( empty($testimonial['num_stars']) ){
+			$testimonial['num_stars'] = 5;
+		}
+		
+		ob_start();
+		?>
+		<script type="application/ld+json">
+			{
+			  "@context": "http://schema.org/",
+			  "@type": "Review",
+			  "itemReviewed": {
+				"name": "<?php echo $this->easy_t_clean_html($testimonial['other']); ?>"
+			  },
+			  "reviewRating": {
+				"@type": "Rating",
+				"ratingValue": "<?php echo $testimonial['num_stars']; ?>"
+			  },
+			  "name": "<?php echo get_the_title($this->testimonial->ID); ?>",
+			  "author": {
+				"@type": "Person",
+				"name": "<?php echo $this->easy_t_clean_html($testimonial['client']); ?>"
+			  },
+			  "reviewBody": "<?php echo strip_tags($testimonial['content']); ?>"
+			}
+		</script>
+		<?php
+		$content = ob_get_contents();
+		ob_end_clean();
+		
+		return $content;
+	 }
+	
+	/*
 	 *  Assemble the html for the testimonials metadata taking into account current options
 	 */
 	function easy_testimonials_build_metadata_html($testimonial, $author_class, $show_date, $show_rating, $show_other)
@@ -329,37 +398,39 @@ class GP_Testimonial{
 		$position_css = $this->easy_testimonials_build_typography_css('easy_t_position_');
 		$client_css = $this->easy_testimonials_build_typography_css('easy_t_author_');
 		$other_css = $this->easy_testimonials_build_typography_css('easy_t_other_');
-		$rating_css = $this->easy_testimonials_build_typography_css('easy_t_rating_', 'stars');//only build the stars CSS, ie the font color only, as the rating displayed by the metadata function is only ever stars
+		//only build the stars CSS, ie the font color only
+		//as the rating displayed by the metadata function is only ever stars
+		$rating_css = $this->easy_testimonials_build_typography_css('easy_t_rating_', 'stars');
 		
-		//set the following variables to true if the option to display the associated item is true and the associated item has content in it (preventing outputting blank items that insert whitespace)
+		//set the following variables to true if the option to display the associated item is true 
+		//and the associated item has content in it 
+		//(preventing outputting blank items that insert whitespace)
 		$show_the_client = (strlen($testimonial['client'])>0) ? true : false;
 		$show_the_position = (strlen($testimonial['position'])>0) ? true : false;
 		$show_the_other = (strlen($testimonial['other'])>0 && $show_other) ? true : false;
 		$show_the_date = (strlen($testimonial['date'])>0 && $show_date) ? true : false;
 		$show_the_rating = (strlen($testimonial['num_stars'])>0 && ($show_rating == "stars")) ? true : false;
-	?>
+		
+		?>
 		<p class="<?php echo $author_class; ?>">
 			<?php //if any of the items have data and are set to be displayed, construct the html ?>
 			<?php if($show_the_client || $show_the_position || $show_the_other || $show_the_date || $show_rating == "stars" ): ?>
 			<cite>
 				<?php if($show_the_client): ?>
-					<span class="testimonial-client" itemprop="author" style="<?php echo $client_css; ?>"><?php echo $this->easy_t_clean_html($testimonial['client']);?></span>
+					<span class="testimonial-client" style="<?php echo $client_css; ?>"><?php echo $this->easy_t_clean_html($testimonial['client']);?></span>
 				<?php endif; ?>
 				<?php if($show_the_position): ?>
 					<span class="testimonial-position" style="<?php echo $position_css; ?>"><?php echo $this->easy_t_clean_html($testimonial['position']);?></span>
 				<?php endif; ?>
 				<?php if($show_the_other): ?>
-					<span class="testimonial-other" style="<?php echo $other_css; ?>" itemprop="itemReviewed"><?php echo $this->easy_t_clean_html($testimonial['other']);?></span>
+					<span class="testimonial-other" style="<?php echo $other_css; ?>"><?php echo $this->easy_t_clean_html($testimonial['other']);?></span>
 				<?php endif; ?>
 				<?php if($show_the_date): ?>
-					<span class="date" itemprop="datePublished" content="<?php echo $testimonial['date'];?>" style="<?php echo $date_css; ?>"><?php echo $this->easy_t_clean_html($testimonial['date']);?></span>
+					<span class="date" style="<?php echo $date_css; ?>"><?php echo $this->easy_t_clean_html($testimonial['date']);?></span>
 				<?php endif; ?>
 				<?php if($show_the_rating): ?>
 					<?php if(strlen($testimonial['num_stars'])>0): ?>
-					<span itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating" class="stars">
-					<meta itemprop="worstRating" content="1"/>
-					<meta itemprop="ratingValue" content="<?php echo htmlentities($testimonial['num_stars']); ?>"/>
-					<meta itemprop="bestRating" content="5"/>
+					<span class="stars">
 					<?php			
 						$x = 5; //total available stars
 						//output dark stars for the filled in ones
@@ -412,36 +483,72 @@ class GP_Testimonial{
 		$size = ($width > $height) ? $width : $height;
 
 		//load testimonial's featured image
-		$image = get_the_post_thumbnail($postid, $testimonial_image_size);
+		// we are suppressing error output as there is an issue causing image imports that fail
+		// to place a WP_Error object as the image, which causes a lot of hullaballoo
+		// this has been fixed in the importer / exporter, this remains for legacy testimonials
+		$image = @get_the_post_thumbnail($postid, $testimonial_image_size);
 		
 		//if no featured image is set
 		if (strlen($image) < 2){ 
-			//if use mystery man is set
-			if (get_option('easy_t_mystery_man', 1)){
-				//check and see if gravatars are enabled
-				if(get_option('easy_t_gravatar', 1)){
-					//if so, set image path to match desired gravatar with the mystery man as a fallback
-					$client_email = get_post_meta($postid, '_ikcf_email', true); 
-					$gravatar = md5(strtolower(trim($client_email)));
-					$mystery_man = urlencode( $this->config->url_path . 'assets/img/mystery_man.png' );
-					
-					$image = '<img class="attachment-'.$testimonial_image_size.' wp-post-image easy_testimonial_gravatar" alt="default gravatar" src="//www.gravatar.com/avatar/' . $gravatar . '?d=' . $mystery_man . '&s=' . $size . '" />';
-				} else {
-					//if not, just use the mystery man
-					$image = '<img class="attachment-'.$testimonial_image_size.' wp-post-image easy_testimonial_mystery_man" alt="default image" src="' . $this->config->url_path . 'assets/img/mystery_man.png' . '" />';
-				}
-			//else if gravatar is set
-			} else if(get_option('easy_t_gravatar', 1)){
-				//if set, set image path to match gravatar without using the mystery man as a fallback
-				$client_email = get_post_meta($postid, '_ikcf_email', true); 
-				$gravatar = md5(strtolower(trim($client_email)));
-				$mystery_man = urlencode( $this->config->url_path . 'assets/img/mystery_man.png' );
-				
-				$image = '<img class="attachment-'.$testimonial_image_size.' wp-post-image easy_testimonial_gravatar" alt="user gravatar" src="//www.gravatar.com/avatar/' . $gravatar . '?s=' . $size . '" />';
-			}
+			//load client information for use with avatars
+			$client_email = get_post_meta($postid, '_ikcf_email', true); 
+			$client_name = get_post_meta($postid, '_ikcf_client', true); 
+			
+			//are gravatars enabled and do you have a gravatar? return it
+			if( get_option('easy_t_gravatar', 1) && $this->gratavar_exists_for_email($client_email) ) {	// a gravatar exists for this email, so generate the gratavar URL, using the mystery person as a fallback
+				$gravatar = md5( strtolower(trim($client_email)) );
+				$image = '<img class="attachment-'.$testimonial_image_size.' wp-post-image easy_testimonial_gravatar" alt="default gravatar" src="//www.gravatar.com/avatar/' . $gravatar . '?s=' . $size . '" />';
+			} else {				
+				// gravatars are not enabled, or no gravatar exists for this email, so use a fallback image
+				$image = $this->get_fallback_image_tag($postid, $client_name, $testimonial_image_size);
+			}	
 		}
 		
 		return $image;
+	}
+	
+	/* Decide which type of fallback image to use - Text Based Avatars, or 
+	*  Mystery Person (more options to be added)
+	* 
+	* @param $client_name string Optional. Client name, for use in generating
+	*							 a text based avatar.
+	*
+	* @return string The image tag containing the fallback image.							 
+	*/
+	function get_fallback_image_tag($testimonial_id, $client_name = '', $testimonial_image_size = '')
+	{
+	
+		// TODO: load this setting via a radio option, not one option for each choice.
+		// 		 that would mean this probably becomes a switch statement
+		$fallback_image_method = get_option('easy_t_fallback_image_method', '');			
+		
+		if ( empty( $fallback_image_method ) ){
+			$fallback_image_method = "text_based_avatars";
+			
+			if ( get_option( 'easy_t_mystery_person', 0 ) ){
+				$fallback_image_method = "mystery_person";
+			}
+		}
+		
+		switch ( $fallback_image_method ){
+			case "smart_text_avatars":
+				$classes = 'attachment-'.$testimonial_image_size.' wp-post-image easy_testimonial_fallback';
+				$image = $this->config->smart_text_avatar_generator->get_image_tag($client_name, 150, 150, $classes);
+				break;	
+
+			case "no_image":
+				$image = "";
+				break;
+			
+			case "mystery_person":
+			case "mystery_person":
+			default:
+				// use mystery person
+				$image = '<img class="attachment-'.$testimonial_image_size.' wp-post-image easy_testimonial_mystery_person" alt="default image" src="' . $this->config->url_path . 'assets/img/mystery-person.png' . '" />';
+				break;
+		}
+		
+		return apply_filters('easy_t_fallback_image_tag', $image, $testimonial_id);
 	}
 	
 	/*
@@ -535,7 +642,7 @@ class GP_Testimonial{
 	
 	/*
 	 * Generates and returns the HTML for a given testimonial, 
-	 * considering the shortcode attributess provided.
+	 * considering the shortcode attributes provided.
 	 *
 	 * @param integer $postid The post ID of the testimonial
 	 * @param array $atts The shortcode attributes to use for build this testimonial
@@ -545,6 +652,8 @@ class GP_Testimonial{
 	function easy_t_get_single_testimonial_html($is_single = false)
 	{	
 		global $post;
+		
+		$view_vars = new stdClass;
 	
 		$postid = $this->testimonial->ID;
 		
@@ -556,71 +665,72 @@ class GP_Testimonial{
 		}
 		
 		//empty array to place all the testimonial data
-		$testimonial = array();
+		$view_vars->display_testimonial = array();
 		
-		$testimonial['date'] = get_the_date('M. j, Y', $postid);
+		//RWG: pass get_the_date nothing to fallback to WordPress date format settings
+		$view_vars->display_testimonial['date'] = get_the_date('', $postid);
 		
 		if($this->atts['use_excerpt'] && !$is_single){
-			$testimonial['content'] = $this->easy_t_get_the_excerpt( $this->testimonial->ID );
+			$view_vars->display_testimonial['content'] = $this->easy_t_get_the_excerpt( $this->testimonial->ID );
 		} else {				
-			$testimonial['content'] = get_post_field('post_content', $this->testimonial->ID);
+			$view_vars->display_testimonial['content'] = get_post_field('post_content', $this->testimonial->ID);
 		}
 		
 		//apply our content filter, if flag set
 		if( get_option('easy_t_apply_content_filter', false) || $is_single ){			
-			$testimonial['content'] = $this->easy_testimonials_the_content_filter( $testimonial['content'] );
+			$view_vars->display_testimonial['content'] = $this->easy_testimonials_the_content_filter( $view_vars->display_testimonial['content'] );
 		} else {
-			$testimonial['content'] = wpautop( $testimonial['content'] );
+			$view_vars->display_testimonial['content'] = wpautop( $view_vars->display_testimonial['content'] );
 		}
 		
-		$testimonial['id'] = $this->testimonial->ID;
+		$view_vars->display_testimonial['id'] = $this->testimonial->ID;
 		
 		//load rating
 		//if set, append english text to it
-		$testimonial['rating'] = get_post_meta($this->testimonial->ID, '_ikcf_rating', true); 
-		$testimonial['num_stars'] = ''; //reset num stars (Thanks Steve@IntegrityConsultants!)
-		if(strlen($testimonial['rating'])>0){	
+		$view_vars->display_testimonial['rating'] = get_post_meta($this->testimonial->ID, '_ikcf_rating', true); 
+		$view_vars->display_testimonial['num_stars'] = ''; //reset num stars (Thanks Steve@IntegrityConsultants!)
+		if(strlen($view_vars->display_testimonial['rating'])>0){	
 			$rating_css = $this->easy_testimonials_build_typography_css('easy_t_rating_');
 		
-			$testimonial['num_stars'] = $testimonial['rating'];
-			$testimonial['rating'] = '<p class="easy_t_ratings" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating" style="' . $rating_css . '"><meta itemprop="worstRating" content = "1"/><span itemprop="ratingValue" >' . htmlentities($testimonial['rating']) . '</span>/<span itemprop="bestRating">5</span> Stars.</p>';
+			$view_vars->display_testimonial['num_stars'] = $view_vars->display_testimonial['rating'];
+			$view_vars->display_testimonial['rating'] = '<p class="easy_t_ratings" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating" style="' . $rating_css . '"><meta itemprop="worstRating" content = "1"/><span itemprop="ratingValue" >' . htmlentities($view_vars->display_testimonial['rating']) . '</span>/<span itemprop="bestRating">5</span> Stars.</p>';
 		}	
 		
 		//if nothing is set for the short content, use the long content
-		if(strlen($testimonial['content']) < 2){
-			$testimonial['content'] = $post->post_excerpt;
+		if(strlen($view_vars->display_testimonial['content']) < 2){
+			$view_vars->display_testimonial['content'] = $post->post_excerpt;
 			
 			if($this->atts['use_excerpt']){
-				if($testimonial['content'] == ''){
-					$testimonial['content'] = wp_trim_excerpt($post->post_content);
+				if($view_vars->display_testimonial['content'] == ''){
+					$view_vars->display_testimonial['content'] = wp_trim_excerpt($post->post_content);
 				}
 			} else {				
-				$testimonial['content'] = $post->post_content;
+				$view_vars->display_testimonial['content'] = $post->post_content;
 			}
 		}
 			
 		if(strlen($this->atts['show_rating'])>2){
 			if($this->atts['show_rating'] == "before"){
-				$testimonial['content'] = $testimonial['rating'] . ' ' . $testimonial['content'];
+				$view_vars->display_testimonial['content'] = $view_vars->display_testimonial['rating'] . ' ' . $view_vars->display_testimonial['content'];
 			}
 			if($this->atts['show_rating'] == "after"){
-				$testimonial['content'] =  $testimonial['content'] . ' ' . $testimonial['rating'];
+				$view_vars->display_testimonial['content'] =  $view_vars->display_testimonial['content'] . ' ' . $view_vars->display_testimonial['rating'];
 			}
 		}
 		
 		if ($this->atts['show_thumbs']) {		
-			$testimonial['image'] = $this->build_testimonial_image($this->testimonial->ID);
+			$view_vars->display_testimonial['image'] = $this->build_testimonial_image($this->testimonial->ID);
 		}
 		
-		$testimonial['client'] = get_post_meta($this->testimonial->ID, '_ikcf_client', true); 	
-		$testimonial['position'] = get_post_meta($this->testimonial->ID, '_ikcf_position', true); 
-		$testimonial['other'] = get_post_meta($this->testimonial->ID, '_ikcf_other', true); 	
+		$view_vars->display_testimonial['client'] = get_post_meta($this->testimonial->ID, '_ikcf_client', true); 	
+		$view_vars->display_testimonial['position'] = get_post_meta($this->testimonial->ID, '_ikcf_position', true); 
+		$view_vars->display_testimonial['other'] = get_post_meta($this->testimonial->ID, '_ikcf_other', true); 	
 
 		//if this testimonial doesn't have a value for the item being reviewed
 		//and if the use global item reviewed setting is checked
 		//use the global item reviewed value in for the current testimonial
-		if( (strlen($testimonial['other'])<2) && get_option('easy_t_use_global_item_reviewed',false) ){
-			$testimonial['other'] = get_option('easy_t_global_item_reviewed','');
+		if( (strlen($view_vars->display_testimonial['other'])<2) && get_option('easy_t_use_global_item_reviewed',false) ){
+			$view_vars->display_testimonial['other'] = get_option('easy_t_global_item_reviewed','');
 		}
 	 
 		//load a list of of easy testimonial categories associated with this testimonial
@@ -640,44 +750,70 @@ class GP_Testimonial{
 			'rating' => $this->atts['show_rating'],
 			'other' => ($this->atts['show_other']) ? 'show' : 'hide'
 		);
-		$attribute_classes = $this->easy_t_build_classes_from_atts($atts_for_classes);
+		$view_vars->attribute_classes = $this->easy_t_build_classes_from_atts($atts_for_classes);
 		
 		//add the category slugs to the list of classes to output
 		//make sure to include the extra space so we aren't butting classes up against each other
-		$attribute_classes .= " " . $term_list;
+		$view_vars->attribute_classes .= " " . $term_list;
 	 
 		//get classes for current theme
-		$output_theme = $this->easy_t_get_theme_class($this->atts['theme']);
+		$view_vars->output_theme = $this->easy_t_get_theme_class($this->atts['theme']);
 		
 		//get css from our typography settings
-		$testimonial_body_css = $this->easy_testimonials_build_typography_css('easy_t_body_');	
+		$view_vars->display_testimonial_body_css = $this->easy_testimonials_build_typography_css('easy_t_body_');	
 		
-		//get width from our width option
-		$width_style = $this->atts['width'] ? 'style="width: ' . $this->atts['width'] . '"' : 'style="width: ' . get_option('easy_t_width','') . '"';
+		//get width from our width option or shortcode attribute (if set)
+		$view_vars->width_value = !empty($this->atts['width']) ? $this->atts['width'] : get_option('easy_t_width','');		
+		//only output width style if a width is set
+		$view_vars->width_style = !empty($width_value) ? 'style="width: ' . $width_value . '"' : '';
 		
 		//if the "Show View More Testimonials Link" option is checked
 		//and the hide_view_more attribute is not set
 		//then set $show_view_more to true
 		//else set to false
-		$show_view_more = (get_option('easy_t_show_view_more_link',false) && !$this->atts['hide_view_more']) ? true : false;
+		$view_vars->show_view_more = (get_option('easy_t_show_view_more_link',false) && !$this->atts['hide_view_more']) ? true : false;
 		
 		//last chance to customize attributes before rendering template
-		extract( apply_filters('easy_t_display_attributes' , $this->atts) );
+		$view_vars->atts = apply_filters('easy_t_display_attributes' , $this->atts);
 		
-		//render single testimonial template
-		ob_start();
-		
-		include( $this->config->dir_path . "templates/single_testimonial.php" );	
-		
-		$output = ob_get_contents();
-		
-		ob_end_clean();
+		$output = $this->get_template_content("single_testimonial.php", '', $view_vars);
 		
 		wp_reset_postdata();
 		
 		//apply filter with the current output, the current testimonial array, the current attributes, and the current testimonial's ID
-		return apply_filters('easy_t_get_single_testimonial_html', $output, $testimonial, $this->atts, $this->testimonial->ID);
+		return apply_filters('easy_t_get_single_testimonial_html', $output, $view_vars->display_testimonial, $this->atts, $postid);
 	}	
+	
+	function get_template_content($template_name, $default_content = '', $view_vars = array() )
+	{	
+		$template_path = $this->get_template_path($template_name);
+		if (file_exists($template_path)) {
+			$view_vars = array_merge( (array)$view_vars, $view_vars->atts );
+		
+			// load template by including it in an output buffer, so that variables and PHP will be run
+			ob_start();
+			extract( $view_vars );
+			include($template_path);
+			$content = ob_get_contents();
+			ob_end_clean();
+			return $content;
+		}
+		
+		// couldn't find a matching template file, so return the default content instead
+		return $default_content;
+	}
+	
+	function get_template_path($template_name)
+	{
+		// checks if the file exists in the theme first,
+		// otherwise serve the file from the plugin
+		if ( $theme_file = locate_template( array ( 'easy-testimonials/' . $template_name ) ) ) {
+			$template_path = $theme_file;
+		} else {
+			$template_path = plugin_dir_path( __FILE__ ) . '../templates/' . $template_name;
+		}
+		return $template_path;
+	}
 	
 	//check to see if HTML is allowed in testimonials
 	//if so, leave $html unfiltered
@@ -698,21 +834,50 @@ class GP_Testimonial{
 		global $gp_testimonial_class;
 		remove_filter( 'the_content', array($gp_testimonial_class, 'single_testimonial_content_filter') );
 		
-		//remove the pagebuilder filter that is causing infinite recursion
+		//Prevent infinite recursion from multiple applications of the_content filter from other plugins
+		//
+		// 1) remove the pagebuilder filter (for pagebuilder < v2.5) and apply the content filter
+		// 2) if the pagebuilder class doesn't exist (ie, we don't any version of pagebuilder) apply the content filter
+		// 3) otherwise the pagebuilder class exists (ie, we have pagebuilder > v2.5), so do not apply the content filter
 		if( function_exists('siteorigin_panels_filter_content') ){
-			remove_filter( 'the_content', 'siteorigin_panels_filter_content' );
+			remove_filter( 'the_content', 'siteorigin_panels_filter_content' );			
+			$content = apply_filters( 'the_content', $content, 9999 );
+			add_filter( 'the_content', 'siteorigin_panels_filter_content' );
+		} elseif( !class_exists('SiteOrigin_Panels') ){
+			$content = apply_filters( 'the_content', $content, 9999 );
 		}
 		
-		$content = apply_filters( 'the_content', $content, 9999 );
 		//now that we are done, re-add our special content filter
 		add_filter( 'the_content', array($gp_testimonial_class, 'single_testimonial_content_filter'), 10 );
 		
-		//re-add the pagebuilder filter now that we are done
-		if( function_exists('siteorigin_panels_filter_content') ){
-			add_filter( 'the_content', 'siteorigin_panels_filter_content' );
-		}
-		
 		return $content;
 	}
+	
+	function gratavar_exists_for_email($email = '')
+	{
+		if ( empty( $email ) ) {
+			return false;
+		}
+		
+		$trans_key = 'has_gravatar_' . sanitize_title($email);	
+		$email_has_gravatar = get_transient($trans_key);
+		if ( !empty($email_has_gravatar) ) {
+			$has_valid_avatar = ( strcmp($email_has_gravatar, 'Y') == 0 );
+		} else {
+			// Craft a potential url and test its headers
+			$hash = md5(strtolower(trim($email)));
+			$uri = 'http://www.gravatar.com/avatar/' . $hash . '?d=404';
+			$headers = @get_headers($uri);
+			if (!preg_match("|200|", $headers[0])) {
+				$has_valid_avatar = false;
+				set_transient($trans_key, 'N', 86400); // one day expiration
+			} else {
+				$has_valid_avatar = true;
+				set_transient($trans_key, 'Y', 86400); // one day expiration
+			}	
+		}
+		return $has_valid_avatar;	
+	}
+	
 	
 }// end class Testimonial

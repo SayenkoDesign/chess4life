@@ -21,10 +21,31 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 class TestimonialsGridWidget extends WP_Widget
 {
 	var $config;
+	var $defaults;
 	
 	function __construct() {
 		//load config
 		$this->config = new easyTestimonialsConfig();
+		
+		//load defaults
+		$this->defaults = array(
+			'title' => '',
+			'count' => -1,
+			'show_title' => 0,
+			'category' => '',
+			'use_excerpt' => 0,
+			'show_rating' => 'stars',
+			'show_date' => true,
+			'cols' => 3,
+			'show_testimonial_image' => get_option('testimonials_image', true),
+			'order' => 'ASC',
+			'order_by' => 'date',
+			'show_other' => true,
+			'theme' => get_option('testimonials_style', 'default_style'),
+			'paginate' => 'all',
+			'testimonials_per_page' => '',
+			'hide_view_more' => 1
+		);
 		
 		$widget_ops = array('classname' => 'TestimonialsGridWidget', 'description' => 'Display a Grid of your Testimonials.' );
 		parent::__construct('TestimonialsGridWidget', 'Easy Testimonials Grid', $widget_ops);
@@ -36,25 +57,7 @@ class TestimonialsGridWidget extends WP_Widget
 	}
 
 	function form($instance) {
-		$defaults = array(
-			'title' => '',
-			'count' => 10,
-			'show_title' => 0,
-			'category' => '',
-			'use_excerpt' => 0,
-			'show_rating' => false,
-			'show_date' => false,
-			'cols' => 3,
-			'show_testimonial_image' => 0,
-			'order' => 'ASC',
-			'order_by' => 'date',
-			'show_other' => 0,
-			'theme' => get_option('testimonials_style', 'default_style'),
-			'paginate' => false,
-			'testimonials_per_page' => 10,
-			'hide_view_more' => 1
-		);
-		$instance = wp_parse_args( (array) $instance, $defaults );
+		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		$title = $instance['title'];
 		$count = $instance['count'];
 		$show_title = $instance['show_title'];
@@ -165,13 +168,13 @@ class TestimonialsGridWidget extends WP_Widget
 
 					<p>
 						<input name="<?php echo $this->get_field_name('responsive'); ?>" type="hidden" value="0" />
-						<input class="widefat" id="<?php echo $this->get_field_id('responsive'); ?>" name="<?php echo $this->get_field_name('responsive'); ?>" type="checkbox" value="1" <?php if($responsive){ ?>checked="CHECKED"<?php } ?>/>
+						<input class="widefat" id="<?php echo $this->get_field_id('responsive'); ?>" name="<?php echo $this->get_field_name('responsive'); ?>" type="checkbox" value="1" <?php if($responsive){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('responsive'); ?>">Responsive</label>
 					</p>
 
 					<p>
 						<input name="<?php echo $this->get_field_name('equal_height_rows'); ?>" type="hidden" value="0" />
-						<input class="widefat" id="<?php echo $this->get_field_id('equal_height_rows'); ?>" name="<?php echo $this->get_field_name('equal_height_rows'); ?>" type="checkbox" value="1" <?php if($equal_height_rows){ ?>checked="CHECKED"<?php } ?>/>
+						<input class="widefat" id="<?php echo $this->get_field_id('equal_height_rows'); ?>" name="<?php echo $this->get_field_name('equal_height_rows'); ?>" type="checkbox" value="1" <?php if($equal_height_rows){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('equal_height_rows'); ?>">Make testimonials in each row the same height</label>
 					</p>
 				</div>
@@ -247,34 +250,36 @@ class TestimonialsGridWidget extends WP_Widget
 				<div class="bikeshed_radio">
 					<p>
 						<input name="<?php echo $this->get_field_name('show_title'); ?>" type="hidden" value="0" />
-						<input class="widefat" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>" type="checkbox" value="1" <?php if($show_title){ ?>checked="CHECKED"<?php } ?>/>
+						<input class="widefat" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>" type="checkbox" value="1" <?php if($show_title){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_title'); ?>">Show Testimonial Title</label>
 					</p>
 					
 					<p>
 						<input name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="hidden" value="0" />
-						<input class="widefat" id="<?php echo $this->get_field_id('use_excerpt'); ?>" name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="checkbox" value="1" <?php if($use_excerpt){ ?>checked="CHECKED"<?php } ?>/>
+						<input class="widefat" id="<?php echo $this->get_field_id('use_excerpt'); ?>" name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="checkbox" value="1" <?php if($use_excerpt){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('use_excerpt'); ?>">Use Testimonial Excerpt</label>
 					</p>	
 					
 					<p>
 						<input name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="hidden" value="0" />
-						<input class="widefat" id="<?php echo $this->get_field_id('show_testimonial_image'); ?>" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="checkbox" value="1" <?php if($show_testimonial_image){ ?>checked="CHECKED"<?php } ?> data-shortcode-key="show_thumbs" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_testimonial_image'); ?>" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="checkbox" value="1" <?php if($show_testimonial_image){ ?>checked="CHECKED"<?php } ?> data-shortcode-key="show_thumbs" data-shortcode-value-if-unchecked="0"/>
 						<label for="<?php echo $this->get_field_id('show_testimonial_image'); ?>">Show Featured Image</label>
 					</p>
 					
 					<p>
 						<input name="<?php echo $this->get_field_name('show_date'); ?>" type="hidden" value="0" />
-						<input class="widefat" id="<?php echo $this->get_field_id('show_date'); ?>" name="<?php echo $this->get_field_name('show_date'); ?>" type="checkbox" value="1" <?php if($show_date){ ?>checked="CHECKED"<?php } ?>/>
+						<input class="widefat" id="<?php echo $this->get_field_id('show_date'); ?>" name="<?php echo $this->get_field_name('show_date'); ?>" type="checkbox" value="1" <?php if($show_date){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0"/>
 						<label for="<?php echo $this->get_field_id('show_date'); ?>">Show Testimonial Date</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_other'); ?>" name="<?php echo $this->get_field_name('show_other'); ?>" type="checkbox" value="1" <?php if($show_other){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('show_other'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_other'); ?>" name="<?php echo $this->get_field_name('show_other'); ?>" type="checkbox" value="1" <?php if($show_other){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_other'); ?>">Show "Location Reviewed / Product Reviewed / Item Reviewed" Field</label>
 					</p>
 					
 					<p>
+						<input name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="hidden" value="0" />
 						<input class="widefat" id="<?php echo $this->get_field_id('hide_view_more'); ?>" name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="checkbox" value="1" <?php if($hide_view_more){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('hide_view_more'); ?>">Hide View More Testimonials Link</label>
 					</p>
@@ -300,6 +305,8 @@ class TestimonialsGridWidget extends WP_Widget
 	}
 
 	function update($new_instance, $old_instance){
+		$new_instance = wp_parse_args( (array) $new_instance, $this->defaults );
+		
 		$instance = $old_instance;
 		$instance['title'] = $new_instance['title'];
 		$instance['count'] = $new_instance['count'];
@@ -314,12 +321,12 @@ class TestimonialsGridWidget extends WP_Widget
 		$instance['show_other'] = $new_instance['show_other'];
 		$instance['theme'] = $new_instance['theme'];
 		$instance['cols'] = $new_instance['cols'];
-		$instance['grid_width'] = isset($new_instance['grid_width']) ? $new_instance['grid_width'] : '';
-		$instance['grid_spacing'] = isset($new_instance['grid_spacing']) ? $new_instance['grid_spacing'] : '';
-		$instance['grid_class'] = isset($new_instance['grid_class']) ? $new_instance['grid_class'] : '';
-		$instance['cell_width'] = isset($new_instance['cell_width']) ? $new_instance['cell_width'] : '';
-		$instance['responsive'] = isset($new_instance['responsive']) ? $new_instance['responsive'] : 1;
-		$instance['equal_height_rows'] = isset($new_instance['equal_height_rows']) ? $new_instance['equal_height_rows'] : 0;
+		$instance['grid_width'] = $new_instance['grid_width'];
+		$instance['grid_spacing'] = $new_instance['grid_spacing'];
+		$instance['grid_class'] = $new_instance['grid_class'];
+		$instance['cell_width'] = $new_instance['cell_width'];
+		$instance['responsive'] = $new_instance['responsive'];
+		$instance['equal_height_rows'] = $new_instance['equal_height_rows'];
 		$instance['paginate'] = $new_instance['paginate'];
 		$instance['testimonials_per_page'] = $new_instance['testimonials_per_page'];
 		$instance['hide_view_more'] = $new_instance['hide_view_more'];
@@ -374,7 +381,7 @@ class TestimonialsGridWidget extends WP_Widget
 		}
 
 		// ensure width has a unit
-		if( strpos($grid_width, 'px') === FALSE && strpos($grid_width, 'em') === FALSE && strpos($grid_width, '%') === FALSE && strlen($grid_width) > 0 ) {
+		if( is_numeric($grid_width) && strpos($grid_width, 'px') === FALSE && strpos($grid_width, 'em') === FALSE && strpos($grid_width, '%') === FALSE && strlen($grid_width) > 0 ) {
 			$grid_width .= 'px';
 		}
 		

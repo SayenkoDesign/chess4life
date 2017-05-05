@@ -157,11 +157,11 @@ class TestimonialsPlugin_Importer
 			//echo '<div id="message" class="error"><p>' . $error_string . '</p></div>';
 			
 			@unlink($file_array['tmp_name']);
-		}
-		
-		//add as the post thumbnail
-		if($post_id > 0){
-			add_post_meta($post_id, '_thumbnail_id', $id, true);
+		} else {		
+			//add as the post thumbnail
+			if( !empty($post_id) ){
+				add_post_meta($post_id, '_thumbnail_id', $id, true);
+			}
 		}
 	}
 	
@@ -187,7 +187,7 @@ class TestimonialsPlugin_Importer
 
 			echo '<div class="gp_upload_file_wrapper">';
 				ob_start();					
-				wp_import_upload_form( add_query_arg('step', 1) );
+				wp_import_upload_form( add_query_arg('step', '1#tab-importer') );
 				$import_form_html = ob_get_contents();
 				$import_form_html = str_replace('<form ', '<div data-gp-ajax-form="1" ', $import_form_html);
 				$import_form_html = str_replace('</form>', '</div>', $import_form_html);
@@ -224,7 +224,7 @@ class TestimonialsPlugin_Importer
 			
 			echo '</textarea>';//close response
 			
-			echo '<p><a class="button-primary button" href="/wp-admin/admin.php?page=easy-testimonials-import-export" title="Import More Testimonials">Import More Testimonials</a></p>';
+			echo '<p><a class="button-primary button" href="/wp-admin/admin.php?page=easy-testimonials-import-export#tab-importer" title="Import More Testimonials">Import More Testimonials</a></p>';
 		}
 	}
 }

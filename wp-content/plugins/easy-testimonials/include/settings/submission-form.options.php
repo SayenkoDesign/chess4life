@@ -15,18 +15,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 		
 		//insert submenu item
 		add_action('easy_t_admin_submenu_pages' , array($this, 'insert_submenu_page'), 1);
-		
-		//hide our menu item
-		add_action( 'admin_enqueue_scripts', array($this, 'hide_menu_item'), 9999 );
 	}
-	
-	//hide our menu item
-	function hide_menu_item(){
-		$css = '#toplevel_page_easy-testimonials-settings .wp-submenu li:last-child{display: none;}';
-		
-		wp_add_inline_style('easy_testimonials_admin_stylesheet', $css);
-	}
-	
+
 	//insert our submenu page
 	function insert_submenu_page($submenu_pages){		
 		$submission_form_page = array(
@@ -34,7 +24,7 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			array(
 				'top_level_slug' => 'easy-testimonials-settings',
 				'page_title' => 'Submission Form',
-				'menu_title' => 'Submission Form Options',
+				'menu_title' => 'Submission Form Settings',
 				'role' => 'administrator',
 				'slug' => 'easy-testimonials-submission-settings',
 				'callback' => array($this, 'render_settings_page'),
@@ -42,9 +32,44 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			)
 		);
 		
-		$submenu_pages = array_merge($submenu_pages, $submission_form_page);
+		// insert the new menu item after the import/export menu item
+		// Note: this function takes $submenu_pages by reference,
+		// and returns nothing
+		$this->insert_submenu_page_after_target(
+			$submenu_pages,
+			'easy-testimonials-style-settings',
+			$submission_form_page
+		);
 		
 		return $submenu_pages;
+	}
+	
+	/**
+	* Inserts a new page into an existing list of submenu pages.
+	* Insertion is performed *after* the first array item who's
+	* menu_slug key matches the target
+	*
+	* @param array      $submenu_pages	The array of pages. Modified directly.
+	* @param string 	$target_slug	The menu_slug to match against
+	* @param mixed      $insert			The submenu page to insert
+	*/
+	function insert_submenu_page_after_target(&$submenu_pages, $target_slug, $insert)
+	{
+		$pos = count($submenu_pages) - 1; // default to last position
+		
+		// find the target slug in the list of pages
+		foreach ($submenu_pages as $index => $page) {
+			if ( $page['slug'] == $target_slug ) {
+				$pos = $index;
+				break;
+			}
+		}
+		// insert the new page at the target position
+		$submenu_pages = array_merge(
+			array_slice($submenu_pages, 0, $pos + 1),
+			$insert,
+			array_slice($submenu_pages, $pos + 1)
+		);
 	}
 	
 	//adds tab to top level of settings screen
@@ -59,6 +84,7 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 		/* Submission form settings */
 		register_setting( 'easy-testimonials-submission_form_options-settings-group', 'easy_t_title_field_label' );
 		register_setting( 'easy-testimonials-submission_form_options-settings-group', 'easy_t_title_field_description' );
+		register_setting( 'easy-testimonials-submission_form_options-settings-group', 'easy_t_hide_title_field' );
 		register_setting( 'easy-testimonials-submission_form_options-settings-group', 'easy_t_name_field_label' );
 		register_setting( 'easy-testimonials-submission_form_options-settings-group', 'easy_t_name_field_description' );
 		register_setting( 'easy-testimonials-submission_form_options-settings-group', 'easy_t_position_web_other_field_label' );
@@ -195,6 +221,15 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 					</td>
 				</tr>
 			</table>
+			
+			<table class="form-table">
+				<tr valign="top">
+					<td><input type="checkbox" name="easy_t_hide_title_field" id="easy_t_hide_title_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_hide_title_field', 0)){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_hide_title_field">Disable Display</label>
+					<p class="description">If checked, the <?php echo get_option('easy_t_title_field_label', 'Title'); ?> field will not be displayed in the form.  The testimoinal title will default to the name of the person leaving the testimonial, if not manually entered.</p>
+					</td>
+				</tr>
+			</table>
 		</fieldset>
 		
 		<fieldset>
@@ -219,8 +254,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_hide_name_field">Disable Display</label></th>
 					<td><input type="checkbox" name="easy_t_hide_name_field" id="easy_t_hide_name_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_hide_name_field', 0)){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_hide_name_field">Disable Display</label>
 					<p class="description">If checked, the <?php echo get_option('easy_t_name_field_label', 'Name'); ?> field will not be displayed in the form .</p>
 					</td>
 				</tr>
@@ -249,8 +284,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_hide_email_field">Disable Display</label></th>
 					<td><input type="checkbox" name="easy_t_hide_email_field" id="easy_t_hide_email_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_hide_email_field', 0)){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_hide_email_field">Disable Display</label>
 					<p class="description">If checked, the <?php echo get_option('easy_t_email_field_label', 'Your E-Mail Address'); ?> field will not be displayed in the form .</p>
 					</td>
 				</tr>
@@ -279,8 +314,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_hide_position_web_other_field">Disable Display</label></th>
 					<td><input type="checkbox" name="easy_t_hide_position_web_other_field" id="easy_t_hide_position_web_other_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_hide_position_web_other_field')){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_hide_position_web_other_field">Disable Display</label>
 					<p class="description">If checked, the <?php echo get_option('easy_t_position_web_other_field_label', 'Position / Web Address / Other'); ?> field in the form will not be displayed.</p>
 					</td>
 				</tr>
@@ -309,8 +344,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_hide_other_other_field">Disable Display</label></th>
 					<td><input type="checkbox" name="easy_t_hide_other_other_field" id="easy_t_hide_other_other_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_hide_other_other_field')){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_hide_other_other_field">Disable Display</label>
 					<p class="description">If checked, the <?php echo get_option('easy_t_other_other_field_label', 'Location Reviewed / Product Reviewed / Item Reviewed'); ?> field in the form will not be displayed.</p>
 					</td>
 				</tr>
@@ -339,8 +374,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 			
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_hide_category_field">Disable Display</label></th>
 					<td><input type="checkbox" name="easy_t_hide_category_field" id="easy_t_hide_category_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_hide_category_field')){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_hide_category_field">Disable Display</label>
 					<p class="description">If checked, the <?php echo get_option('easy_t_category_field_label', 'Category'); ?> field in the form will not be displayed.</p>
 					</td>
 				</tr>
@@ -369,8 +404,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 						
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_use_rating_field">Enable Ratings</label></th>
 					<td><input type="checkbox" name="easy_t_use_rating_field" id="easy_t_use_rating_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_use_rating_field')){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_use_rating_field">Enable Ratings</label>
 					<p class="description">If checked, users will be allowed to add a 1 - 5 out of 5 rating along with their Testimonial.</p>
 					</td>
 				</tr>
@@ -421,8 +456,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 						
 			<table class="form-table">
 				<tr valign="top">
-					<th scope="row"><label for="easy_t_use_image_field">Enable Image Field</label></th>
 					<td><input type="checkbox" name="easy_t_use_image_field" id="easy_t_use_image_field" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_use_image_field')){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_use_image_field">Enable Image Field</label>
 					<p class="description">If checked, users will be allowed to upload 1 image along with their Testimonial.</p>
 					</td>
 				</tr>
@@ -502,8 +537,8 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 		
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_submit_notification_include_testimonial">Include Testimonial In Notification E-mail</label></th>
 				<td><input type="checkbox" name="easy_t_submit_notification_include_testimonial" id="easy_t_submit_notification_include_testimonial" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_submit_notification_include_testimonial')){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_submit_notification_include_testimonial">Include Testimonial In Notification E-mail</label>
 				<p class="description">If checked, the notification e-mail will include the submitted Testimonial.</p>
 				</td>
 			</tr>
@@ -556,6 +591,16 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 	function output_spam_settings(){
 		?>
 		<h3 id="spam-prevention-captcha">Spam Prevention</h3>
+					
+		<table class="form-table">
+			<tr valign="top">
+				<td>
+					<input type="checkbox" name="easy_t_use_captcha" id="easy_t_use_captcha" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_use_captcha')){ ?> checked="CHECKED" <?php } ?>/>
+					<label for="easy_t_use_captcha">Enable Captcha on Submission Form</label>
+					<p class="description">This is useful if you are having SPAM problems. Requires a valid reCAPTCHA API Key and Secret Key to be entered above, or a compatible Captcha plugin to be installed (such as <a href="https://wordpress.org/plugins/really-simple-captcha/" target="_blank">Really Simple Captcha</a>). </p>
+				</td>
+			</tr>
+		</table>
 		
 		<table class="form-table">
 			<tr valign="top">
@@ -611,19 +656,6 @@ class easyTestimonialSubmissionFormOptions extends easyTestimonialOptions{
 							printf( '<option value="%s" %s>%s</option>', htmlentities($val), $sel_attr, htmlentities($label) );
 						} ?>
 					</select>						
-				</td>
-			</tr>
-		</table>
-					
-		<table class="form-table">
-			<tr valign="top">
-				<th scope="row"><label for="easy_t_use_captcha">Enable Captcha on Submission Form</label></th>
-				<td>
-					<label>
-						<input type="checkbox" name="easy_t_use_captcha" id="easy_t_use_captcha" <?php if(!$this->config->is_pro): ?>disabled="disabled"<?php endif; ?> value="1" <?php if(get_option('easy_t_use_captcha')){ ?> checked="CHECKED" <?php } ?>/>
-						Require visitors to complete a CAPTCHA before submitting their testimonials
-					</label>
-					<p class="description">This is useful if you are having SPAM problems. Requires a valid reCAPTCHA API Key and Secret Key to be entered above, or a compatible Captcha plugin to be installed (such as <a href="https://wordpress.org/plugins/really-simple-captcha/" target="_blank">Really Simple Captcha</a>). </p>
 				</td>
 			</tr>
 		</table>

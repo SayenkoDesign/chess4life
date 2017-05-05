@@ -212,11 +212,21 @@ class easyTestimonialImportExportOptions extends easyTestimonialOptions{
 	function add_hello_t_testimonials(){	
 		$the_time = time();
 		
-		$url = get_option('easy_t_hello_t_json_url') . "?last=" . get_option('easy_t_hello_t_last_time', 0);
+		$json_url = get_option('easy_t_hello_t_json_url', '');
+		if ( empty($json_url) ) {
+			return;
+		}
 		
+		$url = $json_url . "?last=" . get_option('easy_t_hello_t_last_time', 0);		
 		$response = wp_remote_get( $url, array('sslverify' => false ));
 				
-		if(@isset($response['body'])){
+		if ( is_wp_error($response) ) {
+			// invalid URL, show error message
+			$this->messages[] = '<strong>Error:</strong> the Hello Testimonials JSON URL you entered could not be reached. Please check the URL in your Hello Testimonials settings, or try again in a few minutes.';
+			return;
+		}		
+		
+		if( !empty($response) && !empty($response['body']) ) {
 			$response = json_decode($response['body']);
 			
 			if(isset($response->testimonials)){

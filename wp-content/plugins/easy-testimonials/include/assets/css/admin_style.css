@@ -140,6 +140,16 @@ a.trash_testimonial {
     padding: 50px
 }
 
+.easy_t_preview .easy_t_single_testimonial {
+    margin: 10px auto;
+    max-width: 550px !important;
+}
+.easy_t_preview .easy-t-cycle-controls {
+    margin: 0 auto;
+    max-width: 550px;
+    text-align: center;
+}
+
 .easy_t_options fieldset {
     padding: 20px!important
 }
@@ -564,14 +574,6 @@ a.trash_testimonial {
     margin: 20px 0;
 }
 
-/* Hide certain admin links from sidebar
-	3 -> display options
-	4 -> theme options
-	last-child -> submission form options */
-#toplevel_page_easy-testimonials-settings .wp-submenu li:nth-child(3),
-#toplevel_page_easy-testimonials-settings .wp-submenu li:nth-child(4){
-    display: none;
-}
 #easy_t_registered_key {
     max-width: 600px;
     width: 100%;
@@ -643,4 +645,9 @@ div.gp_error {
     color: forestgreen;
     font-size: 14px;
     font-style: italic;
+}
+
+/* Sajak Changes */
+.gp_sajak td > label {
+    font-weight: 600;
 }

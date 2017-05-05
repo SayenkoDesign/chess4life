@@ -101,16 +101,21 @@ class TestimonialsPlugin_Exporter
 	}
 	
 	/*
-	 * Get the path to the staff member's photo
+	 * Get the path to the testimonial's photo
 	 *
 	 * @returns a string representing the path to the photo
 	*/
 	function get_photo_path($post_id){
 		$image_str = "";
 		
-		if (has_post_thumbnail( $post_id ) ){
-			$image = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'single-post-thumbnail' );
-			$image_str = $image[0];
+		if ( has_post_thumbnail( $post_id ) ){
+			$the_post_thumbnail_id = get_post_thumbnail_id( $post_id );
+			//check to be sure this doesn't have a bad record from back when WP_Error objects
+			//were being stored on image fields during CSV imports in some cases
+			if( !is_wp_error( $the_post_thumbnail_id ) ){
+				$image = wp_get_attachment_image_src( $the_post_thumbnail_id, 'single-post-thumbnail' );
+				$image_str = $image[0];
+			}
 		}
 		
 		return $image_str;

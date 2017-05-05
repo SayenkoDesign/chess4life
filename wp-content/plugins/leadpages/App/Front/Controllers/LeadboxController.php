@@ -96,7 +96,7 @@ class LeadboxController
      * @param $leadboxes
      */
     public function getTimedLeadboxCode($leadboxes){
-        if($leadboxes['timed'][1] == $this->postType || $leadboxes['timed'][1] == 'all'){
+        if($leadboxes['timed'][1] == $this->postType && !is_front_page() || $leadboxes['timed'][1] == 'all'){
             $apiResponse = $this->leadboxApi->getSingleLeadboxEmbedCode($leadboxes['timed'][0], 'timed');
             $timed_embed_code = json_decode($apiResponse['response'], true);
         }
@@ -107,29 +107,12 @@ class LeadboxController
     }
 
     /**
-     * return js code directly from database if it is there, if not make a call for it
-     * hopefully improve page load speeds
-     * @param $leadboxes
-     */
-    public function getGlobalTimedLeadboxJs($leadboxes)
-    {
-        if(isset($this->globalLeadboxes['timed'][2])) {
-            $globalTimedLeadboxJs = $this->globalLeadboxes['timed'][2];
-        }
-        if(empty($globalTimedLeadboxJs)){
-            //include for backward compatibility
-            return $this->getTimedLeadboxCode($leadboxes);
-        }
-        return $globalTimedLeadboxJs;
-    }
-
-    /**
      * @param $leadboxes
      */
     public function getExitLeadboxCode($leadboxes){
 
 
-        if($leadboxes['exit'][1] == $this->postType || $leadboxes['exit'][1] == 'all'){
+        if($leadboxes['exit'][1] == $this->postType && !is_front_page() || $leadboxes['exit'][1] == 'all'){
             $apiResponse = $this->leadboxApi->getSingleLeadboxEmbedCode($leadboxes['exit'][0], 'exit');
             $exit_embed_code = json_decode($apiResponse['response'], true);
         }
@@ -139,31 +122,17 @@ class LeadboxController
         return $exit_embed_code['embed_code'];
     }
 
-
-    /**
-     * return js code directly from database if it is there, if not make a call for it
-     * hopefully improve page load speeds
-     * @param $leadboxes
-     */
-    public function getGlobalExitLeadboxJs($leadboxes)
-    {
-        if(isset($this->globalLeadboxes['exit'][2])) {
-            $globalExitLeadboxJs = $this->globalLeadboxes['exit'][2];
-        }
-        if(empty($globalExitLeadboxJs)){
-            //include for backward compatibility
-            return $this->getExitLeadboxCode($leadboxes);
-        }
-        return $globalExitLeadboxJs;
-    }
-
     /**
      * @param $content
      *
      * @return string
      */
     public function addTimedLeadboxesGlobal(){
-        return $this->getGlobalTimedLeadboxJs($this->globalLeadboxes);
+        //get leadbox code if its in the database. needed for b3 leadboxes do not remove
+        if(isset($this->globalLeadboxes['timed'][2])){
+            return $this->globalLeadboxes['timed'][2];
+        }
+        return $this->getTimedLeadboxCode($this->globalLeadboxes);
     }
 
     /**
@@ -172,7 +141,11 @@ class LeadboxController
      * @return string
      */
     public function addExitLeadboxesGlobal(){
-        return $this->getGlobalExitLeadboxJs($this->globalLeadboxes);
+        //get leadbox code if its in the database. needed for b3 leadboxes do not remove
+        if(isset($this->globalLeadboxes['exit'][2])){
+            return $this->globalLeadboxes['exit'][2];
+        }
+        return $this->getExitLeadboxCode($this->globalLeadboxes);
 
     }
 

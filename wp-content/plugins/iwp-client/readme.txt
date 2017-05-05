@@ -2,7 +2,7 @@
 Contributors: infinitewp
 Tags: admin, administration, amazon, api, authentication, automatic, dashboard, dropbox, events, integration, manage, multisite, multiple, notification, performance, s3, security, seo, stats, tracking, infinitewp, updates, backup, restore, iwp, infinite
 Requires at least: 3.1
-Tested up to: 4.5.3
+Tested up to: 4.7.4
 Stable tag: trunk
 
 Install this plugin on unlimited sites and manage them all from a central dashboard.
@@ -47,6 +47,24 @@ Credits: [Vladimir Prelovac](http://prelovac.com/vladimir) for his worker plugin
 5. One-click updates
 
 == Changelog ==
+= 1.6.4 - May 2nd 2017 =
+* Improvement: JSON communication implementation between Admin Panel and Client plugin has been completed.
+* Improvement: Unwanted files and folders will be automatically excluded from backups.
+* Improvement: Few unwanted folders have been excluded from the list of folders to be backed up.
+* Fix: When cloud upload fails during backup, the copy is retained on the server instead of being deleted.
+* Fix: The backup process would generate the warning "PHP Warning: fclose(): supplied resource is not a valid stream resource in /home/heidihic/public_html/wp-content/plugins/iwp-client/lib/amazon/s3IWPBackup.php on line 310" during multi-call backups.
+
+= 1.6.3.2 - Jan 4th 2017 =
+* Improvement: JSON communication between Admin Panel and Client plugin has been implemented.
+* Improvement: If the PHP version of WordPress site is less than 5.4.0 then the single call backups will fail with "Fatal error: Cannot use string offset as an array in /home/asogerb6/public_html/wp-content/plugins/iwp-client/backup.class.singlecall.php on line 340".
+* Improvement: Debug files DE_clMemoryPeak.php, DE_clMemoryUsage.php and DE_clTimeTaken.php have been removed.
+* Improvement: Security patches have been applied for sites backed up to Amazon S3 storage.
+* Fix: Backups having size greater than 2GB could not be uploaded to Google Drive in certain scenarios throwing a bad request error.
+* Fix: "Failed to zip files. pclZip error (-4): File '/wp-content/plugins/wordfence/tmp/configCache.php' does not exist" has been fixed.
+* Fix: Pluggable.php shouldn't be included before loading all plugins.
+* Fix: MySQL error wouldn't show accurately during failed table creation.
+* Fix: If the default auto_increment_increment value is set to 2 in the user's server the backup will fail for all sites on that server.
+* Fix: If the value for integer field is EMPTY then instead of considering default value as NULL, the plugin creates a duplicate entry during cloning.
 
 = 1.6.1.1 - August 12th 2016 =
 * Fix: Bug Fix.

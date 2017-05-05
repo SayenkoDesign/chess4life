@@ -7,7 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'TheLoop\\' => array($baseDir . '/Framework'),
-    'Rhumsaa\\Uuid\\' => array($vendorDir . '/ramsey/uuid/src'),
     'React\\Promise\\' => array($vendorDir . '/react/promise/src'),
     'Leadpages\\Pages\\' => array($vendorDir . '/leadpages/pages/src/Pages'),
     'Leadpages\\Leadboxes\\' => array($vendorDir . '/leadpages/leadboxes/src/Leadboxes'),

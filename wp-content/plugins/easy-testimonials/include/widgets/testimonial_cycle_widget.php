@@ -21,10 +21,39 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 class cycledTestimonialWidget extends WP_Widget
 {	
 	var $config;
+	var $defaults;
 	
 	function __construct(){		
 		// load config
 		$this->config = new easyTestimonialsConfig();
+		
+		// load defaults		
+		$this->defaults = array(
+			'title' => '',
+			'count' => -1,
+			'show_title' => 0,
+			'category' => '',
+			'use_excerpt' => 0,
+			'show_rating' => 'stars',
+			'show_date' => true,
+			'width' => false,
+			'show_testimonial_image' => get_option('testimonials_image', true),
+			'order' => 'ASC',
+			'order_by' => 'date',
+			'show_other' => true,
+			'theme' => get_option('testimonials_style', 'default_style'),
+			'testimonials_per_slide' => 1,
+			'show_pager_icons' => 1,
+			'transition' => 'fade',
+			'timer' => '5000',
+			'pause_on_hover' => 1,
+			'paused' => 0,
+			'prev_next' => 1,
+			'auto_height' => 'container',
+			'display_pagers_above' => false,
+			'hide_view_more' => 0,
+			'random' => 0
+		);
 		
 		$widget_ops = array(
 			'classname' => 'cycledTestimonialWidget',
@@ -40,32 +69,8 @@ class cycledTestimonialWidget extends WP_Widget
 	}
 
 	function form($instance){
-		$defaults = array(
-			'title' => '',
-			'count' => 5,
-			'show_title' => 0,
-			'category' => '',
-			'use_excerpt' => 0,
-			'show_rating' => false,
-			'show_date' => false,
-			'width' => false,
-			'show_testimonial_image' => 0,
-			'order' => 'ASC',
-			'order_by' => 'date',
-			'show_other' => 0,
-			'theme' => get_option('testimonials_style', 'default_style'),
-			'testimonials_per_slide' => 1,
-			'show_pager_icons' => 1,
-			'transition' => 'fade',
-			'timer' => '5000',
-			'pause_on_hover' => 1,
-			'paused' => 0,
-			'prev_next' => 1,
-			'auto_height' => 1,
-			'display_pagers_above' => false,
-			'hide_view_more' => 0
-		);
-		$instance = wp_parse_args( (array) $instance, $defaults );
+		$instance = wp_parse_args( (array) $instance, $this->defaults );
+		
 		$title = $instance['title'];
 		$count = $instance['count'];
 		$testimonials_per_slide = $instance['testimonials_per_slide'];
@@ -186,31 +191,37 @@ class cycledTestimonialWidget extends WP_Widget
 				<legend>Fields To Display:</legend> &nbsp;
 				<div class="bikeshed_radio">
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>" type="checkbox" value="1" <?php if($show_title){ ?>checked="CHECKED"<?php } ?>/>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('show_title'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>" type="checkbox" value="1" <?php if($show_title){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_title'); ?>">Show Testimonial Title</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('use_excerpt'); ?>" name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="checkbox" value="1" <?php if($use_excerpt){ ?>checked="CHECKED"<?php } ?>/>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('use_excerpt'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('use_excerpt'); ?>" name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="checkbox" value="1" <?php if($use_excerpt){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('use_excerpt'); ?>">Use Testimonial Excerpt</label>
 					</p>	
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_testimonial_image'); ?>" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="checkbox" value="1" <?php if($show_testimonial_image){ ?>checked="CHECKED"<?php } ?> data-shortcode-key="show_thumbs" />
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_testimonial_image'); ?>" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="checkbox" value="1" <?php if($show_testimonial_image){ ?>checked="CHECKED"<?php } ?> data-shortcode-key="show_thumbs" data-shortcode-value-if-unchecked="0"/>
 						<label for="<?php echo $this->get_field_id('show_testimonial_image'); ?>">Show Featured Image</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_date'); ?>" name="<?php echo $this->get_field_name('show_date'); ?>" type="checkbox" value="1" <?php if($show_date){ ?>checked="CHECKED"<?php } ?>/>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('show_date'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_date'); ?>" name="<?php echo $this->get_field_name('show_date'); ?>" type="checkbox" value="1" <?php if($show_date){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0"/>
 						<label for="<?php echo $this->get_field_id('show_date'); ?>">Show Testimonial Date</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_other'); ?>" name="<?php echo $this->get_field_name('show_other'); ?>" type="checkbox" value="1" <?php if($show_other){ ?>checked="CHECKED"<?php } ?>/>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('show_other'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_other'); ?>" name="<?php echo $this->get_field_name('show_other'); ?>" type="checkbox" value="1" <?php if($show_other){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_other'); ?>">Show "Location Reviewed / Product Reviewed / Item Reviewed" Field</label>
 					</p>
 					
 					<p>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('hide_view_more'); ?>" />
 						<input class="widefat" id="<?php echo $this->get_field_id('hide_view_more'); ?>" name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="checkbox" value="1" <?php if($hide_view_more){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('hide_view_more'); ?>">Hide View More Testimonials Link</label>
 					</p>
@@ -272,30 +283,36 @@ class cycledTestimonialWidget extends WP_Widget
 					</p>
 					<p class="description">The time between transitions.  Please Note: 1000 = 1 second.</p>
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('pause_on_hover'); ?>" name="<?php echo $this->get_field_name('pause_on_hover'); ?>" type="checkbox" value="true" <?php if($pause_on_hover){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('pause_on_hover'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('pause_on_hover'); ?>" name="<?php echo $this->get_field_name('pause_on_hover'); ?>" type="checkbox" value="true" <?php if($pause_on_hover){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('pause_on_hover'); ?>">Pause on Hover</label>
 					</p>
 					<p>
-						<input class="widefat" data-shortcode-value-if-unchecked="calc" id="<?php echo $this->get_field_id('auto_height'); ?>" name="<?php echo $this->get_field_name('auto_height'); ?>" type="checkbox" value="container" <?php if($auto_height == "container"){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('auto_height'); ?>" type="hidden" value="calc" />
+						<input class="widefat" data-shortcode-value-if-unchecked="calc" id="<?php echo $this->get_field_id('auto_height'); ?>" name="<?php echo $this->get_field_name('auto_height'); ?>" type="checkbox" value="container" <?php if($auto_height == "container"){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="calc" />
 						<label for="<?php echo $this->get_field_id('auto_height'); ?>">Auto Height</label>
 						<br/>
 					</p>	
 					<p class="description after_checkbox"><em>If checked, the height of the slideshow will be adjusted to the height of each Testimonial.  If left unchecked, the height of the slideshow will be set to the height of the tallest testimonial within the slideshow.</em></p>
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_pager_icons'); ?>" name="<?php echo $this->get_field_name('show_pager_icons'); ?>" type="checkbox" value="1" <?php if($show_pager_icons){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('show_pager_icons'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_pager_icons'); ?>" name="<?php echo $this->get_field_name('show_pager_icons'); ?>" type="checkbox" value="1" <?php if($show_pager_icons){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_pager_icons'); ?>">Show Pager Icons</label>
 					</p>	
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('prev_next'); ?>" name="<?php echo $this->get_field_name('prev_next'); ?>" type="checkbox" value="1" <?php if($prev_next){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('prev_next'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('prev_next'); ?>" name="<?php echo $this->get_field_name('prev_next'); ?>" type="checkbox" value="1" <?php if($prev_next){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('prev_next'); ?>">Show Previous and Next Buttons</label>
 					</p>
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('display_pagers_above'); ?>" name="<?php echo $this->get_field_name('display_pagers_above'); ?>" type="checkbox" value="1" <?php if($display_pagers_above){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('display_pagers_above'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('display_pagers_above'); ?>" name="<?php echo $this->get_field_name('display_pagers_above'); ?>" type="checkbox" value="1" <?php if($display_pagers_above){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('display_pagers_above'); ?>">Position Pagers Above Testimonial</label>
 					</p>
 					<p class="description after_checkbox"><em>If checked, Pager Icons and Prev/Next Buttons will be displayed Above Testimonials, instead of Below them.</em></p>
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('paused'); ?>" name="<?php echo $this->get_field_name('paused'); ?>" type="checkbox" value="1" <?php if($paused){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('paused'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('paused'); ?>" name="<?php echo $this->get_field_name('paused'); ?>" type="checkbox" value="1" <?php if($paused){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('paused'); ?>">Disable Auto Transition</label>
 					</p>	
 					<p class="description after_checkbox"><em>If checked, Testimonials only Transition when manually triggered (ie, via Pager Icons or Previous/Next buttons)</em></p>
@@ -307,6 +324,8 @@ class cycledTestimonialWidget extends WP_Widget
 	}
 
 	function update($new_instance, $old_instance){
+		$new_instance = wp_parse_args( (array) $new_instance, $this->defaults );
+		
 		$instance = $old_instance;
 		$instance['title'] = $new_instance['title'];
 		$instance['count'] = $new_instance['count'];
@@ -377,7 +396,7 @@ class cycledTestimonialWidget extends WP_Widget
 		}
 
 		// ensure width has a unit
-		if( strpos($width, 'px') === FALSE && strpos($width, 'em') === FALSE && strpos($width, '%') === FALSE && strlen($width) > 0 ) {
+		if( is_numeric($width) && strpos($width, 'px') === FALSE && strpos($width, 'em') === FALSE && strpos($width, '%') === FALSE && strlen($width) > 0 ) {
 			$width .= 'px';
 		}
 		

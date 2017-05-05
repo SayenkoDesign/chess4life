@@ -21,10 +21,29 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 class singleTestimonialWidget extends WP_Widget
 {	
 	var $config;
+	var $defaults;
 
 	function __construct(){
 		//load config
 		$this->config = new easyTestimonialsConfig();
+		
+		//load defaults
+		$this->defaults = array(
+			'testimonial_id' => '',
+			'title' => '',
+			'show_title' => 0,
+			'category' => '',
+			'use_excerpt' => 0,
+			'show_rating' => 'stars',
+			'show_date' => true,
+			'width' => false,
+			'show_testimonial_image' => get_option('testimonials_image', true),
+			'order' => 'ASC',
+			'order_by' => 'date',
+			'show_other' => true,
+			'theme' => get_option('testimonials_style', 'default_style'),
+			'hide_view_more' => 0
+		);
 		
 		$widget_ops = array('classname' => 'singleTestimonialWidget', 'description' => 'Displays a Single Testimonial.' );
 		parent::__construct('singleTestimonialWidget', 'Easy Testimonials Single Testimonial', $widget_ops);	
@@ -36,24 +55,7 @@ class singleTestimonialWidget extends WP_Widget
 	}
 
 	function form($instance){
-		$defaults = array(
-			'testimonial_id' => '',
-			'title' => '',
-			'count' => 5,
-			'show_title' => 0,
-			'category' => '',
-			'use_excerpt' => 0,
-			'show_rating' => false,
-			'show_date' => false,
-			'width' => false,
-			'show_testimonial_image' => 0,
-			'order' => 'ASC',
-			'order_by' => 'date',
-			'show_other' => 0,
-			'theme' => get_option('testimonials_style', 'default_style'),
-			'hide_view_more' => 0
-		);
-		$instance = wp_parse_args( (array) $instance, $defaults );
+		$instance = wp_parse_args( (array) $instance, $this->defaults );
 		$testimonial_id = $instance['testimonial_id'];
 		$title = $instance['title'];
 		$count = $instance['count'];
@@ -138,31 +140,37 @@ class singleTestimonialWidget extends WP_Widget
 				<legend>Fields To Display:</legend> &nbsp;
 				<div class="bikeshed_radio">
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>" type="checkbox" value="1" <?php if($show_title){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('show_title'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_title'); ?>" name="<?php echo $this->get_field_name('show_title'); ?>" type="checkbox" value="1" <?php if($show_title){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_title'); ?>">Show Testimonial Title</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('use_excerpt'); ?>" name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="checkbox" value="1" <?php if($use_excerpt){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('use_excerpt'); ?>" name="<?php echo $this->get_field_name('use_excerpt'); ?>" type="checkbox" value="1" <?php if($use_excerpt){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('use_excerpt'); ?>">Use Testimonial Excerpt</label>
 					</p>	
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_testimonial_image'); ?>" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="checkbox" value="1" <?php if($show_testimonial_image){ ?>checked="CHECKED"<?php } ?> data-shortcode-key="show_thumbs" />
+						<input name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_testimonial_image'); ?>" name="<?php echo $this->get_field_name('show_testimonial_image'); ?>" type="checkbox" value="1" <?php if($show_testimonial_image){ ?>checked="CHECKED"<?php } ?> data-shortcode-key="show_thumbs" data-shortcode-value-if-unchecked="0"/>
 						<label for="<?php echo $this->get_field_id('show_testimonial_image'); ?>">Show Featured Image</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_date'); ?>" name="<?php echo $this->get_field_name('show_date'); ?>" type="checkbox" value="1" <?php if($show_date){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('show_date'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_date'); ?>" name="<?php echo $this->get_field_name('show_date'); ?>" type="checkbox" value="1" <?php if($show_date){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0"/>
 						<label for="<?php echo $this->get_field_id('show_date'); ?>">Show Testimonial Date</label>
 					</p>
 					
 					<p>
-						<input class="widefat" id="<?php echo $this->get_field_id('show_other'); ?>" name="<?php echo $this->get_field_name('show_other'); ?>" type="checkbox" value="1" <?php if($show_other){ ?>checked="CHECKED"<?php } ?>/>
+						<input name="<?php echo $this->get_field_name('show_other'); ?>" type="hidden" value="0" />
+						<input class="widefat" id="<?php echo $this->get_field_id('show_other'); ?>" name="<?php echo $this->get_field_name('show_other'); ?>" type="checkbox" value="1" <?php if($show_other){ ?>checked="CHECKED"<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('show_other'); ?>">Show "Location Reviewed / Product Reviewed / Item Reviewed" Field</label>
 					</p>
 					
 					<p>
+						<input name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="hidden" value="0" />
 						<input class="widefat" id="<?php echo $this->get_field_id('hide_view_more'); ?>" name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="checkbox" value="1" <?php if($hide_view_more){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('hide_view_more'); ?>">Hide View More Testimonials Link</label>
 					</p>
@@ -188,18 +196,20 @@ class singleTestimonialWidget extends WP_Widget
 	}
 	
 	function update($new_instance, $old_instance){
+		$new_instance = wp_parse_args( (array) $new_instance, $this->defaults );
+		
 		$instance = $old_instance;
-		$instance['title'] = !empty($new_instance['title']) ? $new_instance['title'] : '';
-		$instance['testimonial_id'] = !empty($new_instance['testimonial_id']) ? $new_instance['testimonial_id'] : '';
-		$instance['show_title'] = !empty($new_instance['show_title']) ? $new_instance['show_title'] : 0;
-		$instance['show_rating'] = !empty($new_instance['show_rating']) ? $new_instance['show_rating'] : false;
-		$instance['use_excerpt'] = !empty($new_instance['use_excerpt']) ? $new_instance['use_excerpt'] : 0;
-		$instance['show_date'] = !empty($new_instance['show_date']) ? $new_instance['show_date'] : false;	
-		$instance['width'] = !empty($new_instance['width']) ? $new_instance['width'] : false;
-		$instance['show_testimonial_image'] = !empty($new_instance['show_testimonial_image']) ? $new_instance['show_testimonial_image'] : 0;
-		$instance['show_other'] = !empty($new_instance['show_other']) ? $new_instance['show_other'] : 0;
-		$instance['theme'] = !empty($new_instance['theme']) ? $new_instance['theme'] : get_option('testimonials_style', 'default_style');
-		$instance['hide_view_more'] = !empty($new_instance['hide_view_more']) ? $new_instance['hide_view_more'] : 0;
+		$instance['title'] = $new_instance['title'];
+		$instance['testimonial_id'] = $new_instance['testimonial_id'];
+		$instance['show_title'] = $new_instance['show_title'];
+		$instance['show_rating'] = $new_instance['show_rating'];
+		$instance['use_excerpt'] = $new_instance['use_excerpt'];
+		$instance['show_date'] = $new_instance['show_date'];	
+		$instance['width'] = $new_instance['width'];
+		$instance['show_testimonial_image'] = $new_instance['show_testimonial_image'];
+		$instance['show_other'] = $new_instance['show_other'];
+		$instance['theme'] = $new_instance['theme'];
+		$instance['hide_view_more'] = $new_instance['hide_view_more'];
 				
 		return $instance;
 	}
@@ -228,6 +238,11 @@ class singleTestimonialWidget extends WP_Widget
 
 		if (!empty($title)){
 			echo $before_title . $title . $after_title;;
+		}
+		
+		// ensure width has a unit
+		if( is_numeric($width) && strpos($width, 'px') === FALSE && strpos($width, 'em') === FALSE && strpos($width, '%') === FALSE && strlen($width) > 0 ) {
+			$width .= 'px';
 		}
 		
 		$args = array(

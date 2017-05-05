@@ -4,7 +4,7 @@ class GP_TestimonialForm{
 	var $config;
 
 	function __construct($atts){
-		//dashboard widget for pro users{
+		//dashboard widget for pro users
 		add_action( 'wp_dashboard_setup', array($this, 'easy_t_add_dashboard_widget'));	
 
 		//add admin dashboard widgets
@@ -46,11 +46,14 @@ class GP_TestimonialForm{
 	 * This function is hooked into the 'wp_dashboard_setup' action below.
 	 */
 	function easy_t_add_dashboard_widget() {
-		wp_add_dashboard_widget(
-			'easy_t_submissions_dashboard_widget',         // Widget slug.
-			'Easy Testimonials Pro - Recent Submissions',         // Title.
-			array($this, 'easy_t_output_dashboard_widget') // Display function.
-		);	
+		//only show for editors and administrators
+		if( current_user_can('editor') || current_user_can('administrator') ) {
+			wp_add_dashboard_widget(
+				'easy_t_submissions_dashboard_widget',         // Widget slug.
+				'Easy Testimonials Pro - Recent Submissions',         // Title.
+				array($this, 'easy_t_output_dashboard_widget') // Display function.
+			);	
+		}
 	}
 
 	/**
@@ -387,6 +390,9 @@ class GP_TestimonialForm{
 		
 	//submit testimonial shortcode
 	function submitTestimonialForm($atts){
+		//default new testimonial title
+		$default_new_testimonial_title = __( "New Testimonial" ) . " - " . date( "F j, Y, g:i a", current_time('timestamp', 0) );
+	
 		//load shortcode attributes into an array
 		$atts = shortcode_atts( array(
 			'submit_to_category' => false,
@@ -408,18 +414,25 @@ class GP_TestimonialForm{
 			if($this->config->is_pro){  
 				$do_not_insert = false;
 				
-				if (isset ($_POST['the-title']) && strlen($_POST['the-title']) > 0) {
-						$title =  wp_strip_all_tags($_POST['the-title']);
+				//title field is displayed and a value is entered, so use it
+				if ( !empty($_POST['the-title']) ) {
+					$title =  wp_strip_all_tags($_POST['the-title']);
+				//title field is not displayed, no value is entered, create a default entry
+				} else if( get_option('easy_t_hide_title_field', 0) ) {
+					//if the client name is not empty, use it
+					//otherwise use the default convention
+					$title = !empty($_POST['the-name']) ? $_POST['the-name'] : $default_new_testimonial_title;
+				//title field is displayed, no value is entered, throw an error so the user knows they need to fill it out
 				} else {
-						$title_error = '<p class="easy_t_error">' . get_option('easy_t_title_field_error','Please give ' . strtolower(get_option('easy_t_body_content_field_label','your testimonial')) . ' a ' . strtolower(get_option('easy_t_title_field_label','title')) . '.') . '</p>';
-						$do_not_insert = true;
+					$title_error = '<p class="easy_t_error">' . get_option('easy_t_title_field_error','Please give ' . strtolower(get_option('easy_t_body_content_field_label','your testimonial')) . ' a ' . strtolower(get_option('easy_t_title_field_label','title')) . '.') . '</p>';
+					$do_not_insert = true;
 				}
 			   
-				if (isset ($_POST['the-body']) && strlen($_POST['the-body']) > 0) {
-						$body = $_POST['the-body'];
+				if ( !empty($_POST['the-body']) ) {
+					$body = $_POST['the-body'];
 				} else {
-						$body_error = '<p class="easy_t_error">' . get_option('easy_t_body_field_error', 'Please enter ' . strtolower(get_option('easy_t_body_content_field_label','your testimonial')) . '.') . '</p>';
-						$do_not_insert = true;
+					$body_error = '<p class="easy_t_error">' . get_option('easy_t_body_field_error', 'Please enter ' . strtolower(get_option('easy_t_body_content_field_label','your testimonial')) . '.') . '</p>';
+					$do_not_insert = true;
 				}			
 				
 				if( get_option('easy_t_use_captcha',0) ){ 
@@ -519,104 +532,106 @@ class GP_TestimonialForm{
 			} else { ?>
 			<!-- New Post Form -->
 			<div id="postbox">
-					<form id="new_post" class="easy-testimonials-submission-form" name="new_post" method="post" enctype="multipart/form-data" >
-							<div class="easy_t_field_wrap <?php if(isset($title_error)){ echo "easy_t_field_wrap_error"; }//if a title wasn't entered add the wrap error class ?>">
-								<?php if(isset($title_error)){ echo $title_error; }//if a title wasn't entered display a message ?>
-								<label for="the-title"><?php echo get_option('easy_t_title_field_label','Title'); ?></label>
-								<input type="text" id="the-title" value="<?php echo ( !empty($_POST['the-title']) ? htmlentities($_POST['the-title']) : ''); ?>" tabindex="1" size="20" name="the-title" />
-								<p class="easy_t_description"><?php echo get_option('easy_t_title_field_description','Please give your Testimonial a Title.  *Required'); ?></p>
-							</div>
-							<?php if(!get_option('easy_t_hide_name_field',false)): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-name"><?php echo get_option('easy_t_name_field_label','Name'); ?></label>
-								<input type="text" id="the-name" value="<?php echo ( !empty($_POST['the-name']) ? htmlentities($_POST['the-name']) : ''); ?>" tabindex="2" size="20" name="the-name" />
-								<p class="easy_t_description"><?php echo get_option('easy_t_name_field_description','Please enter your Full Name.'); ?></p>
-							</div>
-							<?php endif; ?>
-							<?php if(!get_option('easy_t_hide_email_field',false)): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-email"><?php echo get_option('easy_t_email_field_label','Your E-Mail Address'); ?></label>
-								<input type="text" id="the-email" value="<?php echo ( !empty($_POST['the-email']) ? htmlentities($_POST['the-email']) : ''); ?>" tabindex="2" size="20" name="the-email" />
-								<p class="easy_t_description"><?php echo get_option('easy_t_email_field_description','Please enter your e-mail address.  This information will not be publicly displayed.'); ?></p>
-							</div>
-							<?php endif; ?>
-							<?php if(!get_option('easy_t_hide_position_web_other_field',false)): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-other"><?php echo get_option('easy_t_position_web_other_field_label','Position / Web Address / Other'); ?></label>
-								<input type="text" id="the-other" value="<?php echo ( !empty($_POST['the-other']) ? htmlentities($_POST['the-other']) : ''); ?>" tabindex="3" size="20" name="the-other" />
-								<p class="easy_t_description"><?php echo get_option('easy_t_position_web_other_field_description','Please enter your Job Title or Website address.'); ?></p>
-							</div>
-							<?php endif; ?>
-							<?php if(!get_option('easy_t_hide_other_other_field',false)): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-other-other"><?php echo get_option('easy_t_other_other_field_label','Location / Product Reviewed / Other'); ?></label>
-								<input type="text" id="the-other-other" value="<?php echo ( !empty($_POST['the-other-other']) ? htmlentities($_POST['the-other-other']) : ''); ?>" tabindex="3" size="20" name="the-other-other" />
-								<p class="easy_t_description"><?php echo get_option('easy_t_other_other_field_description','Please enter your the name of the item you are Reviewing.');?>
-							</div>
-							<?php endif; ?>
-							<?php //RWG: if set, add a hidden input for the submit_to_category value and hide the choice from the user ?>
-							<?php if( isset($submit_to_category) && strlen($submit_to_category) > 2 ){ ?>
-								<input type="hidden" id="the-category" name="the-category" value="<?php echo $submit_to_category; ?>" />
-							<?php } else { ?>
-							<?php $testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' ); ?>
-							<?php if( !empty($testimonial_categories) && !get_option('easy_t_hide_category_field',false) ): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-category"><?php echo get_option('easy_t_category_field_label','Category'); ?></label>
-								<select id="the-category" name="the-category">
-									<?php
-									foreach($testimonial_categories as $cat) {
-										$sel_attr = ( !empty($_POST['the-category']) && $_POST['the-category'] == $cat->slug) ? 'selected="selected"' : '';
-										printf('<option value="%s" %s>%s</option>', $cat->slug, $sel_attr, $cat->name);
-									}
-									?>
-								</select>
-								<p class="easy_t_description"><?php echo get_option('easy_t_category_field_description','Please select the Category that best matches your Testimonial.'); ?></p>
-							</div>
-							<?php endif; ?>
-							<?php }//end check for sc attribute ?>
-							<?php if(get_option('easy_t_use_rating_field',false)): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-rating"><?php echo get_option('easy_t_rating_field_label','Your Rating'); ?></label>
-								<select id="the-rating" class="the-rating" tabindex="4" size="20" name="the-rating" >
-									<?php 
-									foreach(range(1, 5) as $rating) {
-										$sel_attr = ( !empty($_POST['the-rating']) && $_POST['the-rating'] == $rating) ? 'selected="selected"' : '';
-										printf('<option value="%d" %s>%d</option>', $rating, $sel_attr, $rating);
-									}
-									?>
-								</select>
-								<div class="rateit" data-rateit-backingfld=".the-rating" data-rateit-min="0"></div>
-								<p class="easy_t_description"><?php echo get_option('easy_t_rating_field_description','1 - 5 out of 5, where 5/5 is the best and 1/5 is the worst.'); ?></p>
-							</div>
-							<?php endif; ?>
-							<div class="easy_t_field_wrap <?php if(isset($body_error)){ echo "easy_t_field_wrap_error"; }//if a testimonial wasn't entered add the wrap error class ?>">
-								<?php if(isset($body_error)){ echo $body_error; }//if a testimonial wasn't entered display a message ?>
-								<label for="the-body"><?php echo get_option('easy_t_body_content_field_label','Your Testimonial'); ?></label>
-								<textarea id="the-body" name="the-body" cols="50" tabindex="5" rows="6"><?php echo ( !empty($_POST['the-body']) ? htmlentities($_POST['the-body']) : ''); ?></textarea>
-								<p class="easy_t_description"><?php echo get_option('easy_t_body_content_field_description','Please enter your Testimonial.  *Required'); ?></p>
-							</div>							
-							<?php if(get_option('easy_t_use_image_field',false)): ?>
-							<div class="easy_t_field_wrap">
-								<label for="the-image"><?php echo get_option('easy_t_image_field_label','Testimonial Image'); ?></label>
-								<input type="file" id="the-image" value="" tabindex="6" size="20" name="the-image" />
-								<p class="easy_t_description"><?php echo get_option('easy_t_image_field_description','You can select and upload 1 image along with your Testimonial.  Depending on the website\'s settings, this image may be cropped or resized.  Allowed file types are .gif, .jpg, .png, and .jpeg.'); ?></p>
-							</div>
-							<?php endif; ?>
-							
-							<?php 
-								if( get_option('easy_t_use_captcha',0) ) {
-									?><div class="easy_t_field_wrap <?php if(isset($captcha_error)){ echo "easy_t_field_wrap_error"; }//if a captcha wasn't correctly entered add the wrap error class ?>"><?php
-									//if a captcha was entered incorrectly (or not at all) display message
-									if(isset($captcha_error)){ echo $captcha_error; }
-									$this->easy_t_outputCaptcha();
-									?></div><?php
-								}
+				<form id="new_post" class="easy-testimonials-submission-form" name="new_post" method="post" enctype="multipart/form-data" >
+					<?php if(!get_option('easy_t_hide_title_field',false)): ?>
+					<div class="easy_t_field_wrap <?php if(isset($title_error)){ echo "easy_t_field_wrap_error"; }//if a title wasn't entered add the wrap error class ?>">
+						<?php if(isset($title_error)){ echo $title_error; }//if a title wasn't entered display a message ?>
+						<label for="the-title"><?php echo get_option('easy_t_title_field_label','Title'); ?></label>
+						<input type="text" id="the-title" value="<?php echo ( !empty($_POST['the-title']) ? htmlentities($_POST['the-title']) : ''); ?>" tabindex="1" size="20" name="the-title" />
+						<p class="easy_t_description"><?php echo get_option('easy_t_title_field_description','Please give your Testimonial a Title.  *Required'); ?></p>
+					</div>
+					<?php endif; ?>
+					<?php if(!get_option('easy_t_hide_name_field',false)): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-name"><?php echo get_option('easy_t_name_field_label','Name'); ?></label>
+						<input type="text" id="the-name" value="<?php echo ( !empty($_POST['the-name']) ? htmlentities($_POST['the-name']) : ''); ?>" tabindex="2" size="20" name="the-name" />
+						<p class="easy_t_description"><?php echo get_option('easy_t_name_field_description','Please enter your Full Name.'); ?></p>
+					</div>
+					<?php endif; ?>
+					<?php if(!get_option('easy_t_hide_email_field',false)): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-email"><?php echo get_option('easy_t_email_field_label','Your E-Mail Address'); ?></label>
+						<input type="text" id="the-email" value="<?php echo ( !empty($_POST['the-email']) ? htmlentities($_POST['the-email']) : ''); ?>" tabindex="2" size="20" name="the-email" />
+						<p class="easy_t_description"><?php echo get_option('easy_t_email_field_description','Please enter your e-mail address.  This information will not be publicly displayed.'); ?></p>
+					</div>
+					<?php endif; ?>
+					<?php if(!get_option('easy_t_hide_position_web_other_field',false)): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-other"><?php echo get_option('easy_t_position_web_other_field_label','Position / Web Address / Other'); ?></label>
+						<input type="text" id="the-other" value="<?php echo ( !empty($_POST['the-other']) ? htmlentities($_POST['the-other']) : ''); ?>" tabindex="3" size="20" name="the-other" />
+						<p class="easy_t_description"><?php echo get_option('easy_t_position_web_other_field_description','Please enter your Job Title or Website address.'); ?></p>
+					</div>
+					<?php endif; ?>
+					<?php if(!get_option('easy_t_hide_other_other_field',false)): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-other-other"><?php echo get_option('easy_t_other_other_field_label','Location / Product Reviewed / Other'); ?></label>
+						<input type="text" id="the-other-other" value="<?php echo ( !empty($_POST['the-other-other']) ? htmlentities($_POST['the-other-other']) : ''); ?>" tabindex="3" size="20" name="the-other-other" />
+						<p class="easy_t_description"><?php echo get_option('easy_t_other_other_field_description','Please enter your the name of the item you are Reviewing.');?>
+					</div>
+					<?php endif; ?>
+					<?php //RWG: if set, add a hidden input for the submit_to_category value and hide the choice from the user ?>
+					<?php if( isset($submit_to_category) && strlen($submit_to_category) > 2 ){ ?>
+						<input type="hidden" id="the-category" name="the-category" value="<?php echo $submit_to_category; ?>" />
+					<?php } else { ?>
+					<?php $testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' ); ?>
+					<?php if( !empty($testimonial_categories) && !get_option('easy_t_hide_category_field',false) ): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-category"><?php echo get_option('easy_t_category_field_label','Category'); ?></label>
+						<select id="the-category" name="the-category">
+							<?php
+							foreach($testimonial_categories as $cat) {
+								$sel_attr = ( !empty($_POST['the-category']) && $_POST['the-category'] == $cat->slug) ? 'selected="selected"' : '';
+								printf('<option value="%s" %s>%s</option>', $cat->slug, $sel_attr, $cat->name);
+							}
 							?>
-							
-							<div class="easy_t_field_wrap"><input type="submit" value="<?php echo get_option('easy_t_submit_button_label','Submit Testimonial'); ?>" tabindex="7" id="submit" name="submit" /></div>
-							<input type="hidden" name="action" value="post_testimonial" />
-							<?php wp_nonce_field( 'new-post' ); ?>
-					</form>
+						</select>
+						<p class="easy_t_description"><?php echo get_option('easy_t_category_field_description','Please select the Category that best matches your Testimonial.'); ?></p>
+					</div>
+					<?php endif; ?>
+					<?php }//end check for sc attribute ?>
+					<?php if(get_option('easy_t_use_rating_field',false)): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-rating"><?php echo get_option('easy_t_rating_field_label','Your Rating'); ?></label>
+						<select id="the-rating" class="the-rating" tabindex="4" size="20" name="the-rating" >
+							<?php 
+							foreach(range(1, 5) as $rating) {
+								$sel_attr = ( !empty($_POST['the-rating']) && $_POST['the-rating'] == $rating) ? 'selected="selected"' : '';
+								printf('<option value="%d" %s>%d</option>', $rating, $sel_attr, $rating);
+							}
+							?>
+						</select>
+						<div class="rateit" data-rateit-backingfld=".the-rating" data-rateit-min="0"></div>
+						<p class="easy_t_description"><?php echo get_option('easy_t_rating_field_description','1 - 5 out of 5, where 5/5 is the best and 1/5 is the worst.'); ?></p>
+					</div>
+					<?php endif; ?>
+					<div class="easy_t_field_wrap <?php if(isset($body_error)){ echo "easy_t_field_wrap_error"; }//if a testimonial wasn't entered add the wrap error class ?>">
+						<?php if(isset($body_error)){ echo $body_error; }//if a testimonial wasn't entered display a message ?>
+						<label for="the-body"><?php echo get_option('easy_t_body_content_field_label','Your Testimonial'); ?></label>
+						<textarea id="the-body" name="the-body" cols="50" tabindex="5" rows="6"><?php echo ( !empty($_POST['the-body']) ? htmlentities($_POST['the-body']) : ''); ?></textarea>
+						<p class="easy_t_description"><?php echo get_option('easy_t_body_content_field_description','Please enter your Testimonial.  *Required'); ?></p>
+					</div>							
+					<?php if(get_option('easy_t_use_image_field',false)): ?>
+					<div class="easy_t_field_wrap">
+						<label for="the-image"><?php echo get_option('easy_t_image_field_label','Testimonial Image'); ?></label>
+						<input type="file" id="the-image" value="" tabindex="6" size="20" name="the-image" />
+						<p class="easy_t_description"><?php echo get_option('easy_t_image_field_description','You can select and upload 1 image along with your Testimonial.  Depending on the website\'s settings, this image may be cropped or resized.  Allowed file types are .gif, .jpg, .png, and .jpeg.'); ?></p>
+					</div>
+					<?php endif; ?>
+					
+					<?php 
+						if( get_option('easy_t_use_captcha',0) ) {
+							?><div class="easy_t_field_wrap <?php if(isset($captcha_error)){ echo "easy_t_field_wrap_error"; }//if a captcha wasn't correctly entered add the wrap error class ?>"><?php
+							//if a captcha was entered incorrectly (or not at all) display message
+							if(isset($captcha_error)){ echo $captcha_error; }
+							$this->easy_t_outputCaptcha();
+							?></div><?php
+						}
+					?>
+					
+					<div class="easy_t_field_wrap"><input type="submit" value="<?php echo get_option('easy_t_submit_button_label','Submit Testimonial'); ?>" tabindex="7" id="submit" name="submit" /></div>
+					<input type="hidden" name="action" value="post_testimonial" />
+					<?php wp_nonce_field( 'new-post' ); ?>
+				</form>
 			</div>
 			<!--// New Post Form -->
 			<?php }

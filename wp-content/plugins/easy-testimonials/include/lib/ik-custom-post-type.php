@@ -22,14 +22,28 @@ class ikTestimonialsCustomPostType
 	var $customPostTypeSingular = 'customPost';
 	var $customPostTypePlural = 'customPosts';
 	var $prefix = '_ikcf_';
+
+	function __construct($postType, $customFields = false, $removeDefaultCustomFields = false)
+	{
+		$this->setupCustomPostType($postType);
+		
+		if ($customFields)
+		{
+			$this->setupCustomFields($customFields);
+		}				
+	}
 	
 	function setupCustomPostType($postType)
 	{
 		//RWG: make the singular and plural versions of "Testimonials" translatable
 		$singular = __("Testimonial",'easy-testimonials');//ucwords($postType['name']);
 		$plural = __("Testimonials",'easy-testimonials');//isset($postType['plural']) ? ucwords($postType['plural']) : $singular . 's';
-		
 		$exclude_from_search = isset($postType['exclude_from_search']) ? $postType['exclude_from_search'] : false;
+		$default_supports = array('title','editor','author','thumbnail','excerpt','comments','custom-fields');		
+		$supports = isset( $postType['supports'] )
+					? $postType['supports']
+					: $default_supports;
+					
 		
 		$this->customPostTypeName = 'testimonial';//RWG: DO NOT TRANLSATE THIS STRING, ELSE YOU RISK THE PREVIOUSLY ENTERED TESTIMONIALS DISAPPEARING!
 		$this->customPostTypeSingular = $singular;
@@ -51,7 +65,7 @@ class ikTestimonialsCustomPostType
 				'not_found_in_trash' => __('No testimonials found in Trash', 'easy-testimonials'), 
 				'parent_item_colon' => ''
 			);
-			
+
 			$args = array(
 				'labels' => $labels,
 				'public' => true,
@@ -62,12 +76,16 @@ class ikTestimonialsCustomPostType
 				'rewrite' => true,
 				'capability_type' => 'post',
 				'hierarchical' => false,
-				'supports' => array('title','editor','author','thumbnail','excerpt','comments','custom-fields'),
+				'supports' => $supports,
 				'menu_icon' => 'dashicons-testimonial',//RWG: added this for Easy Testimonials, specifically
 			); 
 			$this->customPostTypeArgs = $args;
 	
 			$this->registerPostTypes();
+		
+			//hook functions to change "Post Updated", etc, to relevant CPT naming
+			add_filter( 'post_updated_messages', array( &$this, 'add_update_messages' ) );
+			add_filter( 'bulk_post_updated_messages', array( &$this, 'add_bulk_update_messages' ), 10, 2 );
 		}
 	}
 
@@ -167,6 +185,16 @@ class ikTestimonialsCustomPostType
 								echo '<textarea name="' . $this->prefix . $customField[ 'name' ] . '" id="' . $this->prefix . $customField[ 'name' ] . '" columns="30" rows="3">' . htmlspecialchars( get_post_meta( $post->ID, $this->prefix . $customField[ 'name' ], true ) ) . '</textarea>';
 								break;
 							}
+							case "number": {
+								$min = !empty($customField[ 'min' ]) ? sprintf( 'min="%s"',$customField['min'] ) : 'min="1"';
+								$max = !empty($customField[ 'max' ]) ? sprintf( 'max="%s"',$customField['max'] ) : 'max="5"';
+								
+								
+								// HTML5 Number
+								echo '<label for="' . $this->prefix . $customField[ 'name' ] .'"><b>' . $customField[ 'title' ] . '</b></label>';
+								echo '<input type="number" '.$min.' '.$max.' name="' . $this->prefix . $customField[ 'name' ] . '" id="' . $this->prefix . $customField[ 'name' ] . '" value="' . htmlspecialchars( get_post_meta( $post->ID, $this->prefix . $customField[ 'name' ], true ) ) . '" />';
+								break;
+							}
 							default: {
 								// Plain text field
 								echo '<label for="' . $this->prefix . $customField[ 'name' ] .'"><b>' . $customField[ 'title' ] . '</b></label>';
@@ -211,15 +239,88 @@ class ikTestimonialsCustomPostType
 			}
 		}
 	}
-
-	function __construct($postType, $customFields = false, $removeDefaultCustomFields = false)
-	{
-		$this->setupCustomPostType($postType);
 		
-		if ($customFields)
-		{
-			$this->setupCustomFields($customFields);
-		}				
+	/**
+	 * Add customized update messages for the custom post type. This way WP
+	 * will say e.g., "Custom Post Type updated. View custom post type."
+	 * instead of "Post updated. View post".
+	 *
+	 * See https://codex.wordpress.org/Function_Reference/register_post_type
+	 *
+	 * @param array $messages Existing post update messages.
+	 *
+	 * @return array Updated list with our messages added
+	 */
+	function add_update_messages( $messages )
+	{
+		$post             = get_post();
+		$post_type        = get_post_type( $post );
+		$post_type_object = get_post_type_object( $post_type );
+		$textdomain = $this->customPostTypeName; // TODO: pass this in as an option
+
+		$messages[ $this->customPostTypeName ] = array(
+			0  => '', // Unused. Messages start at index 1.
+			1  => $this->customPostTypeSingular . __( ' updated.', $textdomain ),
+			2  => __( 'Custom field updated.', $textdomain ),
+			3  => __( 'Custom field deleted.', $textdomain ),
+			4  => $this->customPostTypeSingular . __( ' updated.', $textdomain ),
+			/* translators: %s: date and time of the revision */
+			5  => isset( $_GET['revision'] ) ? sprintf( $this->customPostTypeSingular . __( ' restored to revision from %s', $textdomain ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			6  => $this->customPostTypeSingular . __( ' published.', $textdomain ),
+			7  => $this->customPostTypeSingular . __( ' saved.', $textdomain ),
+			8  => $this->customPostTypeSingular . __( ' submitted.', $textdomain ),
+			9  => sprintf(
+				$this->customPostTypeSingular . __( ' scheduled for: <strong>%1$s</strong>.', $textdomain ),
+				// translators: Publish box date format, see http://php.net/date
+				date_i18n( __( 'M j, Y @ G:i', $textdomain ), strtotime( $post->post_date ) )
+			),
+			10 => $this->customPostTypeSingular . __( ' draft updated.', $textdomain )
+		);
+
+		// Append "View Custom Post Type" links to the end of some messages
+		// if we are currently viewing viewing an obkect of this Post Type
+		if ( $post_type_object->publicly_queryable && ($this->customPostTypeName === $post_type) ) {
+			$permalink = get_permalink( $post->ID );
+
+			$view_link = sprintf( ' <a href="%s">%s</a>', esc_url( $permalink ), __( 'View ', $textdomain ) . strtolower($this->customPostTypeSingular) );
+			$messages[ $post_type ][1] .= $view_link;
+			$messages[ $post_type ][6] .= $view_link;
+			$messages[ $post_type ][9] .= $view_link;
+
+			$preview_permalink = add_query_arg( 'preview', 'true', $permalink );
+			$preview_link = sprintf( ' <a target="_blank" href="%s">%s</a>', esc_url( $preview_permalink ), __( 'Preview ', $textdomain ) . strtolower($this->customPostTypeSingular) );
+			$messages[ $post_type ][8]  .= $preview_link;
+			$messages[ $post_type ][10] .= $preview_link;
+		}
+
+		return $messages;
+	}
+	
+	/**
+	 * Add customized update messages for bulk actions applied to the custom
+	 * post type (e.g., post(s) moved to Trash). This way WP will say e.g.,
+	 * "1 Custom Post Type moved to the trash.", instead of "1 post moved to
+	 * the trash".
+	 *
+	 * See https://codex.wordpress.org/Plugin_API/Filter_Reference/bulk_post_updated_messages
+	 *
+	 * @param array $bulk_messages Existing bulk update messages.
+	 * @param array $bulk_counts The number of posts with each new status
+	 *							 ('trashed', 'updated', etc)
+	 *
+	 * @return array Updated list with our bulk messages added
+	 */
+	function add_bulk_update_messages( $bulk_messages, $bulk_counts )
+	{
+		$singular = strtolower($this->customPostTypeSingular);
+		$plural = strtolower($this->customPostTypePlural);
+		$bulk_messages[ $this->customPostTypeName ] = array(
+			'updated'   => _n( '%s ' . $singular . ' updated.', '%s ' . $plural . ' updated.', $bulk_counts['updated'] ),
+			'locked'    => _n( '%s ' . $singular . ' not updated, somebody is editing it.', '%s ' . $plural . ' not updated, somebody is editing them.', $bulk_counts['locked'] ),
+			'deleted'   => _n( '%s ' . $singular . ' permanently deleted.', '%s ' . $plural . ' permanently deleted.', $bulk_counts['deleted'] ),
+			'trashed'   => _n( '%s ' . $singular . ' moved to the Trash.', '%s ' . $plural . ' moved to the Trash.', $bulk_counts['trashed'] ),
+			'untrashed' => _n( '%s ' . $singular . ' restored from the Trash.', '%s ' . $plural . ' restored from the Trash.', $bulk_counts['untrashed'] ),
+		);	
+		return $bulk_messages;
 	}
 }
-?>

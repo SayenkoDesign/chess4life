@@ -25,6 +25,7 @@ class easyTestimonialsConfig{
 		$this->cache_time = get_option('easy_t_cache_time', 900); //default to 15 minutes
 		$this->cache_enabled = get_option('easy_t_cache_enabled', true); //default to true
 		$this->typography_cache_key = $this->generate_typography_cache_key();
+		$this->smart_text_avatar_generator = new GP_SmartTextAvatarGenerator();
 	}
 	
 	//loads and concatenates the typography options
@@ -239,7 +240,7 @@ class easyTestimonialsConfig{
 					'label' => 	'Vertical Flip',
 					'pro'	=>	true
 				),
-			'tileslide' => 
+			'tileSlide' => 
 				array(
 					'label' => 	'Tile Slide',
 					'pro'	=>	true

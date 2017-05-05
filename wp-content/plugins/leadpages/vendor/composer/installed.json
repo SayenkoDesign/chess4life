@@ -1,51 +1,5 @@
 [
     {
-        "name": "react/promise",
-        "version": "v2.4.1",
-        "version_normalized": "2.4.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/reactphp/promise.git",
-            "reference": "8025426794f1944de806618671d4fa476dc7626f"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/reactphp/promise/zipball/8025426794f1944de806618671d4fa476dc7626f",
-            "reference": "8025426794f1944de806618671d4fa476dc7626f",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.4.0"
-        },
-        "time": "2016-05-03 17:50:52",
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "2.0-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "React\\Promise\\": "src/"
-            },
-            "files": [
-                "src/functions_include.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Jan Sorgalla",
-                "email": "jsorgalla@gmail.com"
-            }
-        ],
-        "description": "A lightweight implementation of CommonJS Promises/A for PHP"
-    },
-    {
         "name": "guzzlehttp/streams",
         "version": "3.0.0",
         "version_normalized": "3.0.0.0",
@@ -254,24 +208,24 @@
     },
     {
         "name": "icanboogie/inflector",
-        "version": "v1.4.1",
-        "version_normalized": "1.4.1.0",
+        "version": "v1.4.2",
+        "version_normalized": "1.4.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ICanBoogie/Inflector.git",
-            "reference": "94ce86a4c4e229ebfb1a959e9094b385c0ff9a8e"
+            "reference": "d3a2c4930c67fa93dc782f67955b85d56369742c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ICanBoogie/Inflector/zipball/94ce86a4c4e229ebfb1a959e9094b385c0ff9a8e",
-            "reference": "94ce86a4c4e229ebfb1a959e9094b385c0ff9a8e",
+            "url": "https://api.github.com/repos/ICanBoogie/Inflector/zipball/d3a2c4930c67fa93dc782f67955b85d56369742c",
+            "reference": "d3a2c4930c67fa93dc782f67955b85d56369742c",
             "shasum": ""
         },
         "require": {
             "ext-mbstring": "*",
             "php": ">=5.3.4"
         },
-        "time": "2016-07-02 11:14:17",
+        "time": "2016-12-15 09:15:25",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -307,175 +261,18 @@
         ]
     },
     {
-        "name": "paragonie/random_compat",
-        "version": "v2.0.2",
-        "version_normalized": "2.0.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/paragonie/random_compat.git",
-            "reference": "088c04e2f261c33bed6ca5245491cfca69195ccf"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/paragonie/random_compat/zipball/088c04e2f261c33bed6ca5245491cfca69195ccf",
-            "reference": "088c04e2f261c33bed6ca5245491cfca69195ccf",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.2.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "4.*|5.*"
-        },
-        "suggest": {
-            "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
-        },
-        "time": "2016-04-03 06:00:07",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "lib/random.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Paragon Initiative Enterprises",
-                "email": "security@paragonie.com",
-                "homepage": "https://paragonie.com"
-            }
-        ],
-        "description": "PHP 5.x polyfill for random_bytes() and random_int() from PHP 7",
-        "keywords": [
-            "csprng",
-            "pseudorandom",
-            "random"
-        ]
-    },
-    {
-        "name": "ramsey/uuid",
-        "version": "2.9.0",
-        "version_normalized": "2.9.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ramsey/uuid.git",
-            "reference": "b2ef4dd9584268d73f92f752a62bc24cd534dc9a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ramsey/uuid/zipball/b2ef4dd9584268d73f92f752a62bc24cd534dc9a",
-            "reference": "b2ef4dd9584268d73f92f752a62bc24cd534dc9a",
-            "shasum": ""
-        },
-        "require": {
-            "paragonie/random_compat": "^1.0|^2.0",
-            "php": ">=5.3.3"
-        },
-        "replace": {
-            "rhumsaa/uuid": "self.version"
-        },
-        "require-dev": {
-            "doctrine/dbal": ">=2.3",
-            "jakub-onderka/php-parallel-lint": "^0.9.0",
-            "moontoast/math": "~1.1",
-            "phpunit/phpunit": "~4.1|~5.0",
-            "satooshi/php-coveralls": "~0.6",
-            "squizlabs/php_codesniffer": "^2.3",
-            "symfony/console": "~2.3|~3.0"
-        },
-        "suggest": {
-            "doctrine/dbal": "Allow the use of a UUID as doctrine field type.",
-            "moontoast/math": "Support for converting UUID to 128-bit integer (in string form).",
-            "symfony/console": "Support for use of the bin/uuid command line tool."
-        },
-        "time": "2016-03-22 18:20:19",
-        "bin": [
-            "bin/uuid"
-        ],
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Rhumsaa\\Uuid\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Marijn Huizendveld",
-                "email": "marijn.huizendveld@gmail.com"
-            },
-            {
-                "name": "Ben Ramsey",
-                "homepage": "http://benramsey.com"
-            }
-        ],
-        "description": "A PHP 5.3+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).",
-        "homepage": "https://github.com/ramsey/uuid",
-        "keywords": [
-            "guid",
-            "identifier",
-            "uuid"
-        ]
-    },
-    {
-        "name": "moontoast/math",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ramsey/moontoast-math.git",
-            "reference": "fce28a9d1e73e73376cb44e5e581675d15fbe2f3"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ramsey/moontoast-math/zipball/fce28a9d1e73e73376cb44e5e581675d15fbe2f3",
-            "reference": "fce28a9d1e73e73376cb44e5e581675d15fbe2f3",
-            "shasum": ""
-        },
-        "require": {
-            "ext-bcmath": "*",
-            "php": ">=5.3.3"
-        },
-        "time": "2013-01-19 17:42:34",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Moontoast\\Math": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "Apache-2.0"
-        ],
-        "description": "A mathematics library, providing functionality for large numbers",
-        "homepage": "https://github.com/moontoast/math",
-        "keywords": [
-            "bcmath",
-            "math"
-        ]
-    },
-    {
         "name": "leadpages/leadboxes",
-        "version": "1.0",
-        "version_normalized": "1.0.0.0",
+        "version": "1.1.7",
+        "version_normalized": "1.1.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/LeadPages/php_leadbox_component.git",
-            "reference": "26749391aee6c303d6a327bfdbd124e1b7f9a95c"
+            "reference": "b43a2a3a0dff4b39c0cd9b430d50fd28b7fdc61b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/LeadPages/php_leadbox_component/zipball/26749391aee6c303d6a327bfdbd124e1b7f9a95c",
-            "reference": "26749391aee6c303d6a327bfdbd124e1b7f9a95c",
+            "url": "https://api.github.com/repos/LeadPages/php_leadbox_component/zipball/b43a2a3a0dff4b39c0cd9b430d50fd28b7fdc61b",
+            "reference": "b43a2a3a0dff4b39c0cd9b430d50fd28b7fdc61b",
             "shasum": ""
         },
         "require": {
@@ -486,7 +283,7 @@
         "require-dev": {
             "phpunit/phpunit": "4.8"
         },
-        "time": "2016-09-09 21:10:41",
+        "time": "2017-03-21 19:49:50",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -507,18 +304,109 @@
         "description": "A package to allow you to easily integrate Leadpages Leadboxes into your PHP project"
     },
     {
-        "name": "leadpages/leadpages-auth",
-        "version": "1.1.3",
-        "version_normalized": "1.1.3.0",
+        "name": "leadpages/pages",
+        "version": "1.4.4",
+        "version_normalized": "1.4.4.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/LeadPages/php_auth_package.git",
-            "reference": "03a5a5d19f8b81104b972e80d8b3cd9f44e2409c"
+            "url": "https://github.com/LeadPages/php_pages_component.git",
+            "reference": "8aabe3744f62a674728cc6614823bf1879b6cea2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/LeadPages/php_auth_package/zipball/03a5a5d19f8b81104b972e80d8b3cd9f44e2409c",
-            "reference": "03a5a5d19f8b81104b972e80d8b3cd9f44e2409c",
+            "url": "https://api.github.com/repos/LeadPages/php_pages_component/zipball/8aabe3744f62a674728cc6614823bf1879b6cea2",
+            "reference": "8aabe3744f62a674728cc6614823bf1879b6cea2",
+            "shasum": ""
+        },
+        "require": {
+            "guzzlehttp/guzzle": "~5 < 6",
+            "leadpages/leadpages-auth": "*",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "4.8"
+        },
+        "time": "2017-03-21 19:49:23",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Leadpages\\Pages\\": "src/Pages/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Brandon Braner",
+                "email": "brandon.braner@ave81.com"
+            }
+        ],
+        "description": "A package to allow you to easily integrate Leadpages pages into your PHP project"
+    },
+    {
+        "name": "react/promise",
+        "version": "v2.5.1",
+        "version_normalized": "2.5.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/reactphp/promise.git",
+            "reference": "62785ae604c8d69725d693eb370e1d67e94c4053"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/reactphp/promise/zipball/62785ae604c8d69725d693eb370e1d67e94c4053",
+            "reference": "62785ae604c8d69725d693eb370e1d67e94c4053",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8"
+        },
+        "time": "2017-03-25 12:08:31",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "React\\Promise\\": "src/"
+            },
+            "files": [
+                "src/functions_include.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jan Sorgalla",
+                "email": "jsorgalla@gmail.com"
+            }
+        ],
+        "description": "A lightweight implementation of CommonJS Promises/A for PHP",
+        "keywords": [
+            "promise",
+            "promises"
+        ]
+    },
+    {
+        "name": "leadpages/leadpages-auth",
+        "version": "1.1.10",
+        "version_normalized": "1.1.10.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/LeadPages/php_auth_package.git",
+            "reference": "59604bfe4d4fbfab926a324061d097d31b8dcea3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/LeadPages/php_auth_package/zipball/59604bfe4d4fbfab926a324061d097d31b8dcea3",
+            "reference": "59604bfe4d4fbfab926a324061d097d31b8dcea3",
             "shasum": ""
         },
         "require": {
@@ -528,7 +416,7 @@
         "require-dev": {
             "phpunit/phpunit": "*"
         },
-        "time": "2016-09-12 23:13:13",
+        "time": "2017-03-29 18:34:59",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -549,46 +437,54 @@
         "description": "Authentication package for interfacing with Leadpages API's"
     },
     {
-        "name": "leadpages/pages",
-        "version": "1.0.1",
-        "version_normalized": "1.0.1.0",
+        "name": "rmccue/requests",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
         "source": {
             "type": "git",
-            "url": "https://github.com/LeadPages/php_pages_component.git",
-            "reference": "18b23e2a464a90421e16c4cbc19fd6b217b6b288"
+            "url": "https://github.com/rmccue/Requests.git",
+            "reference": "87932f52ffad70504d93f04f15690cf16a089546"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/LeadPages/php_pages_component/zipball/18b23e2a464a90421e16c4cbc19fd6b217b6b288",
-            "reference": "18b23e2a464a90421e16c4cbc19fd6b217b6b288",
+            "url": "https://api.github.com/repos/rmccue/Requests/zipball/87932f52ffad70504d93f04f15690cf16a089546",
+            "reference": "87932f52ffad70504d93f04f15690cf16a089546",
             "shasum": ""
         },
         "require": {
-            "guzzlehttp/guzzle": "~5 < 6",
-            "leadpages/leadpages-auth": "*",
-            "php": ">=5.4.0"
+            "php": ">=5.2"
         },
         "require-dev": {
-            "phpunit/phpunit": "4.8"
+            "requests/test-server": "dev-master"
         },
-        "time": "2016-09-26 17:08:31",
+        "time": "2016-10-13 00:11:37",
         "type": "library",
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
-            "psr-4": {
-                "Leadpages\\Pages\\": "src/Pages/"
+            "psr-0": {
+                "Requests": "library/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "MIT"
+            "ISC"
         ],
         "authors": [
             {
-                "name": "Brandon Braner",
-                "email": "brandon.braner@ave81.com"
+                "name": "Ryan McCue",
+                "homepage": "http://ryanmccue.info"
             }
         ],
-        "description": "A package to allow you to easily integrate Leadpages pages into your PHP project"
+        "description": "A HTTP library written in PHP, for human beings.",
+        "homepage": "http://github.com/rmccue/Requests",
+        "keywords": [
+            "curl",
+            "fsockopen",
+            "http",
+            "idna",
+            "ipv6",
+            "iri",
+            "sockets"
+        ]
     }
 ]

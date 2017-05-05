@@ -15,8 +15,8 @@ abstract class Events
     use WordPressPlatformVersion;
 
     protected $client;
-    protected $baseUrl  = "https://r220-dot-leadbrite.appspot.com/";
-    protected $eventUrl = "https://r220-dot-leadbrite.appspot.com/events/";
+    protected $baseUrl  = "https://leadbrite.appspot.com/";
+    protected $eventUrl = "https://leadbrite.appspot.com/events/";
     protected $pluginName = 'leadpages_connector';
     protected $platform = "WordPress";
     protected $phpVersion = PHP_VERSION;

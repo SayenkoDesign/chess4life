@@ -29,18 +29,47 @@ class LeadPagesPostTypeModel
 
     public function saveLeadPageMeta($post_id, $post)
     {
-
+        global $wpdb;
         // check autosave
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return $post_id;
         }
+
         //check if its a leadpage
         if($post->post_type != 'leadpages_post') return $post_id;
+
+        //check if post slug already exists
+        //404 and homepage are always blank so we need to not check those
+        $lpPostType = trim($_POST['leadpages-post-type'], '/');
+        
+        if ($post->post_status != "trash" && $lpPostType !== 'fp' && $lpPostType != 'nf' && !post_exists($post->post_title)) {
+            $slug = trim($_POST['leadpages_slug'], '/');
+            $results = $wpdb->get_results("
+              SELECT * from {$wpdb->prefix}posts WHERE ID in(
+                SELECT post_id FROM {$wpdb->prefix}postmeta WHERE `meta_value` = '{$slug}')
+              AND post_status != 'trash'",
+             OBJECT);
+
+            //echo '<pre>'; print_r($results);die();
+
+            if (!empty($results)) {
+                wp_die("Leadpage with url {$slug} already exists.");
+            }
+        }
+
+
+
 
         //check to see if the status is trash if so delete it and return post_id
         if ($post->post_status = "trash" && !isset($_POST['post_status'])) {
             $this->deletePost($post_id);
             return $post_id;
+        }
+
+        //check to see if the status is draft if so force it to publish
+        if ($_POST['post_status'] != "publish" && isset($_POST['post_status'])) {
+            $_POST['post_status'] = "publish";
+            wp_update_post(array( 'ID' => $post_id, 'post_status' => 'publish'));
         }
 
         //setup all vars for inserting or deleting posts
@@ -65,10 +94,10 @@ class LeadPagesPostTypeModel
 
         }
 
-        update_post_meta($post_id, 'leadpages_slug', sanitize_text_field($_POST['leadpages_slug']));
+        update_post_meta($post_id, 'leadpages_slug', sanitize_text_field(trim($_POST['leadpages_slug'], '/')));
 
         //save post name in meta for backwards compatibility
-        update_post_meta($post_id, 'leadpages_name', sanitize_text_field($_POST['leadpages_name']));
+        update_post_meta($post_id, 'leadpages_name', sanitize_text_field(trim($_POST['leadpages_name'], '/')));
 
         update_post_meta($post_id, 'leadpages_page_id', $this->LeadPageId);
         update_post_meta($post_id, 'leadpages_my_selected_page', $this->LeadpageXORId);
@@ -265,7 +294,6 @@ class LeadPagesPostTypeModel
     public function getLeadpagePageId($pageId){
         $LeadpageId = get_post_meta($pageId, 'leadpages_page_id', true);
 
-        //if $LeadpageId does not exist try to get it from the xor id...once again maybe something that should be done
         if (empty($LeadpageId)) {
             $LeadpageId = $this->getPageByXORId($pageId);
         }
@@ -276,6 +304,14 @@ class LeadPagesPostTypeModel
         return $LeadpageId;
     }
 
+    /**
+     * Take page xor_id and parse it against all pages to find the correct page id for new api
+     *
+     * @param $pageId
+     * @param string $xorId
+     *
+     * @return bool
+     */
     public function getPageByXORId($pageId, $xorId = '')
     {
 
@@ -288,7 +324,9 @@ class LeadPagesPostTypeModel
         $pages = $this->PagesApi->getAllUserPages();
         foreach ($pages['_items'] as $page) {
             if ($page['_meta']['xor_hex_id'] == $xorId) {
-                return $page['_meta']['id'];
+                $leadpagesPageId = $page['_meta']['id'];
+                update_post_meta($pageId, 'leadpages_page_id', $leadpagesPageId);
+                return $leadpagesPageId;
             }
         }
         //return false if page doesn't exist

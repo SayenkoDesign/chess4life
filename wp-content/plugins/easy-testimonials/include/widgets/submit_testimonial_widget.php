@@ -21,10 +21,17 @@ Shout out to http://www.makeuseof.com/tag/how-to-create-wordpress-widgets/ for t
 class submitTestimonialWidget extends WP_Widget
 {
 	var $config;
+	var $defaults;
 	
 	function __construct(){
 		//load config
 		$this->config = new easyTestimonialsConfig();
+		
+		//load defaults
+		$this->defaults = array( 
+			'title' => '',
+			'submit_to_category' => ''
+		);
 		
 		$widget_ops = array('classname' => 'submitTestimonialWidget', 'description' => 'Displays a Testimonial Submission Form.' );
 		parent::__construct('submitTestimonialWidget', 'Easy Testimonials Submit a Testimonial', $widget_ops);	
@@ -39,10 +46,7 @@ class submitTestimonialWidget extends WP_Widget
 		if($this->config->is_pro){			
 			$instance = wp_parse_args( 
 				(array) $instance, 
-				array( 
-					'title' => '',
-					'submit_to_category' => ''
-				) 
+				$this->defaults
 			);
 			
 			$title = $instance['title'];
@@ -74,6 +78,8 @@ class submitTestimonialWidget extends WP_Widget
 	}
 
 	function update($new_instance, $old_instance){
+		$new_instance = wp_parse_args( (array) $new_instance, $this->defaults );
+		
 		$instance = $old_instance;
 		$instance['title'] = $new_instance['title'];
 		$instance['submit_to_category'] = $new_instance['submit_to_category'];		

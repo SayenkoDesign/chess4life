@@ -70,6 +70,7 @@ class easyTestimonialShortcodeGeneratorOptions extends easyTestimonialOptions{
 			$settings = array(
 				//'tinymce' => false,//don't display tinymce
 				'quicktags' => false,
+				'editor_height' => '300px'
 			);
 			wp_editor($content, $editor_id, $settings); 
 		?>

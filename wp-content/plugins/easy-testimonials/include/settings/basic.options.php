@@ -51,6 +51,9 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		/* Cache */
 		register_setting( 'easy-testimonials-settings-group', 'easy_t_cache_time' );
 		register_setting( 'easy-testimonials-settings-group', 'easy_t_cache_enabled' );
+		
+		/* Review Markup */		
+		register_setting( 'easy-testimonials-settings-group', 'easy_t_output_schema_markup' );
 	}
 	
 	function render_settings_page(){		
@@ -156,8 +159,8 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_show_in_search">Show in Search</label></th>
 				<td><input type="checkbox" name="easy_t_show_in_search" id="easy_t_show_in_search" value="1" <?php if(get_option('easy_t_show_in_search', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_show_in_search">Show in Search</label>
 				<p class="description">If checked, we will Show your Testimonials in the public site search in WordPress.</p>
 				</td>
 			</tr>
@@ -165,9 +168,9 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_allow_tags">Allow HTML Tags in Testimonials</label></th>
 				<td><input type="checkbox" name="easy_t_allow_tags" id="easy_t_allow_tags" value="1" <?php if(get_option('
 		easy_t_allow_tags', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_allow_tags">Allow HTML Tags in Testimonials</label>				
 				<p class="description">If checked, HTML tags will be rendered inside testimonials.  If unchecked, HTML will be stripped from output.</p>
 				</td>
 			</tr>
@@ -181,8 +184,8 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		<p class="description">Use these fields to troubleshoot suspected compatibility issues with your Theme or other Plugins.</p>
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_disable_cycle2">Disable Cycle2 Output</label></th>
 				<td><input type="checkbox" name="easy_t_disable_cycle2" id="easy_t_disable_cycle2" value="1" <?php if(get_option('easy_t_disable_cycle2', false)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_disable_cycle2">Disable Cycle2 Output</label>
 				<p class="description">If checked, we won't include the Cycle2 JavaScript file.  If you suspect you are having JavaScript compatibility issues with our plugin, please try checking this box.</p>
 				</td>
 			</tr>
@@ -190,8 +193,8 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_use_cycle_fix">Use Cycle Fix</label></th>
 				<td><input type="checkbox" name="easy_t_use_cycle_fix" id="easy_t_use_cycle_fix" value="1" <?php if(get_option('easy_t_use_cycle_fix', false)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_use_cycle_fix">Use Cycle Fix</label>				
 				<p class="description">If checked, we will try and trigger Cycle2 a different way.  If you suspect you are having JavaScript compatibility issues with our plugin, please try checking this box.  NOTE: If you have Disable Cycle2 Output checked, this box will have no effect.</p>
 				</td>
 			</tr>
@@ -199,8 +202,8 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		
 		<table class="form-table">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_apply_content_filter">Apply The Content Filter</label></th>
 				<td><input type="checkbox" name="easy_t_apply_content_filter" id="easy_t_apply_content_filter" value="1" <?php if(get_option('easy_t_apply_content_filter', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_apply_content_filter">Apply The Content Filter</label>
 				<p class="description">If checked, we will apply the content filter to Testimonial content.  Use this if you are experiencing problems with other plugins applying their shortcodes, etc, to your Testimonial content.</p>
 				</td>
 			</tr>
@@ -222,9 +225,9 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		
 		<table class="form-table <?php echo $additional_classes; ?>">
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_avada_filter_override">Override Avada Blog Post Content Filter on Testimonials</label></th>
 				<td><input type="checkbox" name="easy_t_avada_filter_override" id="easy_t_avada_filter_override" value="1" <?php if(get_option('easy_t_avada_filter_override', false)){ ?> checked="CHECKED" <?php } ?>/>
 				<?php if(strlen($additional_message)>0){ echo "<p class='error'><strong>$additional_message</strong></p>";}?>
+				<label for="easy_t_avada_filter_override">Override Avada Blog Post Content Filter on Testimonials</label>
 				<p class="description">If checked, we will attempt to prevent the Avada blog layouts from overriding our Testimonial themes.  If you are having issues getting your themes to display when viewing Testimonial Categories in the Avada theme, try toggling this option.</p>
 				</td>
 			</tr>
@@ -234,7 +237,17 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 	
 	function output_itemreviewed_options(){
 		?>
-		<h3>Item Reviewed Options</h3>
+		<h3>Item Reviewed Options</h3>		
+		<table class="form-table">
+			<tr valign="top">				
+				<td><input type="checkbox" name="easy_t_output_schema_markup" id="easy_t_output_schema_markup" value="1" <?php if(get_option('
+		easy_t_output_schema_markup', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_output_schema_markup">Output Review Markup</label>
+				<p class="description">If checked, Schema.org review markup will be output using <a href="http://json-ld.org" target="_blank">JSON-LD</a>. This will allow search engines like Google and Bing crawl your data, improving your website's SEO.</p>
+				</td>
+			</tr>
+		</table>
+		
 		<table class="form-table">
 			<tr valign="top">
 				<th scope="row"><label for="easy_t_global_item_reviewed">Global Item Reviewed</label></th>
@@ -243,8 +256,8 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_use_global_item_reviewed">Use Global Item Reviewed</label></th>
 				<td><input type="checkbox" name="easy_t_use_global_item_reviewed" id="easy_t_use_global_item_reviewed" value="1" <?php if(get_option('easy_t_use_global_item_reviewed', false)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_use_global_item_reviewed">Use Global Item Reviewed</label>
 				<p class="description">If checked, and an individual Testimonial does not have a value for the Item being Reviewed, we will use the Global Item Reviewed setting instead.</p>
 				</td>
 			</tr>
@@ -338,7 +351,7 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 		<table class="form-table">
 			<tr valign="top">
 				<th scope="row"><label for="easy_t_registered_key">API Key</label></th>
-				<td><input type="password" name="easy_t_registered_key" id="easy_t_registered_key" value="<?php echo get_option('easy_t_registered_key'); ?>" autocomplete="off" />
+				<td><input type="text" name="easy_t_registered_key" id="easy_t_registered_key" value="<?php echo get_option('easy_t_registered_key'); ?>" autocomplete="off" />
 				<p class="description">This is the API Key that you received after registering the plugin.</p>
 				</td>
 			</tr>
@@ -357,8 +370,8 @@ class easyTestimonialBasicOptions extends easyTestimonialOptions{
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="easy_t_cache_enabled">Use Caching</label></th>
 				<td><input type="checkbox" name="easy_t_cache_enabled" id="easy_t_cache_enabled" value="1" <?php if(get_option('easy_t_cache_enabled', true)){ ?> checked="CHECKED" <?php } ?>/>
+				<label for="easy_t_cache_enabled">Use Caching</label>
 				<p class="description">To disable caching, uncheck this option.  This is good for in development websites.</p>
 				</td>
 			</tr>

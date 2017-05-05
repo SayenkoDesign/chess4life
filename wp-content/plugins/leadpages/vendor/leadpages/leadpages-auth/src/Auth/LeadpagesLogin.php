@@ -4,6 +4,7 @@ namespace Leadpages\Auth;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ConnectException;
 use Leadpages\Auth\Contracts\LeadpagesToken;
 
 abstract class LeadpagesLogin implements LeadpagesToken
@@ -11,8 +12,8 @@ abstract class LeadpagesLogin implements LeadpagesToken
 
     protected $client;
     public $response;
-    public $loginurl = 'https://api.leadpages.io/auth/v1/sessions/';
-    public $loginCheckUrl = 'https://api.leadpages.io/auth/v1/sessions/current';
+    public $loginurl = 'https://api.leadpages.io/account/v1/sessions/';
+    public $loginCheckUrl = 'https://api.leadpages.io/account/v1/sessions/current';
     public $refreshUserToken = 'https://api.leadpages.io/account/v1/sessions/';
     public $userSessionCheckUrl = 'https://api.leadpages.io/account/v1/users/current';
 
@@ -24,10 +25,13 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public $tokenLabel = 'leadpages_security_token';
 
     public $token;
+    public $certFile;
 
     public function __construct(Client $client)
     {
         $this->client = $client;
+        $this->certFile = ABSPATH . WPINC . '/certificates/ca-bundle.crt';
+
     }
 
     protected function hashUserNameAndPassword($username, $password)
@@ -47,12 +51,13 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public function getUser($username, $password)
     {
         $authHash = $this->hashUserNameAndPassword($username, $password);
-        $body = json_encode(['clientType' => 'wp-plugin']);
+        $body     = json_encode(['clientType' => 'wp-plugin']);
         try {
             $response       = $this->client->post(
               $this->loginurl, //url
               [
                 'headers' => ['Authorization' => 'Basic ' . $authHash],
+		        'verify' => $this->certFile,
                 'body'    => $body //wp-plugin value makes session not expire
               ]);
             $this->response = $response->getBody();
@@ -66,6 +71,11 @@ abstract class LeadpagesLogin implements LeadpagesToken
             ];
             $this->response = json_encode($response);
             return $this;
+        } catch (ConnectException $e) {
+            $message = 'Can not connect to Leadpages Server:';
+            $response = $this->parseException($e, $message);
+            $this->response = $response;
+            return $this;
         }
     }
 
@@ -78,10 +88,11 @@ abstract class LeadpagesLogin implements LeadpagesToken
     {
         $body = json_encode(['clientType' => 'wp-plugin']);
         try {
-            $response       = $this->client->post(
+            $response = $this->client->post(
               $this->refreshUserToken, //url
               [
                 'headers' => ['LP-Security-Token' => $this->token],
+                'verify' => $this->certFile,
                 'body'    => $body //wp-plugin value makes session not expire
               ]);
             return json_decode($response->getBody(), true);
@@ -93,8 +104,14 @@ abstract class LeadpagesLogin implements LeadpagesToken
             ];
             $this->response = json_encode($response);
             return $this;
+        } catch (ConnectException $e) {
+            $message = 'Can not connect to Leadpages Server:';
+            $response = $this->parseException($e, $message);
+            $this->response = json_encode($response);
+            return $this;
         }
     }
+
     /**
      * Check to see if you get a proper response back if you use the token stored in your DB
      * @return bool
@@ -102,18 +119,21 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public function checkCurrentUserToken()
     {
         try {
-            $response       = $this->client->get(
+            $response = $this->client->get(
               $this->loginCheckUrl,
               [
-                'headers' => ['LP-Security-Token' => $this->token]
+                'headers' => ['LP-Security-Token' => $this->token],
+                'verify' => $this->certFile,
               ]);
             //return true as token is good
             $responseArray = json_decode($response->getBody(), true);
-            if(isset($responseArray['securityToken'])) {
+            if (isset($responseArray['securityToken'])) {
                 $response = true;
             }
         } catch (ClientException $e) {
             //return false as token is bad
+            $response = false;
+        } catch (ConnectException $e) {
             $response = false;
         }
         return $response;
@@ -126,15 +146,18 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public function checkCurrentUserSession()
     {
         try {
-            $response       = $this->client->get(
+            $response = $this->client->get(
               $this->userSessionCheckUrl,
               [
-                'headers' => ['LP-Security-Token' => $this->token]
+                'headers' => ['LP-Security-Token' => $this->token],
+                'verify' => $this->certFile,
               ]);
             //return true as token is good
             $response = json_decode($response->getBody(), true);
         } catch (ClientException $e) {
             //return false as token is bad
+            $response = false;
+        } catch (ConnectException $e) {
             $response = false;
         }
         return $response;
@@ -156,7 +179,7 @@ abstract class LeadpagesLogin implements LeadpagesToken
             //token should be unset assumed to be no longer valid
             unset($this->token);
             //delete token from data store if param is passed
-            if($deleteTokenOnFail == true){
+            if ($deleteTokenOnFail == true) {
                 $this->deleteToken();
             }
             return $this->response; //return json encoded response for client to handle
@@ -179,6 +202,23 @@ abstract class LeadpagesLogin implements LeadpagesToken
     public function setLeadpagesResponse($response)
     {
         $this->response = $response;
+    }
+
+    /**
+     * @param $e
+     *
+     * @param string $message
+     *
+     * @return array
+     */
+    public function parseException($e, $message = '')
+    {
+        $response = [
+          'code'     => $e->getCode(),
+          'response' => $message . ' ' . $e->getMessage(),
+          'error'    => (bool)true
+        ];
+        return $response;
     }
 
 

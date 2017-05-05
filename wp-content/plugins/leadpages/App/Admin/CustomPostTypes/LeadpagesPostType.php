@@ -44,13 +44,13 @@ class LeadpagesPostType extends CustomPostType
           'public'               => true,
           'publicly_queryable'   => true,
           'show_ui'              => true,
-          'query_var'            => true,
+          'query_var'            => false,
           'menu_icon'            => '',
           'capability_type'      => 'page',
           'menu_position'        => 10000,
           'can_export'           => false,
           'hierarchical'         => true,
-          'has_archive'          => true,
+          'has_archive'          => false,
           'supports'             => array(),
         );
 
@@ -58,9 +58,13 @@ class LeadpagesPostType extends CustomPostType
         remove_post_type_support($this->postTypeName, 'editor');
         remove_post_type_support($this->postTypeName, 'title');
 
+        add_action( 'add_meta_boxes',function(){
+            remove_meta_box( 'submitdiv', $this->postTypeName, 'side' );
+        });
+
+
         if(is_admin()){
             add_filter('post_updated_messages', array($this, 'post_updated_messages'));
-
         }
 
     }
@@ -70,11 +74,6 @@ class LeadpagesPostType extends CustomPostType
         $this->defineLabels();
         add_action('init', array($this, 'registerPostType'), 5);
         $this->addColumns();
-        //removing publish options
-        add_action('admin_head-post.php', array($this, 'hide_publishing_actions'));
-        add_action('admin_head-post-new.php', array($this, 'hide_publishing_actions'));
-        //add_filter( 'wp_insert_post_data', array($this,'force_published'));
-
     }
 
     public function defineColumns($columns)
@@ -111,11 +110,12 @@ class LeadpagesPostType extends CustomPostType
     }
 
     private function populatePathColumn($column, $id){
-        $path = LeadPagesPostTypeModel::getMetaPagePath($id);
+        $path = home_url();
         if ( $this->postTypeName.'_path' == $column ) {
 
             if ( LeadpageType::is_front_page($id) ) {
-                $url = site_url() . '/';
+                $blogId = get_current_blog_id();
+                $url = get_home_url($blogId);
                 echo '<a href="' . $url . '" target="_blank">' . $url . '</a>';
             } elseif ( LeadpageType::is_nf_page($id) ) {
                 $characters   = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -130,7 +130,7 @@ class LeadpagesPostType extends CustomPostType
                 if ( $path == '' ) {
                     echo '<strong style="color:#ff3300">Missing path!</strong> <i>Page is not active</i>';
                 } else {
-                    $url = site_url() . '/' . $path;
+                    $url = $path .'/'.trim(LeadpagesPostTypeModel::getMetaPagePath($id), '/');
                     echo '<a href="' . $url . '" target="_blank">' . $url . '</a>';
                 }
             }
@@ -195,9 +195,9 @@ class LeadpagesPostType extends CustomPostType
         $messages['leadpages_post'] = array(
           0 => '', // Unused. Messages start at index 1.
           1 => sprintf(__('Leadpage updated. %s', 'Leadpages'), "<a href=\"{$url}\" target='_blank'>View Leadpage</a>"),
-          2 => __('Leadpage updated.', 'Leadpages'),
+          2 => sprintf(__('Leadpage updated. %s', 'Leadpages'), "<a href=\"{$url}\" target='_blank'>View Leadpage</a>"),
           3 => __('Leadpage deleted.', 'Leadpages'),
-          4 => __('Leadpage updated.', 'Leadpages'),
+          4 => sprintf(__('Leadpage updated. %s', 'Leadpages'), "<a href=\"{$url}\" target='_blank'>View Leadpage</a>"),
             /* translators: %s: date and time of the revision */
           5 => isset($_GET['revision']) ? sprintf( __('Field group restored to revision from %s', 'Leadpages'), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
           6 => sprintf(__('Leadpage Published. %s', 'Leadpages'), "<a href=\"{$url}\" target='_blank'>View Leadpage</a>"),
@@ -210,29 +210,25 @@ class LeadpagesPostType extends CustomPostType
         return $messages;
     }
 
-    public function hide_publishing_actions(){
-        global $post;
-        if($post->post_type == 'leadpages_post'){
-            echo '
-                <style type="text/css">
-                    #misc-publishing-actions,
-                    #minor-publishing-actions{
-                        display:none;
-                    }
-                </style>
-            ';
-        }
-    }
-
-    /**
-     * Sets the post status to published
-     */
-    function force_published( $post ) {
-        if( 'trash' !== $post[ 'post_status' ] ) { /* We still want to use the trash */
-            if( in_array( $post[ 'post_type' ], array( 'page', 'leadpages_post' ) ) ) {
-                $post['post_status'] = 'publish';
-            }
-            return $post;
-        }
+    public static function forceAllMetaboxsInMainColumn( $order )
+    {
+        $order = array(
+          'normal'   => join( ",", array(
+            'postexcerpt',
+            'formatdiv',
+            'trackbacksdiv',
+            'tagsdiv-post_tag',
+            'categorydiv',
+            'postimagediv',
+            'postcustom',
+            'commentstatusdiv',
+            'slugdiv',
+            'authordiv',
+            'submitdiv',
+          ) ),
+          'side'     => '',
+          'advanced' => '',
+        );
+        return $order;
     }
 }

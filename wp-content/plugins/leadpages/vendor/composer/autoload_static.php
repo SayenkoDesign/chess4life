@@ -8,7 +8,6 @@ class ComposerStaticInit1ea5f20b5aaac2ce3d28107eaac71b65
 {
     public static $files = array (
         'ad155f8f1cf0d418fe49e248db8c661b' => __DIR__ . '/..' . '/react/promise/src/functions_include.php',
-        '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '603ce470d3b0980801c7a6185a3d6d53' => __DIR__ . '/..' . '/icanboogie/inflector/lib/helpers.php',
     );
 
@@ -19,7 +18,6 @@ class ComposerStaticInit1ea5f20b5aaac2ce3d28107eaac71b65
         ),
         'R' => 
         array (
-            'Rhumsaa\\Uuid\\' => 13,
             'React\\Promise\\' => 14,
         ),
         'L' => 
@@ -42,10 +40,6 @@ class ComposerStaticInit1ea5f20b5aaac2ce3d28107eaac71b65
         'TheLoop\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Framework',
-        ),
-        'Rhumsaa\\Uuid\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/ramsey/uuid/src',
         ),
         'React\\Promise\\' => 
         array (
@@ -86,18 +80,18 @@ class ComposerStaticInit1ea5f20b5aaac2ce3d28107eaac71b65
     );
 
     public static $prefixesPsr0 = array (
+        'R' => 
+        array (
+            'Requests' => 
+            array (
+                0 => __DIR__ . '/..' . '/rmccue/requests/library',
+            ),
+        ),
         'P' => 
         array (
             'Pimple' => 
             array (
                 0 => __DIR__ . '/..' . '/pimple/pimple/src',
-            ),
-        ),
-        'M' => 
-        array (
-            'Moontoast\\Math' => 
-            array (
-                0 => __DIR__ . '/..' . '/moontoast/math/src',
             ),
         ),
     );

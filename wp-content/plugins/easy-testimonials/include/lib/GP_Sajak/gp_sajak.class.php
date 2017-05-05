@@ -36,7 +36,8 @@ if ( !class_exists('GP_Sajak') ):
 			
 			$css_url = plugins_url( 'assets/css/gp_sajak.css' , __FILE__ );
 			wp_register_style('gp-sajak', $css_url);
-			wp_enqueue_style('gp-sajak');			
+			wp_enqueue_style('gp-sajak');
+			wp_style_add_data( 'gp-sajak', 'rtl', 'replace' );
 
 			$css_url = plugins_url( 'assets/font-awesome/css/font-awesome.min.css' , __FILE__ );
 			wp_register_style('gp-sajak-font-awesome', $css_url);

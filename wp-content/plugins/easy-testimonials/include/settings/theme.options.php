@@ -95,18 +95,18 @@ class easyTestimonialThemeOptions extends easyTestimonialOptions{
 						<p class="easy_testimonials_not_registered" style="display: none; margin-bottom: 20px;"><a href="https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=themes_preview"><?php _e('This Theme Requires Pro! Upgrade to Easy Testimonials Pro now', 'easy-testimonials');?></a> <?php _e('to unlock all 75+ themes!', 'easy-testimonials');?> </p>
 						<div class="style-<?php echo str_replace('-style', '', $theme); ?> easy_t_single_testimonial">
 							<blockquote itemprop="review" itemscope itemtype="http://schema.org/Review" class="easy_testimonial" style="">
-								<img class="attachment-easy_testimonial_thumb wp-post-image easy_testimonial_mystery_man" src="<?php echo $this->config->url_path . 'assets/img/mystery_man.png';?>" />		
+								<img class="attachment-easy_testimonial_thumb wp-post-image easy_testimonial_mystery_person" src="<?php echo $this->config->url_path . 'assets/img/mystery-person.png';?>" />		
 								<p itemprop="name" class="easy_testimonial_title">Support is second to none</p>	
 								<div class="testimonial_body" itemprop="description">
-									<p>Easy Testimonials is just what I have been looking for. A breeze to install, feature rich and simple to use in order to deliver what looks really sophisticated. What’s more, their support is second to none. I had a question with my install and the perfect answer came back in less than an hour.</p>
+									<p>I looked at several testimonial plugins, and Easy Testimonials was by far the best, most user friendly and customizable plugin I found (and a reasonable price).</p>
 									<a href="https://goldplugins.com/testimonials/" class="easy_testimonials_read_more_link">Read More Testimonials</a>			
 								</div>	
 								<p class="testimonial_author">
 									<cite>
-										<span class="testimonial-client" itemprop="author" style="">Tom Evans</span>
-										<span class="testimonial-position" style="">www.tomevans.co</span>
-										<span class="testimonial-other" itemprop="itemReviewed">Easy Testimonials&nbsp;</span>
-										<span class="date" itemprop="datePublished" content="Oct. 15, 2015" style="">May 28, 2015&nbsp;</span>
+										<span class="testimonial-client" itemprop="author" style="">Greg Campisi</span>
+										<span class="testimonial-position" style="">GC Design and Creation</span>
+										<span class="testimonial-other" itemprop="itemReviewed">Easy Testimonials Pro&nbsp;</span>
+										<span class="date" itemprop="datePublished" content="January 29, 2016" style="">January 29, 2016&nbsp;</span>
 										<span itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating" class="stars">
 											<meta itemprop="worstRating" content="1"/>
 											<meta itemprop="ratingValue" content="5"/>

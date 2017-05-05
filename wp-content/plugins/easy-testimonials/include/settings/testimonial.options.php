@@ -73,8 +73,8 @@ class easyTestimonialOptions
 			//basic options page
 			array(
 				'top_level_slug' => $top_level_slug,
-				'page_title' => 'Basic Options',
-				'menu_title' => 'Options',
+				'page_title' => 'Basic Settings',
+				'menu_title' => 'Basic Settings',
 				'role' => 'administrator',
 				'slug' => $top_level_slug,
 				'callback' => array($this->basic_settings_page, 'render_settings_page'),
@@ -83,8 +83,8 @@ class easyTestimonialOptions
 			//display options page
 			array(
 				'top_level_slug' => $top_level_slug,
-				'page_title' => 'Display Options',
-				'menu_title' => 'Display',
+				'page_title' => 'Display Settings',
+				'menu_title' => 'Display Settings',
 				'role' => 'administrator',
 				'slug' => 'easy-testimonials-display-settings',
 				'callback' => array($this->display_settings_page, 'render_settings_page'),
@@ -93,8 +93,8 @@ class easyTestimonialOptions
 			//theme options page
 			array(
 				'top_level_slug' => $top_level_slug,
-				'page_title' => 'Themes',
-				'menu_title' => 'Themes',
+				'page_title' => 'Theme Settings',
+				'menu_title' => 'Theme Settings',
 				'role' => 'administrator',
 				'slug' => 'easy-testimonials-style-settings',
 				'callback' => array($this->theme_settings_page, 'render_settings_page'),
@@ -266,7 +266,7 @@ class easyTestimonialOptions
 			?>
 			<h3>Contact Support</h3>
 			<p>Would you like personalized support? Upgrade to Pro today to receive hands on support and access to all of our Pro features!</p>
-			<p><a class="button upgrade" href="#">Click Here To Learn More</a></p>			
+			<p><a class="button upgrade" href="https://goldplugins.com/special-offers/upgrade-to-easy-testimonials-pro/?utm_source=easy_testimonials_freep&utm_campaign=galahad_support_tab&utm_content=learn_more_button_1">Click Here To Learn More</a></p>			
 			<?php
 		}
 	}
@@ -638,6 +638,9 @@ class easyTestimonialOptions
 	{
 		delete_transient('_easy_t_webfont_str');
 		delete_transient('_easy_t_testimonial_style');
+		
+		//this should flush our frontend cache.
+		add_action('admin_init', array($this, 'easy_t_clear_cache') );
 	}	
 	
 	//some functions for theme output

@@ -56,7 +56,7 @@ class LeadpageController
     {
         global $leadpagesApp;
 
-        if (is_home() || is_front_page()) {
+        if (is_front_page()) {
 
             //see if a front page exists
             $post = LeadpageType::get_front_lead_page();
@@ -87,7 +87,7 @@ class LeadpageController
                     //no cache download html
                     $apiResponse = $this->pagesApi->downloadPageHtml($pageId);
                     if(isset($apiResponse['error'])){
-                        $leadpagesApp['errorEventsHandler']->reportError($apiResponse, ['pageId' => $pageId]);
+                        //$leadpagesApp['errorEventsHandler']->reportError($apiResponse, ['pageId' => $pageId]);
                         //output error to screen
                         return $posts;
                     }
@@ -105,7 +105,11 @@ class LeadpageController
      */
     public function displayWelcomeGate($posts)
     {
-        return $this->welcomeGate->displayWelcomeGate($posts);
+        if(is_home() || @is_front_page()){
+            return $this->welcomeGate->displayWelcomeGate($posts);
+        }
+        return $posts;
+
     }
 
     /**
@@ -129,13 +133,14 @@ class LeadpageController
         global $leadpagesApp;
         //get page uri
         $requestedPage = $this->parse_request();
+
         if ( false == $requestedPage ) {
             return false;
         }
         //get post from database including meta data
         $post = LeadPagesPostTypeModel::get_all_posts($requestedPage[0]);
 
-        if($post == false) return false;
+        if($post == false || isset($post['leadpages_post_type']) && $post['leadpages_post_type'] == 'nf') return false;
 
         //ensure we have the leadpages page id
         if(isset($post['leadpages_page_id'])){
@@ -165,11 +170,20 @@ class LeadpageController
         }else {
             $apiResponse = $this->pagesApi->downloadPageHtml($pageId);
             if(isset($apiResponse['error'])){
-                $leadpagesApp['errorEventsHandler']->reportError($apiResponse, ['pageId' => $pageId]);
+                //$leadpagesApp['errorEventsHandler']->reportError($apiResponse, ['pageId' => $pageId]);
                 //output error to screen
                 return;
             }
             $html = $apiResponse['response'];
+
+            if(isset($apiResponse['splitTestCookie'])){
+                $cookie = $apiResponse['splitTestCookie'];
+                setcookie(
+                    $cookie['Name'],
+                    $cookie['Value'],
+                    $cookie['Expires']
+                );
+            }
         }
 
         if(ob_get_length() > 0){
@@ -186,18 +200,28 @@ class LeadpageController
         // get current url
         $current = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         // calculate the path
-        $part = substr( $current, strlen( site_url() ) );
+        $part = substr( $current, strlen( home_url() ) );
         if ( $part[0] == '/' ) {
             $part = substr( $part, 1 );
         }
         // strip parameters
         $real   = explode( '?', $part );
         $tokens = explode( '/', $real[0] );
+        $permalinkStructure = $this->cleanPermalinkForLeadpage();
+        $tokens = array_diff($tokens, $permalinkStructure);
+
         foreach($tokens as $index => $token){
-            //decode url enteities such as %20 for space
-            $tokens[$index] = urldecode($token);
+            if(empty($token)){
+                unset($tokens[$index]);
+            }else {
+                //decode url enteities such as %20 for space
+                $tokens[$index] = urldecode($token);
+            }
         }
-        return $tokens;
+        $tokens = array_values($tokens);
+        $newTokens[0] = implode('/', $tokens);
+
+        return $newTokens;
     }
 
     public static function checkLeadpagePostExists($postId)
@@ -207,6 +231,17 @@ class LeadpageController
             return false;
         }
         return true;
+    }
+
+    public function cleanPermalinkForLeadpage()
+    {
+        $permalinkStructure = explode('/', get_option('permalink_structure'));
+        foreach($permalinkStructure as $key => $value){
+            if(empty($value) || strpos($value, '%') !== false ){
+                unset($permalinkStructure[$key]);
+            }
+        }
+        return $permalinkStructure;
     }
 
     /**
