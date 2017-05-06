@@ -1440,6 +1440,6 @@ clear:both;
     flex-wrap: wrap;
 }
 
-.rev_slider .WebProduct-Button {
+.rev_slider .WebProduct-Button, .rev_slider .WebProduct-Button:hover {
     border-radius: 30px;
 }
