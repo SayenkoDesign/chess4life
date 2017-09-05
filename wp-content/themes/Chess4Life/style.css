@@ -912,6 +912,48 @@ width: 100vw; }
 .wpb_text_column ul:not(.list-group) li::before { content: "\f05d"; padding-right: 10px; color: #f28b15; font-family: FontAwesome; }
 .custom-post-type-teacher { padding-bottom: 30px; text-align: center; }
 
+
+.main-heading .container {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.main-heading .container .wpb_column {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+.bullet .container {
+    padding-top: 0;
+}
+.bullet .container .wpb_column {
+    padding-top: 0;
+}
+.main-heading .wpb_text_column h1 {
+    color: #227293;
+}
+.wpb_text_column h2.bullet-heading {
+    color: #227293;
+}
+.wpb_text_column ul.bullet-nav a {
+    color: #227293;
+    font-size: 24px;
+    display: inline-block;
+    position: relative;
+    top: -8px;
+}
+.wpb_text_column ul.bullet-nav a:hover {
+    color: #00b3e4;
+}
+.wpb_text_column ul.bullet-nav li::before {
+    content: "";
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    margin-right: 32px;
+    border-radius: 100%;
+    background-color: #a3def8;
+    border: 1px solid #227293;
+}
+
 @media (min-width: 992px) {
 .custom-post-type-teacher { padding-bottom: 0; }
 }
