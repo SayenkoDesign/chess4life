@@ -52,7 +52,8 @@ class cycledTestimonialWidget extends WP_Widget
 			'auto_height' => 'container',
 			'display_pagers_above' => false,
 			'hide_view_more' => 0,
-			'random' => 0
+			'random' => 0,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		);
 		
 		$widget_ops = array(
@@ -98,9 +99,12 @@ class cycledTestimonialWidget extends WP_Widget
 		$auto_height = $instance['auto_height'];
 		$display_pagers_above = $instance['display_pagers_above'];
 		$hide_view_more = $instance['hide_view_more'];
-	
-		$free_theme_array = $this->config->free_theme_array;
-		$pro_theme_array = $this->config->pro_theme_array;
+		$output_schema_markup = $instance['output_schema_markup'];
+		
+		//load themes
+		$themes = $this->config->load_theme_array();
+		
+		//load transitions
 		$cycle_transitions = $this->config->cycle_transitions;
 		?>
 		<div class="gp_widget_form_wrapper">
@@ -112,31 +116,18 @@ class cycledTestimonialWidget extends WP_Widget
 			<p>
 				<label for="<?php echo $this->get_field_id('theme'); ?>">Theme:</label><br/>
 				<select name="<?php echo $this->get_field_name('theme'); ?>" id="<?php echo $this->get_field_id('theme'); ?>">	
-					<optgroup label="Free Themes">
-					<?php foreach($free_theme_array as $key => $theme_name): ?>
-						<option value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>					
-					<?php endforeach; ?>
-					</optgroup>
-					<?php foreach($pro_theme_array as $group_key => $theme_group): ?>
-						<?php $group_label = $this->get_theme_group_label($theme_group); ?>
-							<?php if (!$ip): ?>
-							<optgroup  disabled="disabled" label="<?php echo htmlentities($group_label);?> (Pro)">
-							<?php else: ?>
-							<optgroup  label="<?php echo htmlentities($group_label);?>">
-							<?php endif; ?>
+					<?php foreach($themes as $group_key => $theme_group): ?>
+					<?php $group_label = $this->get_theme_group_label($theme_group); ?>									
+						<optgroup  label="<?php echo htmlentities($group_label);?>">
 							<?php foreach($theme_group as $key => $theme_name): ?>
-								<?php if (!$ip): ?>
-								<option disabled="disabled" value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
-								<?php else: ?>
 								<option value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
-								<?php endif; ?>
 							<?php endforeach; ?>
 						</optgroup>
 					<?php endforeach; ?>
 				</select>
 				<?php if (!$ip): ?>
 				<br />
-				<em><a target="_blank" href="http://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=wp_widgets&utm_campaign=widget_themes">Upgrade To Unlock All 75+ Pro Themes!</a></em>
+				<em><a target="_blank" href="http://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=wp_widgets&utm_campaign=widget_themes">Upgrade To Unlock All 100+ Pro Themes!</a></em>
 				<?php endif; ?>
 			</p>
 			<p>
@@ -225,6 +216,13 @@ class cycledTestimonialWidget extends WP_Widget
 						<input class="widefat" id="<?php echo $this->get_field_id('hide_view_more'); ?>" name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="checkbox" value="1" <?php if($hide_view_more){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('hide_view_more'); ?>">Hide View More Testimonials Link</label>
 					</p>
+					
+					<p>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('output_schema_markup'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('output_schema_markup'); ?>" name="<?php echo $this->get_field_name('output_schema_markup'); ?>" type="checkbox" value="1" <?php if($output_schema_markup){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
+						<label for="<?php echo $this->get_field_id('output_schema_markup'); ?>">Output Review Markup</label>
+					</p>
+					<p class="description">Output the JSON-LD schema.org compliant review markup with each Testimonial.</p>
 				</div>
 			</fieldset>
 					
@@ -351,6 +349,8 @@ class cycledTestimonialWidget extends WP_Widget
 		$instance['show_testimonial_image'] = $new_instance['show_testimonial_image'];
 		$instance['display_pagers_above'] = $new_instance['display_pagers_above'];
 		$instance['hide_view_more'] = $new_instance['hide_view_more'];
+		$instance['output_schema_markup'] = $new_instance['output_schema_markup'];
+		
 		return $instance;
 	}
 
@@ -381,6 +381,7 @@ class cycledTestimonialWidget extends WP_Widget
 		$auto_height = empty($instance['auto_height']) ? false : $instance['auto_height'];
 		$paused = empty($instance['paused']) ? false : $instance['paused'];
 		$hide_view_more = empty($instance['hide_view_more']) ? 0 : $instance['hide_view_more'];
+		$output_schema_markup = empty($instance['output_schema_markup']) ? 0 : $instance['output_schema_markup'];
 
 		
 		$show_testimonial_image = empty($instance['show_testimonial_image']) ? 0 : $instance['show_testimonial_image'];
@@ -429,7 +430,8 @@ class cycledTestimonialWidget extends WP_Widget
 			'theme' => $theme,
 			'show_other' => $show_other,
 			'display_pagers_above' => $display_pagers_above,			
-			'hide_view_more' => $hide_view_more
+			'hide_view_more' => $hide_view_more,
+			'output_schema_markup' => $output_schema_markup
 		);
 		
 		echo $easy_testimonials->outputTestimonialsCycle( $args );

@@ -66,15 +66,8 @@ class NotFoundController
                 $html = $apiResponse['response'];
             }
 
-            if(ob_get_length() > 0){
-                ob_clean();
-            }
-            ob_start();//start output buffer
-            status_header( '404' );
-            print $html;
-            ob_end_flush();
-            die();
-
+            $html = LeadpageType::modifyMetaServedBy($html, 'wordpress');
+            LeadpageType::renderHtml($html, 404);
         }
     }
 

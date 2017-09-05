@@ -87,6 +87,12 @@ if ( !class_exists('GP_Sajak') ):
 
 		function header()
 		{
+			// WordPress attaches admin notices below the first <h2> it finds.
+			// Our <h2> is inside our layout, so we need to give it a blank <h2>
+			// that it can target instead. Else the flash messages will end up
+			// inside the Sajak layout!			
+			echo '<h2 style="display:none"></h2>';
+			
 			echo '<form method="post" action="options.php" enctype="multipart/form-data">';
 
 			// This prints out all hidden setting fields

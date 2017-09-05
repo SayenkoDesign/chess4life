@@ -1,10 +1,21 @@
 <?php
 include("etkg.php");
+include_once( ABSPATH . 'wp-admin/includes/plugin.php' ); // so we have access to is_plugin_active()
 
 function isValidKey(){
-	$option_key = '_easy_testimonials_pro_license_status';
-	$opt_val = get_option($option_key);
-	if ($opt_val == 'ACTIVE') {
+	
+	// look for active Easy T Pro license key (with 2 day buffer)
+	$option_key = '_easy-testimonials-pro/easy-testimonials-pro.php_license_info';
+	$license = get_option($option_key);
+	if ( !empty($license) 
+		 && !empty($license['expires']) 
+		 && $license['expires'] > strtotime('-2 days') ) {
+		return true;
+	}
+	
+	// look for pro plugin
+	$pro_plugin_path = "easy-testimonials-pro/easy-testimonials-pro.php";
+	if ( is_plugin_active($pro_plugin_path) ) {
 		return true;
 	}
 	

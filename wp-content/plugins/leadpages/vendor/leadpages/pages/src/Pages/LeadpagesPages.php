@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
+
 use Leadpages\Auth\LeadpagesLogin;
 
 class LeadpagesPages
@@ -57,7 +58,7 @@ class LeadpagesPages
         try {
             $response = $this->client->get($this->PagesUrl,
                 [
-                    'headers' => ['LP-Security-Token' => $this->login->token],
+                    'headers' => ['Authorization' => 'bearer '. $this->login->apiKey],
                     'verify' => $this->certFile,
                     'query' => $queryArray
                 ]);
@@ -96,8 +97,8 @@ class LeadpagesPages
     public function getAllUserPages($returnResponse = array(), $cursor = false)
     {
 
-        if (empty($this->login->token)) {
-            $this->login->getToken();
+        if (empty($this->login->apiKey)) {
+            $this->login->getApiKey();
         }
 
         //get & parse response
@@ -195,7 +196,7 @@ class LeadpagesPages
         try {
             $response = $this->client->get($this->PagesUrl . '/' . $pageId,
                 [
-                    'headers' => ['LP-Security-Token' => $this->login->token],
+                    'headers' => ['Authorization' => 'bearer '. $this->login->apiKey],
                     'verify' => $this->certFile,
                 ]);
 
@@ -239,17 +240,20 @@ class LeadpagesPages
 
     /**
      * get url for page, then use a get request to get the html for the page
-     * TODO at sometime this should be replaced with a single call to get the html this requires to calls
      *
-     * @param $pageId Leadpages Page id not wordpress post_id
+     * @todo refactor this
+     * @todo at sometime this should be replaced with a single call to get the html this requires two calls
+     *
+     * @param string $pageId  Leadpages Page id not wordpress post_id
+     * @param bool   $isRetry true downgrades to http
      *
      * @return mixed
      */
-    public function downloadPageHtml($pageId)
+    public function downloadPageHtml($pageId, $isRetry = false)
     {
 
-        if (is_null($this->login->token)) {
-            $this->login->token = $this->login->getToken();
+        if (is_null($this->login->apiKey)) {
+            $this->login->apiKey = $this->login->getApiKey();
         }
 
         $response = $this->getSinglePageDownloadUrl($pageId);
@@ -259,31 +263,49 @@ class LeadpagesPages
         }
 
         $responseArray = json_decode($response['response'], true);
-        $options = [];
-        $options['verify'] = $this->certFile;
+        $url = $responseArray['url'];
+
+        if ($isRetry) {
+            $url = str_replace('https:', 'http:', $url);
+        }
+
+        $options = [
+            'verify' => !$isRetry ? $this->certFile : false,
+        ];
+
         foreach ($_COOKIE as $index => $value) {
             if (strpos($index, 'splitTestV2URI') !== False) {
                 $options['cookies'] = [$index => $value];
             }
         }
+
         try {
-            $html = $this->client->get($responseArray['url'], $options);
+            $html = $this->client->get($url, $options);
             $response = [
                 'code' => 200,
                 'response' => $html->getBody()->getContents(),
             ];
+
             if (count($this->getPageSplitTestCookie($html)) > 0) {
                 $response['splitTestCookie'] = $this->getPageSplitTestCookie($html);
             }
+
         } catch (ClientException $e) {
             $response = $this->parseException($e);
+
         } catch (RequestException $e) {
             $response = $this->parseException($e);
+            if (!$isRetry) {
+                $response = $this->downloadPageHtml($pageId, true); 
+            }
+
         } catch (ServerException $e) {
             $response = $this->parseException($e);
+
         } catch (ConnectException $e) {
             $message = 'Can not connect to Leadpages Server:';
             $response = $this->parseException($e, $message);
+
         }
 
         return $response;
@@ -322,14 +344,14 @@ class LeadpagesPages
      */
     public function isLeadpageSplittested($pageId)
     {
-        if (is_null($this->login->token)) {
-            $this->login->token = $this->login->getToken();
+        if (is_null($this->login->apiKey)) {
+            $this->login->apiKey = $this->login->getApiKey();
         }
 
         try {
             $response = $this->client->get($this->PagesUrl . '/' . $pageId,
                 [
-                    'headers' => ['LP-Security-Token' => $this->login->token],
+                    'headers' => ['Authorization' => 'bearer '. $this->login->apiKey],
                     'verify' => $this->certFile,
                 ]);
 

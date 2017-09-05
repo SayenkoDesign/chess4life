@@ -18,25 +18,12 @@ class easyTestimonialThemeOptions extends easyTestimonialOptions{
 		register_setting( 'easy-testimonials-style-settings-group', 'testimonials_style' );
 	}
 	
-	function render_settings_page(){	
-		//add upgrade button if free version
-		$extra_buttons = array();
-		if(!$this->config->is_pro){
-			$extra_buttons = array(
-				array(
-					'class' => 'btn-purple',
-					'label' => 'Upgrade To Pro',
-					'url' => 'https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/'
-				)
-			);
-		}
-		
+	function render_settings_page()
+	{
 		//instantiate tabs object for output basic settings page tabs
 		$tabs = new GP_Sajak( array(
 			'header_label' => 'Theme Settings',
 			'settings_field_key' => 'easy-testimonials-style-settings-group', // can be an array			
-			'extra_buttons_header' => $extra_buttons, // extra header buttons
-			'extra_buttons_footer' => $extra_buttons // extra footer buttons
 		) );		
 		
 		$this->settings_page_top();
@@ -45,14 +32,10 @@ class easyTestimonialThemeOptions extends easyTestimonialOptions{
 	}
 	
 	function output_theme_options(){			
-		$output_free_theme_array = $this->config->free_theme_array;
-		$output_pro_theme_array = $this->config->pro_theme_array;
-		
-		//check for pro
-		$ip = $this->config->is_pro;
+		$themes = $this->config->load_theme_array();
 		
 		//load currently selected theme
-		$theme = get_option('testimonials_style');
+		$current_theme = get_option('testimonials_style');
 		?>
 		
 		<h3>Style &amp; Theme Options</h3>
@@ -64,24 +47,11 @@ class easyTestimonialThemeOptions extends easyTestimonialOptions{
 					<fieldset>
 						<legend>Select Your Theme</legend>
 						<select name="testimonials_style" id="testimonials_style">	
-							<optgroup label="Free Themes">
-							<?php foreach($output_free_theme_array as $key => $theme_name): ?>
-								<option value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>					
-							<?php endforeach; ?>
-							</optgroup>
-							<?php foreach($output_pro_theme_array as $group_key => $theme_group): ?>
-								<?php $group_label = $this->get_theme_group_label($theme_group); ?>
-									<?php if (!$ip): ?>
-									<optgroup  label="<?php echo htmlentities($group_label);?> (Pro Required)">
-									<?php else: ?>
-									<optgroup  label="<?php echo htmlentities($group_label);?>">
-									<?php endif; ?>
+							<?php foreach($themes as $group_key => $theme_group): ?>
+							<?php $group_label = $this->get_theme_group_label($theme_group); ?>									
+								<optgroup  label="<?php echo htmlentities($group_label);?>">
 									<?php foreach($theme_group as $key => $theme_name): ?>
-										<?php if (!$ip): ?>
-										<option value="<?php echo $key ?>-disabled" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
-										<?php else: ?>
-										<option value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
-										<?php endif; ?>
+										<option value="<?php echo $key ?>" <?php if($current_theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
 									<?php endforeach; ?>
 								</optgroup>
 							<?php endforeach; ?>
@@ -90,10 +60,10 @@ class easyTestimonialThemeOptions extends easyTestimonialOptions{
 					
 					<h4>Preview Selected Theme</h4>
 					<p class="description">Please note: your Theme's CSS may impact the appearance.</p>
-					<p><strong>Current Saved Theme Selection:</strong>  <?php echo ucwords(str_replace('-', ' - ', str_replace('_',' ', str_replace('-style', '', $theme)))); ?></p>
+					<p><strong>Current Saved Theme Selection:</strong>  <?php echo ucwords(str_replace('-', ' - ', str_replace('_',' ', str_replace('-style', '', $current_theme)))); ?></p>
 					<div id="easy_t_preview" class="easy_t_preview">
 						<p class="easy_testimonials_not_registered" style="display: none; margin-bottom: 20px;"><a href="https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=themes_preview"><?php _e('This Theme Requires Pro! Upgrade to Easy Testimonials Pro now', 'easy-testimonials');?></a> <?php _e('to unlock all 75+ themes!', 'easy-testimonials');?> </p>
-						<div class="style-<?php echo str_replace('-style', '', $theme); ?> easy_t_single_testimonial">
+						<div class="style-<?php echo str_replace('-style', '', $current_theme); ?> easy_t_single_testimonial">
 							<blockquote itemprop="review" itemscope itemtype="http://schema.org/Review" class="easy_testimonial" style="">
 								<img class="attachment-easy_testimonial_thumb wp-post-image easy_testimonial_mystery_person" src="<?php echo $this->config->url_path . 'assets/img/mystery-person.png';?>" />		
 								<p itemprop="name" class="easy_testimonial_title">Support is second to none</p>	
@@ -116,10 +86,6 @@ class easyTestimonialThemeOptions extends easyTestimonialOptions{
 									</cite>
 								</p>	
 							</blockquote>
-						</div>
-						<div class="easy-t-cycle-controls">				
-							<div class="cycle-prev easy-t-cycle-prev">&lt;&lt; Previous</div>							<div class="easy-t-cycle-pager"><span class="">•</span><span class="">•</span><span class="">•</span><span class="cycle-pager-active">•</span><span class="">•</span></div>
-										<div class="cycle-next easy-t-cycle-next">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next &gt;&gt;</div>			
 						</div>
 					</div>
 				</td>

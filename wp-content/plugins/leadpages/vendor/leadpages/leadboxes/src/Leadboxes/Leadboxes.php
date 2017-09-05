@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Leadpages\Leadboxes;
 
 use GuzzleHttp\Client;
@@ -8,7 +7,6 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\ServerException;
 use Leadpages\Auth\LeadpagesLogin;
-
 
 class Leadboxes
 {
@@ -37,6 +35,7 @@ class Leadboxes
 
         $this->client = $client;
         $this->login = $login;
+        $this->login->getApiKey();
         $this->leadboxesUrl = "https://my.leadpages.net/leadbox/v1/leadboxes";
         $this->certFile = ABSPATH . WPINC . '/certificates/ca-bundle.crt';
 
@@ -48,7 +47,7 @@ class Leadboxes
         try {
             $response = $this->client->get($this->leadboxesUrl,
                 [
-                    'headers' => ['LP-Security-Token' => $this->login->token],
+                    'headers' => ['Authorization' => 'Bearer ' . $this->login->apiKey],
                     'verify' => $this->certFile,
                 ]);
             $response = [
@@ -72,7 +71,7 @@ class Leadboxes
             $url = $this->buildSingleLeadboxUrl($id, $type);
             $response = $this->client->get($url,
                 [
-                    'headers' => ['LP-Security-Token' => $this->login->token],
+                    'headers' => ['Authorization' => 'Bearer '. $this->login->apiKey],
                     'verify' => $this->certFile,
                 ]);
 

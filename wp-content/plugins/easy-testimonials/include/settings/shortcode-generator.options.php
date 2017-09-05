@@ -8,26 +8,13 @@ class easyTestimonialShortcodeGeneratorOptions extends easyTestimonialOptions{
 		$this->config = $config;
 	}
 	
-	function render_settings_page(){	
-		//add upgrade button if free version
-		$extra_buttons = array();
-		if(!$this->config->is_pro){
-			$extra_buttons = array(
-				array(
-					'class' => 'btn-purple',
-					'label' => 'Upgrade To Pro',
-					'url' => 'https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/'
-				)
-			);
-		}
-		
+	function render_settings_page()
+	{
 		//instantiate tabs object for output basic settings page tabs
 		$tabs = new GP_Sajak( array(
 			'header_label' => 'Shortcode Generator',
 			'settings_field_key' => 'easy-testimonials-shortcode_generator-settings-group', // can be an array		
 			'show_save_button' => false, // hide save buttons for all panels   	
-			'extra_buttons_header' => $extra_buttons, // extra header buttons
-			'extra_buttons_footer' => $extra_buttons, // extra footer buttons
 		) );		
 		
 		$this->settings_page_top(false);

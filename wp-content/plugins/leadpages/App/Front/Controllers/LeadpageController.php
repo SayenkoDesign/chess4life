@@ -47,6 +47,8 @@ class LeadpageController
     /**
      * check to see if current page is front page and if so see if a front
      * leadpage exists to display it
+     * 
+     * @todo Separate the functionality isFront : boolean, displayFront : void
      *
      * @param $posts
      *
@@ -93,8 +95,9 @@ class LeadpageController
                     }
                     $html = $apiResponse['response'];
                 }
-                echo $html;
-                die();
+
+                $html = LeadpageType::modifyMetaServedBy($html, 'wordpress');
+                LeadpageType::renderHtml($html);
             }
         }
         return $posts;
@@ -133,7 +136,6 @@ class LeadpageController
         global $leadpagesApp;
         //get page uri
         $requestedPage = $this->parse_request();
-
         if ( false == $requestedPage ) {
             return false;
         }
@@ -169,6 +171,7 @@ class LeadpageController
             }
         }else {
             $apiResponse = $this->pagesApi->downloadPageHtml($pageId);
+
             if(isset($apiResponse['error'])){
                 //$leadpagesApp['errorEventsHandler']->reportError($apiResponse, ['pageId' => $pageId]);
                 //output error to screen
@@ -186,14 +189,8 @@ class LeadpageController
             }
         }
 
-        if(ob_get_length() > 0){
-            ob_clean();
-        }
-        ob_start();//start output buffer
-        status_header( '200' );
-        print $html;
-        ob_end_flush();
-        die();
+        $html = LeadpageType::modifyMetaServedBy($html, 'wordpress');
+        LeadpageType::renderHtml($html);
     }
 
     function parse_request() {

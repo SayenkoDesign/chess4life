@@ -42,7 +42,8 @@ class randomTestimonialWidget extends WP_Widget
 			'order_by' => 'date',
 			'show_other' => true,
 			'theme' => get_option('testimonials_style', 'default_style'),
-			'hide_view_more' => 0
+			'hide_view_more' => 0,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		);
 		
 		$widget_ops = array('classname' => 'randomTestimonialWidget', 'description' => 'Displays a Random Testimonial.' );
@@ -70,11 +71,12 @@ class randomTestimonialWidget extends WP_Widget
 		$show_other = $instance['show_other'];
 		$theme = $instance['theme'];
 		$testimonial_categories = get_terms( 'easy-testimonial-category', 'orderby=title&hide_empty=0' );
-		$hide_view_more = $instance['hide_view_more'];				
+		$hide_view_more = $instance['hide_view_more'];
+		$output_schema_markup = $instance['output_schema_markup'];
 		$ip = $this->config->is_pro;
-	
-		$free_theme_array = $this->config->free_theme_array;
-		$pro_theme_array = $this->config->pro_theme_array;
+		
+		//load themes
+		$themes = $this->config->load_theme_array();
 		?>
 		<div class="gp_widget_form_wrapper">
 			<p class="hide_in_popup">
@@ -85,31 +87,18 @@ class randomTestimonialWidget extends WP_Widget
 			<p>
 				<label for="<?php echo $this->get_field_id('theme'); ?>">Theme:</label><br/>
 				<select name="<?php echo $this->get_field_name('theme'); ?>" id="<?php echo $this->get_field_id('theme'); ?>">	
-					<optgroup label="Free Themes">
-					<?php foreach($free_theme_array as $key => $theme_name): ?>
-						<option value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>					
-					<?php endforeach; ?>
-					</optgroup>
-					<?php foreach($pro_theme_array as $group_key => $theme_group): ?>
-						<?php $group_label = $this->get_theme_group_label($theme_group); ?>
-							<?php if (!$ip): ?>
-							<optgroup  disabled="disabled" label="<?php echo htmlentities($group_label);?> (Pro)">
-							<?php else: ?>
-							<optgroup  label="<?php echo htmlentities($group_label);?>">
-							<?php endif; ?>
+					<?php foreach($themes as $group_key => $theme_group): ?>
+					<?php $group_label = $this->get_theme_group_label($theme_group); ?>									
+						<optgroup  label="<?php echo htmlentities($group_label);?>">
 							<?php foreach($theme_group as $key => $theme_name): ?>
-								<?php if (!$ip): ?>
-								<option disabled="disabled" value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
-								<?php else: ?>
 								<option value="<?php echo $key ?>" <?php if($theme == $key): echo 'selected="SELECTED"'; endif; ?>><?php echo htmlentities($theme_name); ?></option>
-								<?php endif; ?>
 							<?php endforeach; ?>
 						</optgroup>
 					<?php endforeach; ?>
 				</select>
 				<?php if (!$ip): ?>
 				<br />
-				<em><a target="_blank" href="http://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=wp_widgets&utm_campaign=widget_themes">Upgrade To Unlock All 75+ Pro Themes!</a></em>
+				<em><a target="_blank" href="http://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=wp_widgets&utm_campaign=widget_themes">Upgrade To Unlock All 100+ Pro Themes!</a></em>
 				<?php endif; ?>
 			</p>
 			
@@ -184,6 +173,13 @@ class randomTestimonialWidget extends WP_Widget
 						<input class="widefat" id="<?php echo $this->get_field_id('hide_view_more'); ?>" name="<?php echo $this->get_field_name('hide_view_more'); ?>" type="checkbox" value="1" <?php if($hide_view_more){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
 						<label for="<?php echo $this->get_field_id('hide_view_more'); ?>">Hide View More Testimonials Link</label>
 					</p>
+					
+					<p>
+						<input type="hidden" value="0" name="<?php echo $this->get_field_name('output_schema_markup'); ?>" />
+						<input class="widefat" id="<?php echo $this->get_field_id('output_schema_markup'); ?>" name="<?php echo $this->get_field_name('output_schema_markup'); ?>" type="checkbox" value="1" <?php if($output_schema_markup){ ?>checked=""<?php } ?> data-shortcode-value-if-unchecked="0" />
+						<label for="<?php echo $this->get_field_id('output_schema_markup'); ?>">Output Review Markup</label>
+					</p>
+					<p class="description">Output the JSON-LD schema.org compliant review markup with each Testimonial.</p>
 				</div>
 			</fieldset>
 
@@ -221,6 +217,7 @@ class randomTestimonialWidget extends WP_Widget
 		$instance['show_other'] = $new_instance['show_other'];
 		$instance['theme'] = $new_instance['theme'];
 		$instance['hide_view_more'] = $new_instance['hide_view_more'];
+		$instance['output_schema_markup'] = $new_instance['output_schema_markup'];
 		
 		return $instance;
 	}
@@ -246,6 +243,7 @@ class randomTestimonialWidget extends WP_Widget
 		$show_other = empty($instance['show_other']) ? 0 : $instance['show_other'];
 		$theme = empty($instance['theme']) ? '' : $instance['theme'];
 		$hide_view_more = empty($instance['hide_view_more']) ? 0 : $instance['hide_view_more'];
+		$output_schema_markup = empty($instance['output_schema_markup']) ? 0 : $instance['output_schema_markup'];
 
 		if (!empty($title)){
 			echo $before_title . $title . $after_title;;
@@ -268,7 +266,8 @@ class randomTestimonialWidget extends WP_Widget
 			'show_other' => $show_other,
 			'show_thumbs' => $show_testimonial_image,
 			'theme' => $theme,
-			'hide_view_more' => $hide_view_more
+			'hide_view_more' => $hide_view_more,
+			'output_schema_markup' => $output_schema_markup
 		);
 		echo $easy_testimonials->outputRandomTestimonial( $args );
 

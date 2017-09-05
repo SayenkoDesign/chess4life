@@ -40,15 +40,15 @@ jQuery(function () {
 		var panel = get_target_panel(ui);
 		var id = panel.attr('id');
 		var input = panel.parents('form:first')
-						 .find('input[name="_wp_http_referer"]');
-		var current_url = input.val();
-		var spot = current_url.indexOf('#');
-		if (spot) {
-			var parts = current_url.split('#');
-			current_url = parts[0];
-		}
+						 .find('input[name="_wp_http_referer"]');						 
 						 
-		if ( id && input ) {
+		if ( id && input && input.val() ) {
+			var current_url = input.val();
+			var spot = current_url.indexOf('#');
+			if (spot) {
+				var parts = current_url.split('#');
+				current_url = parts[0];
+			}						 
 			input.val(current_url + '#' + id);
 		}
 	};
@@ -98,4 +98,11 @@ jQuery(function () {
 	remove_jqui_classes();
 	setTimeout(remove_jqui_classes, 20);
 	setTimeout(remove_jqui_classes, 200);
+	
+	// prevent jump on page load
+	if (sajak_tabs.length && location.hash) {
+		setTimeout(function() {
+			window.scrollTo(0, 0);
+		}, 1);
+	}
 });

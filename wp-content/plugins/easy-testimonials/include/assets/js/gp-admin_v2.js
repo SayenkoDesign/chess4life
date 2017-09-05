@@ -1,9 +1,9 @@
-var gold_plugins_init_coupon_box = function () {
+var et_gold_plugins_init_coupon_box = function () {
 	var $form = jQuery('#mc-embedded-subscribe-form');
 	if ($form.length > 0) {
 	
-		var btn = $form.find('.smallBlueButton');
-		
+		var btn = $form.find('input[type="submit"]');
+
 		//if already subscribed, cut to the chase
 		if ( (jQuery('#gold_plugins_already_subscribed').val() == 1) ) {
 			gold_plugins_ml_ajax_success($form, btn, 0);
@@ -12,7 +12,7 @@ var gold_plugins_init_coupon_box = function () {
 		// bind to form's submit action to reveal coupon box
 		$form.bind('submit', function () {
 			
-			var btn = jQuery(this).find('.smallBlueButton');
+			var btn = jQuery(this).find('input[type="submit"]');
 			btn.val('Sending Now...');
 			var $ajax_url = 'https://goldplugins.com/list-manage/ajax.php';
 			var $ajax_data = $form.serialize();

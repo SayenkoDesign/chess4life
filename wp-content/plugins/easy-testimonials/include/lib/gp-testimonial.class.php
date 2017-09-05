@@ -17,7 +17,7 @@ class GP_Testimonial{
 		
 		//setup atts
 		$this->atts = $this->merge_default_attributes($data['atts']);
-				
+		
 		//setup our custom excerpts
 		add_filter('get_the_excerpt', array($this, 'easy_t_fix_testimonial_excerpts') );
 		add_filter('excerpt_length', array($this, 'easy_t_excerpt_length') );
@@ -25,9 +25,7 @@ class GP_Testimonial{
 		
 		//if we have a testimonial, create a cache key
 		if( isset($this->testimonial->ID) ){
-			$this->cache_key =	"easy_t_" . $this->testimonial->ID . 
-								md5(serialize($this->atts) . 
-								$this->config->typography_cache_key);
+			$this->cache_key =	"easy_t_" . $this->testimonial->ID . md5( serialize($this->atts) );
 		}
 		
 		//add any declared default atts from our theme
@@ -78,7 +76,7 @@ class GP_Testimonial{
 	
 	function merge_default_attributes($atts){
 		$defaults = array(	
-			'testimonials_link' => '',//get_option('testimonials_link'),
+			'testimonials_link' => get_option('testimonials_link'),
 			'show_title' => 0,
 			'count' => -1,
 			'body_class' => 'testimonial_body',
@@ -134,6 +132,7 @@ class GP_Testimonial{
 
 		// restore post data to its previous, possibly borked, form
 		$post = $old_post;
+		setup_postdata($post);
 		
 		return $content;
 	}
@@ -291,29 +290,15 @@ class GP_Testimonial{
 	//finds a matching theme or loads the theme currently selected on the options page
 	//returns appropriate class name string to match theme
 	//if return_theme_base is true, returns the base string of the theme (without the style modifier)
-	function easy_t_get_theme_class($theme_string, $return_theme_base = false){	
-		$the_theme = get_option('testimonials_style', 'default_style');
+	function easy_t_get_theme_class($theme_string = '', $return_theme_base = false)
+	{	
+		// use default theme if no theme was specified
+		$the_theme = !empty($theme_string)
+					 ? $theme_string
+					 : get_option('testimonials_style', 'default_style');
 		
-		//if the theme string is passed
-		if(strlen($theme_string)>2){
-			//if the theme string is valid
-			if(in_array($theme_string, $this->config->theme_array)){			
-				//if returning theme base for pro themes, go ahead and do so now
-				if( $return_theme_base ){
-					//loop through the pro theme array
-					foreach( $pro_theme_array as $pro_theme_base => $this_pro_theme_array ) {
-						//if a matching key to our specific pro theme is found
-						if(isset($this_pro_theme_array[$theme_string])){
-							//return the base string of that pro theme, from the array
-							return $pro_theme_base;
-						}
-					}
-				}
-				
-				//use the theme string
-				$the_theme = $theme_string;
-			}
-		}
+		// sanitize theme name: only allow letters, numbers, underscore, and dash
+		$the_theme = preg_replace("/[^A-Za-z0-9\-_]/", '', $the_theme);
 		
 		//remove style from the middle of our theme options and place it as a prefix
 		//matching our CSS files
@@ -368,40 +353,34 @@ class GP_Testimonial{
 			  "@context": "http://schema.org/",
 			  "@type": "Review",
 			  "itemReviewed": {
-				"name": "<?php echo $this->easy_t_clean_html($testimonial['other']); ?>"
+				"name": <?php echo json_encode( $this->easy_t_clean_html($testimonial['other']) ); ?>
 			  },
 			  "reviewRating": {
 				"@type": "Rating",
-				"ratingValue": "<?php echo $testimonial['num_stars']; ?>"
+				"ratingValue": <?php echo json_encode( $testimonial['num_stars'] ); ?>
 			  },
-			  "name": "<?php echo get_the_title($this->testimonial->ID); ?>",
+			  "name": <?php echo json_encode( get_the_title( $testimonial['id'] ) ); ?>,
 			  "author": {
 				"@type": "Person",
-				"name": "<?php echo $this->easy_t_clean_html($testimonial['client']); ?>"
+				"name": <?php echo json_encode( $this->easy_t_clean_html($testimonial['client']) ); ?>
 			  },
-			  "reviewBody": "<?php echo strip_tags($testimonial['content']); ?>"
+			  "reviewBody": <?php echo json_encode( strip_tags($testimonial['content']) ); ?>
 			}
 		</script>
 		<?php
 		$content = ob_get_contents();
 		ob_end_clean();
 		
-		return $content;
+		return apply_filters( "easy_testimonials_json_ld", $content, $testimonial );
 	 }
 	
 	/*
 	 *  Assemble the html for the testimonials metadata taking into account current options
+	 *  @deprecated 2.3.1
+     *  @deprecated No longer used by internal code and not recommended.
 	 */
 	function easy_testimonials_build_metadata_html($testimonial, $author_class, $show_date, $show_rating, $show_other)
-	{
-		$date_css = $this->easy_testimonials_build_typography_css('easy_t_date_');
-		$position_css = $this->easy_testimonials_build_typography_css('easy_t_position_');
-		$client_css = $this->easy_testimonials_build_typography_css('easy_t_author_');
-		$other_css = $this->easy_testimonials_build_typography_css('easy_t_other_');
-		//only build the stars CSS, ie the font color only
-		//as the rating displayed by the metadata function is only ever stars
-		$rating_css = $this->easy_testimonials_build_typography_css('easy_t_rating_', 'stars');
-		
+	{		
 		//set the following variables to true if the option to display the associated item is true 
 		//and the associated item has content in it 
 		//(preventing outputting blank items that insert whitespace)
@@ -409,8 +388,7 @@ class GP_Testimonial{
 		$show_the_position = (strlen($testimonial['position'])>0) ? true : false;
 		$show_the_other = (strlen($testimonial['other'])>0 && $show_other) ? true : false;
 		$show_the_date = (strlen($testimonial['date'])>0 && $show_date) ? true : false;
-		$show_the_rating = (strlen($testimonial['num_stars'])>0 && ($show_rating == "stars")) ? true : false;
-		
+		$show_the_rating = (strlen($testimonial['num_stars'])>0 && ($show_rating == "stars")) ? true : false;		
 		?>
 		<p class="<?php echo $author_class; ?>">
 			<?php //if any of the items have data and are set to be displayed, construct the html ?>
@@ -435,7 +413,7 @@ class GP_Testimonial{
 						$x = 5; //total available stars
 						//output dark stars for the filled in ones
 						for($i = 0; $i < $testimonial['num_stars']; $i ++){
-							echo '<span class="dashicons dashicons-star-filled" style="' . $rating_css . '"></span>';
+							echo '<span class="dashicons dashicons-star-filled"></span>';
 							$x--; //one less star available
 						}
 						//fill out the remaining empty stars
@@ -552,95 +530,6 @@ class GP_Testimonial{
 	}
 	
 	/*
-	* Builds a CSS string corresponding to the values of a typography setting
-	*
-	* @param $prefix The prefix for the settings. We'll append font_name,
-	* font_size, etc to this prefix to get the actual keys
-	*
-	* @returns string The completed CSS string, with the values inlined
-	*/
-	function easy_testimonials_build_typography_css($prefix, $extra = '')
-	{
-		$css_rule_template = ' %s: %s;';
-		$output = '';
-		if (!$this->config->is_pro) {
-			return $output;
-		}
-		/*
-		* Font Family
-		*/
-		$option_val = get_option($prefix . 'font_family', '');
-		if (!empty($option_val)) {
-			// strip off 'google:' prefix if needed
-			$option_val = str_replace('google:', '', $option_val);
-			// wrap font family name in quotes
-			$option_val = '\'' . $option_val . '\'';
-			$output .= sprintf($css_rule_template, 'font-family', $option_val);
-		}
-		/*
-		* Font Size
-		*/
-		$option_val = get_option($prefix . 'font_size', '');
-		if (!empty($option_val)) {
-			// append 'px' if needed
-			if ( is_numeric($option_val) ) {
-				$option_val .= 'px';
-			}
-			$output .= sprintf($css_rule_template, 'font-size', $option_val);
-		}
-		/*
-		* Font Style - add font-style and font-weight rules
-		* NOTE: in this special case, we are adding 2 rules!
-		*/
-		$option_val = get_option($prefix . 'font_style', '');
-		// Convert the value to 2 CSS rules, font-style and font-weight
-		// NOTE: we lowercase the value before comparison, for simplification
-		switch(strtolower($option_val))
-		{
-			case 'regular':
-				// not bold not italic
-				$output .= sprintf($css_rule_template, 'font-style', 'normal');
-				$output .= sprintf($css_rule_template, 'font-weight', 'normal');
-			break;
-			case 'bold':
-				// bold, but not italic
-				$output .= sprintf($css_rule_template, 'font-style', 'normal');
-				$output .= sprintf($css_rule_template, 'font-weight', 'bold');
-			break;
-			case 'italic':
-				// italic, but not bold
-				$output .= sprintf($css_rule_template, 'font-style', 'italic');
-				$output .= sprintf($css_rule_template, 'font-weight', 'normal');
-			break;
-			case 'bold italic':
-				// bold and italic
-				$output .= sprintf($css_rule_template, 'font-style', 'italic');
-				$output .= sprintf($css_rule_template, 'font-weight', 'bold');
-			break;
-			default:
-				// empty string or other invalid value, ignore and move on
-			break;
-		}
-		/*
-		* Font Color
-		* RWG: Moved this after other options so that, for Stars display 
-		*      we can empty $output and start over with just the font color
-		*      preventing the user from accidentally doing crazy things with their stars
-		*/
-		//RWG: if this is the Rating and extra is set to Stars, only apply the chosen color (ie, wipe out the output string and start anew -- this prevents the user from accidentally breaking their stars display)
-		if($prefix == "easy_t_rating_" && $extra == "stars"){
-			$output = "";
-		}
-		$option_val = get_option($prefix . 'font_color', '');
-		if (!empty($option_val)) {
-			$output .= sprintf($css_rule_template, 'color', $option_val);
-		}
-		
-		// return the completed CSS string
-		return trim($output);
-	}
-	
-	/*
 	 * Generates and returns the HTML for a given testimonial, 
 	 * considering the shortcode attributes provided.
 	 *
@@ -689,11 +578,9 @@ class GP_Testimonial{
 		//if set, append english text to it
 		$view_vars->display_testimonial['rating'] = get_post_meta($this->testimonial->ID, '_ikcf_rating', true); 
 		$view_vars->display_testimonial['num_stars'] = ''; //reset num stars (Thanks Steve@IntegrityConsultants!)
-		if(strlen($view_vars->display_testimonial['rating'])>0){	
-			$rating_css = $this->easy_testimonials_build_typography_css('easy_t_rating_');
-		
+		if(strlen($view_vars->display_testimonial['rating'])>0){			
 			$view_vars->display_testimonial['num_stars'] = $view_vars->display_testimonial['rating'];
-			$view_vars->display_testimonial['rating'] = '<p class="easy_t_ratings" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating" style="' . $rating_css . '"><meta itemprop="worstRating" content = "1"/><span itemprop="ratingValue" >' . htmlentities($view_vars->display_testimonial['rating']) . '</span>/<span itemprop="bestRating">5</span> Stars.</p>';
+			$view_vars->display_testimonial['rating'] = '<p class="easy_t_ratings" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating"><meta itemprop="worstRating" content = "1"/><span itemprop="ratingValue" >' . htmlentities($view_vars->display_testimonial['rating']) . '</span>/<span itemprop="bestRating">5</span> Stars.</p>';
 		}	
 		
 		//if nothing is set for the short content, use the long content
@@ -759,24 +646,39 @@ class GP_Testimonial{
 		//get classes for current theme
 		$view_vars->output_theme = $this->easy_t_get_theme_class($this->atts['theme']);
 		
-		//get css from our typography settings
-		$view_vars->display_testimonial_body_css = $this->easy_testimonials_build_typography_css('easy_t_body_');	
-		
 		//get width from our width option or shortcode attribute (if set)
 		$view_vars->width_value = !empty($this->atts['width']) ? $this->atts['width'] : get_option('easy_t_width','');		
 		//only output width style if a width is set
-		$view_vars->width_style = !empty($width_value) ? 'style="width: ' . $width_value . '"' : '';
+		$view_vars->width_style = !empty($view_vars->width_value) ? 'style="width: ' . $view_vars->width_value . '"' : '';
 		
 		//if the "Show View More Testimonials Link" option is checked
 		//and the hide_view_more attribute is not set
 		//then set $show_view_more to true
 		//else set to false
 		$view_vars->show_view_more = (get_option('easy_t_show_view_more_link',false) && !$this->atts['hide_view_more']) ? true : false;
+				
+		//set the following variables to true if the option to display the associated item is true 
+		//and the associated item has content in it 
+		//(preventing outputting blank items that insert whitespace)
+		$view_vars->testimonial_metadata['show_the_client'] = (strlen($view_vars->display_testimonial['client'])>0) ? true : false;
+		$view_vars->testimonial_metadata['show_the_position'] = (strlen($view_vars->display_testimonial['position'])>0) ? true : false;
+		$view_vars->testimonial_metadata['show_the_other'] = (strlen($view_vars->display_testimonial['other'])>0 && $this->atts['show_other']) ? true : false;
+		$view_vars->testimonial_metadata['show_the_date'] = (strlen($view_vars->display_testimonial['date'])>0 && $this->atts['show_date']) ? true : false;
+		$view_vars->testimonial_metadata['show_the_rating'] = (strlen($view_vars->display_testimonial['num_stars'])>0 && ($this->atts['show_rating'] == "stars")) ? true : false;
+		
+		//last chance to customize testimonial data before rendering template
+		$view_vars->display_testimonial = apply_filters('easy_t_display_testimonial_data', $view_vars->display_testimonial);
 		
 		//last chance to customize attributes before rendering template
 		$view_vars->atts = apply_filters('easy_t_display_attributes' , $this->atts);
 		
-		$output = $this->get_template_content("single_testimonial.php", '', $view_vars);
+		//last chance to customize metadata before rendering template
+		$view_vars->testimonial_metadata = apply_filters('easy_t_display_metadata', $view_vars->testimonial_metadata);
+		
+		//last chance to load a different template
+		$template_filename = apply_filters( 'easy_t_template_filename', 'single_testimonial.php', $view_vars->output_theme );
+		
+		$output = $this->get_template_content($template_filename, '', $view_vars);
 		
 		wp_reset_postdata();
 		
@@ -785,11 +687,14 @@ class GP_Testimonial{
 	}	
 	
 	function get_template_content($template_name, $default_content = '', $view_vars = array() )
-	{	
+	{
 		$template_path = $this->get_template_path($template_name);
 		if (file_exists($template_path)) {
+			//array merge atts and metadata so extract produces correctly named vars
 			$view_vars = array_merge( (array)$view_vars, $view_vars->atts );
-		
+			
+			$view_vars = array_merge( $view_vars, $view_vars['testimonial_metadata'] );
+			
 			// load template by including it in an output buffer, so that variables and PHP will be run
 			ob_start();
 			extract( $view_vars );
@@ -812,7 +717,7 @@ class GP_Testimonial{
 		} else {
 			$template_path = plugin_dir_path( __FILE__ ) . '../templates/' . $template_name;
 		}
-		return $template_path;
+		return apply_filters( 'easy_t_template_path', $template_path, $template_name );
 	}
 	
 	//check to see if HTML is allowed in testimonials

@@ -1,60 +1,71 @@
-=== Testimonials Plugin: Easy Testimonials ===
+=== Easy Testimonials ===
 Plugin Name: Easy Testimonials
 Plugin URI: https://goldplugins.com/downloads/easy-testimonials-pro/
 Contributors: richardgabriel, ghuger
 Tags: testimonials, testimonial widget, testimonial feed, random testimonials
-Requires at least: 4.0.0
-Tested up to: 4.7.4
-Stable tag: 2.2.5
+Requires at least: 4.5.0
+Tested up to: 4.8.1
+Stable tag: 3.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Testimonials widget and shortcode for adding Testimonials to your WordPress Theme, with a simple interface.
+Testimonials widgets and shortcodes for easily adding Testimonials to your WordPress Theme, with a simple interface.
 
 == Description ==
 
-Easy Testimonials is an easy-to-use plugin that allows users to add Testimonials to the sidebar, as a widget, or to embed testimonials into a Page or Post using the shortcode.  Easy Testimonials also allows you to insert a list of all Testimonials or output a Random Testimonial. Testimonials can include an image with each testimonial - this is a great feature for adding a photo of the testimonial author.  Easy Testimonials uses schema.org compliant JSON-LD markup so that your testimonials appear correctly in search results!
+Easy Testimonials is an easy-to-use plugin that allows users to add Testimonials to the sidebar, as a widget, or to embed testimonials into a Page or Post using the shortcode. Easy Testimonials allows you to insert a list of all Testimonials, output a Random Testimonial, or display a slideshow of Testimonials anywhere on your website. Testimonials support images, making it simple to add a photo of the testimonial author.  Easy Testimonials uses schema.org compliant JSON-LD markup, so that your testimonials appear correctly in search results.
+
+= Why Choose Easy Testimonials? =
+
+Easy Testimonials is built and backed by a team of developers with years of experience building custom WordPress websites.  The Gold Plugins team has used that experience to develop a product that is easy to use for beginners yet is highly customizable for professionals.  Beginners will be up and running in minutes and with multiple filters, templates, and display methods available, developers will find customizing Easy Testimonials to fit in their client's theme to be a breeze!
 
 = Easy Testimonials is a great plugin for: =
 * Adding a Random Testimonial to Your Sidebar
 * Adding Random Testimonials to Your Page
 * Outputting a Testimonials List
 * Outputting a Fading Testimonial Widget
-* Outputting a Sliding Testimonial (Carousel) Widget
-* Able To Use Multiple Testimonial Themes on the Same Page!
-* Responsive Testimonials!
+* Outputting a Sliding Testimonial Widget
+* Displaying Responsive Testimonials for multiple screen sizes!
 * Displaying a Testimonial with a Rating
 * Displaying Testimonials using Schema.org compliant markup
 * Displaying an Image with a Testimonial
-* Easily Organize Testimonials with Testimonial Categories!
-* Options Allow You to Link Your Testimonials to a Page, Such As a Product Page
-* Easy-to-use interface allows you to manage Testimonials with no new knowledge!
+* Easily Organizing Testimonials with Testimonial Categories!
+* Linking Your Testimonials to a specific Page, Such As a Product Page
+* Managing Testimonials with an easy-to-use interface that requires no new knowledge!
 
 = Pro Features include: =
 * Collect Testimonials: Front-End Testimonial Form Allows Customers to Submit Testimonials on your Website!
 * Multiple Testimonial Forms: use multiple forms to send to specific Testimonial Categories!
 * Testimonial Form Spam Prevention: support for Really Simple Captcha and ReCaptcha included!
 * New Testimonial Notifications: Send an e-mail to one, or more, addresses when a new testimonial is submitted.
-* Designer Themes: 75+ professionally designed themes for front end display!
+* Designer Themes: 100+ professionally designed themes for front end display!
 * Advanced Transitions: including scrolling, flipping, and tiling testimonials!
 * Testimonial Carousel: The testimonial carousel widget shows 2 or more testimonials on each slide. Your visitors can click Previous and Next buttons to scroll through the list of testimonials.
 * Font Options: choose from a huge selection of fonts (including Google web fonts), colors, and sizes!
+* Advanced Testimonial Import: The testimonial import wizard supports numerous file types, including Excel and CSV.
+* Testimonial Export: easily create a CSV of your testimonials with our testimonial exporter.
 
 = Simple To Use, but Deeply Customizeable =
 
-Easy Testimonials is packed with options that are easy to use for anyone who is familiar with WordPress, but give you great control over the display of your Testimonials. You'll be able to choose which fields to show, which theme to use, how to display Testimonial Images, the text to use for for your links, and many more options!
+Easy Testimonials is packed with options that are easy to use for anyone who is familiar with WordPress, but give you great control over the display of your Testimonials. You'll be able to choose which fields to show, which theme to use, how to display Testimonial Images, the text to use for for your links, and many more options!  Easy Testimonials includes its own Shortcode Generators, found right above the page editor, allowing you easily customize the display of your testimonials without any complex knowledge!
 
-For developers, we also include many filters, which allow you to completely customize the HTML of your testimonials. You can even use your own custom testimonial template. We also provide a custom CSS box.
+For developers, we also include many filters, which allow you to completely customize the HTML of your testimonials. You can even use your own custom testimonial template. We also provide a custom CSS box for multiple screen sizes, so you can customize phones, tablets, and desktop screen sizes separately.
 
 And if you [upgrade to Pro](https://goldplugins.com/special-offers/upgrade-to-easy-testimonials-pro/?utm_source=easy_testimonials_wp_dir&utm_campaign=upgrade_options" "Upgrade to Easy Testimonials Pro"), you'll unlock even more style options and themes, letting you choose fonts (including Google webfonts), colors, styles, sizes, and more!
 
-= Add Images To Your Testionials To Stand Out = 
+= Add Images To Your Testimonials To Stand Out = 
 
 You'll be able to add an image to your Testimonials, which can greatly increase the impact of your Testimonials. We'll then show the image next to your testimonial when its displayed, giving your customer a face to go with the kind words. Showing an Image next to a Testimonial is a great tool for social proofing!
 
+We provide several different default images, including the Mystery Person, integration with the <a href="http://www.gravatar.com">Gravatar</a> service, and our own Smart Text Avatars which use the client's initials as an overlay on top of bold colors.
+
 = Supports Excerpts for your Testimonials = 
 
-Easy Testimonials allows display of custom excerpted Testimonials.  Display custom excerpts in your widgets that draw your visitors into your Testimonial archive!
+Easy Testimonials allows display of custom excerpted Testimonials.  Display custom excerpts in your widgets that draw your visitors into your Testimonial archive!  This is a great way to display pull quotes throughout your website.
+
+= Highly Compatible =
+
+Easy Testimonials is actively in use with multiple 3rd party themes, plugins, and services.  Our team strives to ensure that we are compatible with popular themes and plugins, such as Avada, Genesis, Visual Composer, and WooCommerce, to guarantee the best experience for our users.  We provide a Custom CSS box to help override any interfering CSS and a Compatibility Options panel to help deal with the most commonly encountered issues.  We take compatibility seriously and our support team is quick to respond, should the need arise.
 
 = Pro Users: Add A Collect Testimonial Form To Your Website = 
 
@@ -72,7 +83,7 @@ Easy Testimonials is the easiest way to start adding your customer testimonials,
 
 = Premium Support =
 
-The GoldPlugins team does not provide direct support for Easy Testimonials on the WordPress.org forums. One on one email support is available to people who have purchased Easy Testimonials Pro only. Easy Testimonials Pro also includes tons of extra themes and advanced features including a Testimonial Collection Form, so you should [upgrade today!](https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=easy_testimonials_wp_dir&utm_campaign=upgrade_for_support "Upgrade to Easy Testimonials Pro")
+While we do our best to keep up with the WordPress.org forums, direct one-on-one email support with the GoldPlugins team is available to people who have purchased Easy Testimonials Pro. Easy Testimonials Pro also includes tons of extra themes and advanced features including a Testimonial Collection Form, so you should [upgrade today!](https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=easy_testimonials_wp_dir&utm_campaign=upgrade_for_support "Upgrade to Easy Testimonials Pro")
 
 == Installation ==
 
@@ -93,31 +104,24 @@ Visit [here](https://goldplugins.com/documentation/easy-testimonials-documentati
 3. This is the Basic Settings Page.
 4. This is the Display Options Settings Page.
 5. This is the Themes Selection Page.
-6. This is the Submission Form Settings Page.
-7. This is the Shortcode Generator.
-8. This is the Import & Export Testimonials Page.
-9. This is the Help & Instructions Page.
-10. This is the Random Testimonial Widget.
-11. This is the Testimonial Cycle Widget.
-12. This is the Testimonial List Widget.
-13. This is the Single Testimonial Widget.
-14. This is the Testimonial Grid Widget.
+6. This is the Shortcode Generator.
+7. This is the Help & Instructions Page.
+8. This is the Random Testimonial Widget.
+9. This is the Testimonial Cycle Widget.
+10. This is the Testimonial List Widget.
+11. This is the Single Testimonial Widget.
+12. This is the Testimonial Grid Widget.
 
 == Changelog ==
 
-= 2.2.5 =
-* Update widget saving logic to handle checkboxes correctly.
-
-= 2.2.4 =
-* Update the_content filter logic to work better with recent Pagebuilder updates.
-* Update custom columns logic to function better with recent WooCommerce updates.
-* Update widget logic to better function with various visual editors, including Pagebuilder.
-* Update base CSS to better address reports of large doublequotes inserted over Testimonials.
-* Update CSS for Carousel transition to prevent slides becoming too small on mobile screens.
-* Update Rating Input (backend) to use HTML5 number input.
+= 3.1 =
+* Fix issue with View More Testimonials link in various displays.
+* Add ability to show / hide review markup on a per-shortcode and per-widget basis.
+* Add ability to show stars with aggregate rating via testimonial_count shortcode.
+* Move "View More Testimonials" link outside of the Testimonial content to a more logical place, below it.
 
 * [View Changelog](https://goldplugins.com/documentation/easy-testimonials-documentation/easy-testimonials-changelog/ "View Changelog")
 
 == Upgrade Notice ==
 
-**2.2.5** Compatibility updates for WooCommerce, Pagebuilder, and Testimonial Carousel on Mobile devices.
+**3.1** New features and fixes.

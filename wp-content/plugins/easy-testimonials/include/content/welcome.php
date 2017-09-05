@@ -3,7 +3,7 @@
 
 ob_start();
 $learn_more_url = 'https://goldplugins.com/special-offers/upgrade-to-easy-testimonials-pro/?utm_source=easy_testimonials_free&utm_campaign=welcome_screen_upgrade&utm_content=col_1_learn_more';
-$pro_registration_url = menu_page_url('easy-testimonials-settings', false) . '#tab-registration_options';
+$pro_registration_url = menu_page_url('easy-testimonials-license-settings', false);
 $settings_url = menu_page_url('easy-testimonials-settings', false);
 $utm_str = '?utm_source=easy_testimonials_free&utm_campaign=welcome_screen_help_links';
 ?>
@@ -19,11 +19,7 @@ $utm_str = '?utm_source=easy_testimonials_free&utm_campaign=welcome_screen_help_
 		<?php else: ?>
 			<h3>Upgrade To Pro</h3>
 			<p>Easy Testimonials Pro is the Professional, fully-functional version of Easy Testimonials, which features technical support and access to all features and themes.</p>
-			<a class="button" href="<?php echo $learn_more_url; ?>">Click Here To Learn More</a>
-			<br>
-			<br>
-			<p><strong>Already upgraded to Easy Testimonials Pro?</strong></p>
-			<a href="<?php echo $pro_registration_url; ?>">Click here to enter your Easy Testimonials Pro API Key</a>			
+			<a class="button" href="<?php echo $learn_more_url; ?>">Click Here To Learn More</a>		
 		<?php endif; ?>
 	</div>
 	<div class="col">

@@ -4,7 +4,7 @@ Plugin Name: Easy Testimonials
 Plugin URI: https://goldplugins.com/our-plugins/easy-testimonials-details/
 Description: Easy Testimonials - Provides custom post type, shortcode, sidebar widget, and other functionality for testimonials.
 Author: Gold Plugins
-Version: 2.2.5
+Version: 3.1
 Author URI: https://goldplugins.com
 Text Domain: easy-testimonials
 
@@ -33,14 +33,14 @@ require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Janus/gp-janus.class
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Aloha/gp_aloha.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_Sajak/gp_sajak.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/GP_SmartTextAvatars/GP_SmartTextAvatarGenerator.class.php" );
-require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial-importer.class.php" );
-require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial-exporter.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial.class.php" );
-require_once( plugin_dir_path( __FILE__ ) . "include/lib/gp-testimonial-form.class.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/ik-custom-post-type.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/lib/easy_testimonials_custom_columns.php" );
 require_once( plugin_dir_path( __FILE__ ) . "include/settings/testimonial.options.php" );	
-require_once( plugin_dir_path( __FILE__ ) . "include/maintenance/maintenance.php" );	
+require_once( plugin_dir_path( __FILE__ ) . "include/maintenance/maintenance.php" );
+include_once( ABSPATH . 'wp-admin/includes/plugin.php' ); // so we have access to is_plugin_active()
+require_once( plugin_dir_path( __FILE__ ) . "include/tgmpa/init.php" );
+
 
 class easyTestimonials
 {	
@@ -50,7 +50,8 @@ class easyTestimonials
 	var $options;
 	var $media_buttons;
 	
-	function __construct(){		
+	function __construct()
+	{
 		//catch weird cases when things don't exist and just exit
 		if( !class_exists('easyTestimonialsConfig') ){
 			return false;
@@ -92,6 +93,12 @@ class easyTestimonials
 
 		//add editor widgets
 		add_action( 'admin_init', array($this, 'add_media_buttons') );
+		if ( $this->config->is_pro ) {
+			add_action( 'admin_enqueue_scripts', array($this, 'enqueue_inline_script_for_notices') );
+			add_action( 'admin_notices', array($this, 'pro_plugin_upgrade_notice') );
+			add_action( 'wp_ajax_easy_t_dismiss_pro_plugin_notice', array($this, 'dismiss_pro_plugin_upgrade_notice') );
+			add_action( 'activate_easy-testimonials-pro/easy-testimonials-pro.php', array($this, 'pro_activation_hook') );
+		}
 		
 		//add JS
 		add_action( 'wp_enqueue_scripts', array($this, 'easy_testimonials_setup_js'), 9999 );
@@ -112,7 +119,7 @@ class easyTestimonials
 		add_action( 'init', array($this, 'easy_testimonials_setup_testimonials') );
 		
 		//add admin scripts
-		add_action( 'admin_enqueue_scripts', array($this, 'easy_testimonials_admin_init') );
+		add_action( 'admin_enqueue_scripts', array($this, 'easy_testimonials_admin_enqueue_scripts') );
 		
 		//check for conflicts
 		add_action( 'admin_enqueue_scripts', array($this, 'easy_testimonials_conflict_check') );
@@ -142,22 +149,12 @@ class easyTestimonials
 		}
 		
 		//link hello t action to import function, for use via cron job
-		//the cron job is scheduled inside the import-export.options class
-		add_action('hello_t_subscription', array($this->options->import_export_settings_page, 'add_hello_t_testimonials') );
+		//the cron job is scheduled inside the advanced.options class
+		add_action('hello_t_subscription', array($this->options->advanced_settings_page, 'add_hello_t_testimonials') );
 
 		//when you deactivate easy testimonials, disable the hello t cron job.
-		register_deactivation_hook( __FILE__, array($this->options->import_export_settings_page, 'hello_t_cron_deactivate') );
-		
-		//setup submission form
-		if ($this->config->is_pro){
-			$atts = array(
-				'media_buttons' => $this->media_buttons,
-				'config' => $this->config
-			);
-			
-			$testimonial_submission_form = new GP_TestimonialForm( $atts );
-		}					
-		
+		register_deactivation_hook( __FILE__, array($this->options->advanced_settings_page, 'hello_t_cron_deactivate') );
+
 		//set content filter flag when primary the_content call is made (ie, the one in which our initial testimonials shortcode lay)
 		//this may be causing problems with us rendering shortcodes inside our plugin correctly, and may also be redundant
 		//as we already have another internal check to prevent us from applying this filter repeatedly with our plugin
@@ -176,7 +173,7 @@ class easyTestimonials
 		// setup custom columns on View All Testimonials screen
 		$ezt_testionials_cols = new Easy_Testimonials_Custom_Columns();
 	}
-	
+
 	function get_welcome_template()
 	{
 		$base_path = plugin_dir_path( __FILE__ );
@@ -209,14 +206,61 @@ class easyTestimonials
 	//add media buttons
 	function add_media_buttons(){		
 		// add media buttons to admin
+		$media_buttons = array();
+		
+		//single testimonial widget
+		$media_buttons[] = array (
+			'title' => 'Single Testimonial', 
+			'shortcode' => $this->shortcodes['single_testimonial_shortcode'],
+			'widget_class' => 'singletestimonialwidget',
+			'post_type' => 'testimonial'
+			
+		);
+		
+		//single testimonial widget
+		$media_buttons[] = array (
+			'title' => 'Random Testimonial', 
+			'shortcode' => $this->shortcodes['random_testimonial_shortcode'],
+			'widget_class' => 'randomtestimonialwidget',
+			'post_type' => 'testimonial'
+			
+		);
+		
+		//single testimonial widget
+		$media_buttons[] = array (
+			'title' => 'List of Testimonials', 
+			'shortcode' => $this->shortcodes['testimonials_shortcode'],
+			'widget_class' => 'listtestimonialswidget',
+			'post_type' => 'testimonial'
+			
+		);
+		
+		//single testimonial widget
+		$media_buttons[] = array (
+			'title' => 'Grid of Testimonials', 
+			'shortcode' => $this->shortcodes['testimonials_grid_shortcode'],
+			'widget_class' => 'testimonialsgridwidget',
+			'post_type' => 'testimonial'
+			
+		);
+		
+		//single testimonial widget
+		$media_buttons[] = array (
+			'title' => 'Testimonial Cycle', 
+			'shortcode' => $this->shortcodes['testimonials_cycle_shortcode'],
+			'widget_class' => 'cycledtestimonialwidget',
+			'post_type' => 'testimonial'
+			
+		);
+		
+		$media_buttons = apply_filters( 'easy_t_admin_media_buttons', $media_buttons );
+		
 		$cur_post_type = ( isset($_GET['post']) ? get_post_type(intval($_GET['post'])) : '' );
 		if( is_admin() && ( empty($_REQUEST['post_type']) || $_REQUEST['post_type'] !== 'testimonial' ) && ($cur_post_type !== 'testimonial') )
-		{					
-			$this->media_buttons->add_button('Single Testimonial', $this->shortcodes['single_testimonial_shortcode'], 'singletestimonialwidget', 'testimonial');
-			$this->media_buttons->add_button('Random Testimonial', $this->shortcodes['random_testimonial_shortcode'], 'randomtestimonialwidget', 'testimonial');
-			$this->media_buttons->add_button('List of Testimonials',  $this->shortcodes['testimonials_shortcode'], 'listtestimonialswidget', 'testimonial');
-			$this->media_buttons->add_button('Grid of Testimonials',  $this->shortcodes['testimonials_grid_shortcode'], 'testimonialsgridwidget', 'testimonial');
-			$this->media_buttons->add_button('Testimonial Cycle',  $this->shortcodes['testimonials_cycle_shortcode'], 'cycledtestimonialwidget', 'testimonial');
+		{			
+			foreach( $media_buttons as $media_button ){
+				$this->media_buttons->add_button( $media_button['title'], $media_button['shortcode'], $media_button['widget_class'], $media_button['post_type']);
+			}
 		}
 	}
 	
@@ -239,23 +283,16 @@ class easyTestimonials
 		add_shortcode( $this->shortcodes['testimonials_shortcode'], array($this, 'outputTestimonials') );
 		add_shortcode( $this->shortcodes['testimonials_cycle_shortcode'], array($this, 'outputTestimonialsCycle') );
 		add_shortcode( $this->shortcodes['testimonials_count_shortcode'], array($this, 'outputTestimonialsCount') );
-		add_shortcode( 'output_all_themes', array($this, 'outputAllThemes') );
+		//add_shortcode( 'output_all_themes', array($this, 'outputAllThemes') );
 		add_shortcode( 'easy_t_search_testimonials', array($this, 'easy_t_search_form_shortcode') );
 		add_shortcode( $this->shortcodes['testimonials_grid_shortcode'], array($this, 'easy_t_testimonials_grid_shortcode') );
 	}
 
 	//setup JS
-	function easy_testimonials_setup_js() {
+	function easy_testimonials_setup_js()
+	{
 		$disable_cycle2 = get_option('easy_t_disable_cycle2');
 		$use_cycle_fix = get_option('easy_t_use_cycle_fix');
-
-		// register the recaptcha script, but only enqueue it later, when/if we see the submit_testimonial shortcode
-		$recaptcha_lang = get_option('easy_t_recaptcha_lang', '');
-		$recaptcha_js_url = 'https://www.google.com/recaptcha/api.js' . ( !empty($recaptcha_lang) ? '?hl='.urlencode($recaptcha_lang) : '' );
-		wp_register_script(
-				'g-recaptcha',
-				$recaptcha_js_url
-		);
 
 		// register the grid-height script, but only enqueue it later, when/if we see the testimonials_grid shortcode with the auto_height option on
 		wp_register_script(
@@ -264,48 +301,20 @@ class easyTestimonials
 				array( 'jquery' )
 		);
 		
-		// pro scripts for pro users
-		if($this->config->is_pro){ 	
-			if(!$disable_cycle2){
-				wp_enqueue_script(
-					'gp_cycle2',
-					plugins_url('include/assets/js/jquery.cycle2.pro.min.js', __FILE__),
-					array( 'jquery' ),
-					false,
-					true
-				);  
-			} else {
-				//if we aren't including our cycle2, we want to use 
-				//the old method of adding the advanced transitions
-				wp_enqueue_script(
-					'easy-testimonials',
-					plugins_url('include/assets/js/easy-testimonials.js', __FILE__),
-					array( 'jquery' ),
-					false,
-					true
-				);
-			}
-			
+		// unless Cycle2 is disabled (via Settings), enqueue it now
+		if(!$disable_cycle2){
 			wp_enqueue_script(
-				'rateit',
-				plugins_url('include/assets/js/jquery.rateit.min.js', __FILE__),
+				'gp_cycle2',
+				plugins_url('include/assets/js/jquery.cycle2.min.js', __FILE__),
 				array( 'jquery' ),
 				false,
 				true
-			);
-		} else {		
-			if(!$disable_cycle2){
-				wp_enqueue_script(
-					'gp_cycle2',
-					plugins_url('include/assets/js/jquery.cycle2.min.js', __FILE__),
-					array( 'jquery' ),
-					false,
-					true
-				);  
-			}
+			);  
 		}
 			
-		if($use_cycle_fix){
+		// if the "Cycle Fix" Setting is on, trigger the Cycle2 slideshows explicitly
+		// (usually used with the "Disable Cycle2" option selected)
+		if($use_cycle_fix) {
 			wp_enqueue_script(
 				'easy-testimonials-cycle-fix',
 				plugins_url('include/assets/js/easy-testimonials-cycle-fix.js', __FILE__),
@@ -317,7 +326,8 @@ class easyTestimonials
 	}
 
 	//add Testimonial CSS to header
-	function easy_testimonials_setup_css() {
+	function easy_testimonials_setup_css()
+	{
 		wp_register_style( 'easy_testimonial_style', plugins_url('include/assets/css/style.css', __FILE__) );
 		
 		$cache_key = '_easy_t_testimonial_style';
@@ -328,21 +338,6 @@ class easyTestimonials
 		if($style != 'no_style') {
 			wp_enqueue_style( 'easy_testimonial_style' );
 		}
-
-		// enqueue Pro CSS files
-		if($this->config->is_pro) {
-			$this->easy_t_register_pro_themes();
-		}	
-	}
-
-	function easy_t_register_pro_themes(){
-		//five star ratings
-		wp_register_style( 'easy_testimonial_rateit_style', plugins_url('include/assets/css/rateit.css', __FILE__) );
-		wp_enqueue_style( 'easy_testimonial_rateit_style' );
-		
-		//register and enqueue pro style
-		wp_register_style( 'easy_testimonials_pro_style', plugins_url('include/assets/css/easy_testimonials_pro.css', __FILE__) );
-		wp_enqueue_style( 'easy_testimonials_pro_style' );
 	}
 
 	//add Custom CSS
@@ -353,7 +348,16 @@ class easyTestimonials
 		if($easy_t_footer_css_output){
 			return;
 		} else {
-			echo '<style type="text/css" media="screen">' . get_option('easy_t_custom_css') . "</style>";
+			//output CSS for all screens
+			echo '<style type="text/css" media="screen">' . get_option('easy_t_custom_css') . '</style>';
+			
+			//output CSS for tablet screens
+			echo '<style type="text/css" media="screen">@media (max-width: 728px) {' . get_option('easy_t_custom_tablet_css') . '}</style>';
+			
+			//output CSS for mobile screens
+			echo '<style type="text/css" media="screen">@media (max-width: 320px) {' . get_option('easy_t_custom_phone_css') . '}</style>';
+			
+			//mark CSS as having been output
 			$easy_t_footer_css_output = true;
 		}
 	}
@@ -364,7 +368,11 @@ class easyTestimonials
 	//$status is the status of the testimonials to be included in the count
 	//defaults to published testimonials only
 	//if $aggregate_rating is set to true, this will output the aggregate rating markup for the counted testimonials
-	function easy_testimonials_count($category = '', $status = 'publish', $show_aggregate_rating = false){
+	//if $aggregate_rating_as_stars is set to true, and $aggregate_rating 
+	//	is set to true, stars will be shown with the aggregate rating (can coincide with text)
+	//if $aggregate_rating_as_text is set to true, and $aggregate_rating 
+	//	is set to true, text will be shown with the aggregate rating (can coincide with stars)
+	function easy_testimonials_count($category = '', $status = 'publish', $show_aggregate_rating = false, $show_aggregate_rating_stars = false, $show_aggregate_rating_text = true ){
 		$tax_query = array();	
 		
 		//if a category slug was passed
@@ -388,10 +396,10 @@ class easyTestimonials
 			
 		$count_query = $this->get_testimonials_loop( $args );
 		
-		//if the option to show aggregate rating is toggling
+		//if the option to show aggregate rating is toggled
 		//construct and return the aggregate rating output
-		//instead of just returning the numerical count
-		if($show_aggregate_rating){		
+		//instead of just returning the numerical count of testimonials
+		if( $show_aggregate_rating ){		
 			
 			//calculate average review value
 			$total_rating = 0;
@@ -409,14 +417,76 @@ class easyTestimonials
 				}
 			}
 
-			$average_rating = $total_rating / $total_rated_testimonials;
+			//average rating rounded to two digits
+			$average_rating = round( ($total_rating / $total_rated_testimonials), 2);
 			
-			$output = '
-				<div class="easy_t_aggregate_rating_wrapper" itemscope itemtype="http://schema.org/Product">
-					<span class="easy_t_aggregate_rating_item" itemprop="name">' . $item_reviewed . '</span>
-					<div class="easy_t_aggregate_rating" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">Rated <span class="easy_t_aggregate_rating_top_count" itemprop="ratingValue">' . round($average_rating, 2) . '</span>/5 based on <span itemprop="reviewCount" class="easy_t_aggregate_rating_review_count" >' . $total_rated_testimonials . '</span> customer reviews</div>		
+			//build aggregate rating output wrapper
+			$output_wrapper = '
+				<div class="easy_t_aggregate_rating_wrapper">
+					%s
+					<span class="easy_t_aggregate_rating_item"> %s </span>
+					<div class="easy_t_aggregate_rating"> %s </div>		
 				</div>
 			';
+			
+			//build the rating text
+			$rating_text = '<span class="rating_text">Rated <span class="easy_t_aggregate_rating_top_count">' . $average_rating . '</span>/5 based on <span class="easy_t_aggregate_rating_review_count" >' . $total_rated_testimonials . '</span> customer reviews</span>';
+			
+			//build the star rating html
+			$x = 5; //total available stars
+			//lop off the decimal
+			$average_rating_decimal = fmod( $average_rating, 1 );			
+			
+			$rating_stars = '<div class="stars">';			
+			//output filled in stars for each integer
+			for($i = 0; $i < $average_rating - $average_rating_decimal; $i ++){
+				$rating_stars .= '<span class="dashicons dashicons-star-filled"></span>';
+				$x--; //one less star available
+			}
+			//output one half filled star for any decimal amount
+			if($average_rating_decimal > 0){
+				$rating_stars .= '<span class="dashicons dashicons-star-half"></span>';
+				$x--; //one less star available
+			}
+			//fill out the remaining empty stars
+			for($i = 0; $i < $x; $i++){
+				$rating_stars .= '<span class="dashicons dashicons-star-empty"></span>';
+			}			
+			//close the star rating div
+			$rating_stars .= '</div>';
+			
+			//build the aggregate rating json-ld			  
+			ob_start();
+			?>
+			<script type="application/ld+json">
+			{
+				"@context": "http://schema.org/",
+				"@type": "Product",
+				"aggregateRating": {
+					"@type": "AggregateRating",
+					"ratingValue": "<?php echo json_encode( $average_rating ); ?>",
+					"reviewCount": "<?php echo json_encode( $total_rated_testimonials ); ?>"
+				},
+				"name": <?php echo json_encode( $item_reviewed ); ?>
+			}
+			</script>
+			<?php
+			$rating_json = ob_get_contents();
+			ob_end_clean();
+			
+			//assemble the rating output 
+			$rating_output = "";
+			//append the star rating to rating output, if set 
+			if ( $show_aggregate_rating_stars ) {
+				$rating_output .= $rating_stars ;
+			}
+			
+			//append the rating text to rating output, if set
+			if ( $show_aggregate_rating_text ) {
+				$rating_output .= $rating_text;
+			}			
+			//apply the json-ld, item reviewed text, and the selected rating output 
+			$output = sprintf( $output_wrapper, $rating_json, $item_reviewed, $rating_output );
 			
 			return apply_filters('easy_t_aggregate_rating', $output, $count_query);
 		}
@@ -427,16 +497,23 @@ class easyTestimonials
 	}
 
 	//shortcode mapping function for easy_testimonials_count
-	//accepts three attributes, category and status and show_aggregate_rating
+	//accepts five attributes:
+	//	category
+	//	status
+	//	show_aggregate_rating
+	//	aggregate_rating_as_stars
+	//	aggregate_rating_as_text
 	function outputTestimonialsCount($atts){
 		//load shortcode attributes into an array
 		extract( shortcode_atts( array(
 			'category' => '',
 			'status' => 'publish',
-			'show_aggregate_rating' => false
+			'show_aggregate_rating' => false,
+			'show_aggregate_rating_stars' => false,
+			'show_aggregate_rating_text' => true
 		), $atts ) );
 		
-		$output = $this->easy_testimonials_count($category, $status, $show_aggregate_rating);
+		$output = $this->easy_testimonials_count($category, $status, $show_aggregate_rating, $show_aggregate_rating_stars, $show_aggregate_rating_text);
 		
 		return $output;
 	}
@@ -548,7 +625,8 @@ class easyTestimonials
 			'show_date' => true,
 			'show_other' => true,
 			'width' => false,
-			'hide_view_more' => 0
+			'hide_view_more' => 0,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		), $atts );
 		
 		ob_start();
@@ -602,7 +680,8 @@ class easyTestimonials
 			'show_date' => true,
 			'show_other' => true,
 			'width' => false,
-			'hide_view_more' => 0
+			'hide_view_more' => 0,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		), $atts );
 						
 		//load testimonials
@@ -638,7 +717,7 @@ class easyTestimonials
 		
 		//load shortcode attributes into an array
 		$atts = shortcode_atts( array(	
-			'testimonials_link' => '',//get_option('testimonials_link'),
+			'testimonials_link' => get_option('testimonials_link'),
 			'show_title' => 0,
 			'count' => -1,
 			'body_class' => 'testimonial_body',
@@ -657,7 +736,8 @@ class easyTestimonials
 			'show_date' => true,
 			'show_other' => true,
 			'width' => false,
-			'hide_view_more' => true
+			'hide_view_more' => true,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		), $atts );
 		
 		extract($atts);
@@ -790,7 +870,7 @@ class easyTestimonials
 		// load shortcode attributes into an array
 		// note: these are mostly the same attributes as [testimonials] shortcode
 		$atts = shortcode_atts( array(
-			'testimonials_link' => '',//get_option('testimonials_link'),
+			'testimonials_link' => get_option('testimonials_link'),
 			'show_title' => 0,
 			'count' => -1,
 			'body_class' => 'testimonial_body',
@@ -817,7 +897,8 @@ class easyTestimonials
 			'cell_width' => false,
 			'responsive' => true,
 			'equal_height_rows' => false,
-			'hide_view_more' => 0
+			'hide_view_more' => 0,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		), $atts );
 		
 		extract( $atts );
@@ -1012,7 +1093,7 @@ class easyTestimonials
 	function outputAllThemes($atts){ 			
 		//load shortcode attributes into an array
 		$atts = shortcode_atts( array(	
-			'testimonials_link' => '',//get_option('testimonials_link'),
+			'testimonials_link' => get_option('testimonials_link'),
 			'show_title' => 0,
 			'count' => 1,
 			'body_class' => 'testimonial_body',
@@ -1031,7 +1112,8 @@ class easyTestimonials
 			'show_date' => true,
 			'show_other' => true,
 			'show_free_themes' => false,
-			'width' => false
+			'width' => false,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		), $atts );
 				
 		extract($atts);
@@ -1043,53 +1125,28 @@ class easyTestimonials
 
 		$testimonials = $testimonials_loop->get_posts();
 		
-		if($show_free_themes){
-			$free_theme_array = $this->config->free_theme_array;
+		$theme_array = $this->config->load_theme_array();
+		
+		foreach($theme_array as $theme_slug => $theme_name) {
 			
-			foreach($free_theme_array as $theme_slug => $theme_name){	
+			$atts['theme'] = $theme_slug;
+
+			foreach($testimonials as $this_testimonial){
+				//create a new testimonial object by passing in the current testimonial			
+				$data = array(
+					'testimonial' => $this_testimonial,
+					'atts' => $atts
+				);
 				
-				$atts['theme'] = $theme_slug;
+				$testimonial = new GP_Testimonial($data, $this->config);
 
-				foreach($testimonials as $this_testimonial){
-					//create a new testimonial object by passing in the current testimonial			
-					$data = array(
-						'testimonial' => $this_testimonial,
-						'atts' => $atts
-					);
-					
-					$testimonial = new GP_Testimonial($data, $this->config);
-
-					//output the testimonials HTML
-					$testimonial->render();				
-				}
-					
-				wp_reset_postdata();
+				//output the testimonials HTML
+				$testimonial->render();				
 			}
-		}
-		
-		$pro_theme_array = $this->config->pro_theme_array;
-		
-		foreach($pro_theme_array as $theme_set => $theme_set_array){
-			foreach($theme_set_array as $theme_slug => $theme_name){
-				$atts['theme'] = $theme_slug;
-
-				foreach($testimonials as $this_testimonial){
-					//create a new testimonial object by passing in the current testimonial			
-					$data = array(
-						'testimonial' => $this_testimonial,
-						'atts' => $atts
-					);
-					
-					$testimonial = new GP_Testimonial($data, $this->config);
-
-					//output the testimonials HTML
-					$testimonial->render();				
-				}	
 				
-				wp_reset_postdata();
-			}
+			wp_reset_postdata();
 		}
-		
+
 		$content = ob_get_contents();
 		ob_end_clean();	
 		
@@ -1128,7 +1185,8 @@ class easyTestimonials
 			'paused' => false,
 			'display_pagers_above' => false,
 			'hide_view_more' => 0,
-			'show_log' => ( defined('WP_DEBUG') && true === WP_DEBUG ) ? 1 : 0
+			'show_log' => ( defined('WP_DEBUG') && true === WP_DEBUG ) ? 1 : 0,
+			'output_schema_markup' => get_option('easy_t_output_schema_markup', true)
 		), $atts );
 
 		extract($atts);
@@ -1296,17 +1354,15 @@ class easyTestimonials
 		include('include/widgets/testimonial_cycle_widget.php');
 		include('include/widgets/testimonial_list_widget.php');
 		include('include/widgets/testimonial_grid_widget.php');
-		include('include/widgets/submit_testimonial_widget.php');
 
 		register_widget( 'randomTestimonialWidget' );
 		register_widget( 'cycledTestimonialWidget' );
 		register_widget( 'listTestimonialsWidget' );
 		register_widget( 'singleTestimonialWidget' );
-		register_widget( 'submitTestimonialWidget' );
 		register_widget( 'TestimonialsGridWidget' );
 	}
 
-	function easy_testimonials_admin_init($hook)
+	function easy_testimonials_admin_enqueue_scripts($hook)
 	{	
 		//RWG: only enqueue scripts and styles on Easy T admin pages or widgets page
 		$screen = get_current_screen();
@@ -1325,12 +1381,15 @@ class easyTestimonials
 				true
 			); 
 			wp_enqueue_script(
-				'gp-admin_v2',
+				'gp-admin_easy_t',
 				plugins_url('include/assets/js/gp-admin_v2.js', __FILE__),
 				array( 'jquery' ),
 				false,
 				true
 			);	
+			
+			//add any additional scripts using this hook
+			do_action( 'easy_t_admin_enqueue_scripts', $hook );
 		}
 		
 		//RWG: include pro styles on Theme Selection screen, for preview purposes
@@ -1338,9 +1397,6 @@ class easyTestimonials
 			//basic styling
 			wp_register_style( 'easy_testimonial_style', plugins_url('include/assets/css/style.css', __FILE__) );
 			wp_enqueue_style( 'easy_testimonial_style' );
-			
-			//register and enqueue pro themes for preview purposes
-			$this->easy_t_register_pro_themes();;
 		}
 		
 		// also include some styles on *all* admin pages
@@ -1369,9 +1425,7 @@ class easyTestimonials
 		}
 
 		/* WooThemes Testimonials Check */
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );	
-		$woothemes_testimonials = "testimonials-by-woothemes/woothemes-testimonials.php";
-		
+		$woothemes_testimonials = "testimonials-by-woothemes/woothemes-testimonials.php";		
 		if(is_plugin_active($woothemes_testimonials)){//woothemes testimonials found		
 			add_action('admin_notices', array($this, 'easy_t_woothemes_testimonials_admin_notice') );
 		}
@@ -1399,15 +1453,8 @@ class easyTestimonials
 	//output warning message about avada conflicts
 	function easy_t_avada_admin_notice() {
 		echo '<div class="gp_error fade"><p>';
-		echo '<strong>ALERT:</strong> Easy Testimonials has detected that Avada by Theme Fusion is installed.<br/><br/>  To ensure compatibility, please <a href="?page=easy-testimonials-settings#tab-compatibility_options">visit our Compatibility Options</a> on the Basic Settings tab and verify that "Override Avada Blog Post Content Filter on Testimonials" is checked.';
+		echo '<strong>ALERT:</strong> Easy Testimonials has detected that Avada by Theme Fusion is installed.<br/><br/>  To ensure compatibility, please <a href="' . admin_url( "admin.php?page=easy-testimonials-advanced-settings#tab-compatibility_options" ) . '">visit our Compatibility Options</a> on the Advanced Settings tab and verify that "Override Avada Blog Post Content Filter on Testimonials" is checked.';
 		echo "</p></div>";
-	}
-
-	//add an inline link to the settings page, before the "deactivate" link
-	function add_settings_link_to_plugin_action_links($links) { 
-	  $settings_link = '<a href="admin.php?page=easy-testimonials-settings">Settings</a>';
-	  array_unshift($links, $settings_link); 
-	  return $links; 
 	}
 
 	// add inline links to our plugin's description area on the Plugins page
@@ -1425,6 +1472,28 @@ class easyTestimonials
 			
 			$links = array_merge( $links, $new_links);
 		}
+		return $links; 
+	}
+	
+	//add an inline link to the settings page, before the "deactivate" link
+	function add_settings_link_to_plugin_action_links($links) 
+	{
+		$settings_link = sprintf( '<a href="%s">%s</a>', admin_url('admin.php?page=easy-testimonials-settings'), __('Settings') );
+		array_unshift($links, $settings_link); 
+
+		$docs_link = sprintf( '<a href="%s">%s</a>', 'https://goldplugins.com/documentation/easy-testimonials-documentation/?utm_source=easy-testimonials-action-links&utm_campaign=easy_t_docs', __('Documentation') );
+		array_unshift($links, $docs_link); 
+		
+		if(!$this->config->is_pro){
+			$upgrade_url = 'https://goldplugins.com/our-plugins/easy-testimonials-details/upgrade-to-easy-testimonials-pro/?utm_source=easy_t_free_plugin&utm_campaign=upgrade_to_pro';
+			$upgrade_link = sprintf( '<a href="%s" target="_blank" style="color: #e64a19; font-weight: bold; font-size: 108%%;">%s</a>', $upgrade_url, __('Upgrade to Pro') );			
+			array_unshift($links, $upgrade_link); 
+		}
+
+		if ( isset($links['edit']) ) {
+			unset($links['edit']);
+		}
+
 		return $links; 
 	}
 		
@@ -1507,7 +1576,115 @@ class easyTestimonials
 		$replace_with = $hidden_input . '</form>';
 		return str_replace('</form>', $replace_with, $search_html);
 	}
-
+	
+	/**
+	 * If the user has an active key but doesn't have the Pro plugin, show them
+	 * a notice to this effect.
+	 */
+	function pro_plugin_upgrade_notice()
+	{		
+		// Only show notices to pro users without the Pro plugin
+		// who also have an email set (suggesting a old user)
+		$pro_plugin_path = "easy-testimonials-pro/easy-testimonials-pro.php";
+		$registered_name = get_option('_easy_t_registered_name', false);
+		
+		if ( empty($registered_name)
+			 || !$this->config->is_pro 
+			 || is_plugin_active($pro_plugin_path) ) {
+			return;
+		}
+		
+		// Quit if the user has already dismissed the notice, unless this is an 
+		// Easy T settings page, in which case we always show the notice
+		$is_easy_t_page = !empty( $_GET['page'] ) && (strpos($_GET['page'], 'easy-t') !== false);
+		$easy_t_hide_pro_plugin_notice = get_option('easy_t_hide_pro_plugin_notice');
+		
+		if ( !$is_easy_t_page && !empty( $easy_t_hide_pro_plugin_notice ) ) {
+			return;
+		}
+		
+		// don't show the notice on the Install Pro Plugin page
+		$hide_on_pages =  array(
+			'easy-testimonials-install-plugins',
+			'easy_testimonials_pro_error_page',
+		);
+		$is_plugin_install_page = !empty( $_GET['page'] ) && in_array($_GET['page'], $hide_on_pages);
+		if ( $is_plugin_install_page ) {
+			return;
+		}
+		
+		// render the message
+		$div_style = "border: 4px solid #46b450; padding: 20px 38px 10px 20px;";
+		$heading_style = "color: green; font-size: 20px; font-family: -apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,Roboto,Oxygen-Sans,Ubuntu,Cantarell,&quot;Helvetica Neue&quot;,sans-serif; font-weight: 600";
+		$p_style = "font-size: 16px; font-weight: normal; margin-bottom: 1em;";
+		$button_style = "font-size: 16px; height: 52px; line-height: 50px;";
+		$package_url = get_option('_easy_testimonials_upgrade_package_url', '');
+		$next_url = !empty($package_url)
+					? admin_url('admin.php?page=easy-testimonials-install-plugins')
+					: admin_url('admin.php?page=easy_testimonials_pro_privacy_notice');
+		
+		$message = sprintf( '<h3 style="%s">%s</h3>', 
+							$heading_style,
+							'Easy Testimonials Pro - ' . __('Update Required')							
+						  );
+		$message .= sprintf( '<p style="%s">%s</p>', $p_style, __('In order to keep using all the great features of Easy Testimonials Pro, you\'ll need to install the Easy Testimonials Pro plugin. Without this, Pro features such as your Submit A Testimonial form will not work.') );
+		$message .= sprintf( '<p style="%s">%s</p>', $p_style, __('Installing Easy Testimonials Pro only takes a moment. None of your data or settings will be affected.') );
+		$message .= sprintf( '<p style="%s">%s</p>', $p_style,  __('Click the button below to begin.') );
+		$message .= sprintf( '<p style="%s"><a class="button button-primary button-hero" style="%s" href="%s">%s</a></p>',
+							 $p_style,
+							 $button_style,
+							 $next_url,
+							 __('Install Easy Testimonials Pro')
+						   );		
+		$div_id = 'easy_testimonials_pro_plugin_notice';
+		printf ( '<div id="%s" style="%s" class="notice notice-%s is-dismissible easy_t_install_pro_plugin_notice">%s</div>',
+				 $div_id,
+				 $div_style,
+				'success',
+				 $message );
+	}
+	
+	/**
+	 * Adds an inline script to watch for clicks on the "Pro plugin required" 
+	 * notice's dismiss button
+	 */
+	function enqueue_inline_script_for_notices($hook = '')
+	{
+		$js = '		
+		jQuery(function () {
+			jQuery("#easy_testimonials_pro_plugin_notice").on("click", ".notice-dismiss", function () {
+				jQuery.post(
+					ajaxurl, 
+					{
+						action: "easy_t_dismiss_pro_plugin_notice"
+					}
+				);
+			});
+		});		
+		';
+		if ( !wp_script_is( 'jquery', 'done' ) ) {
+			wp_enqueue_script( 'jquery' );
+		}
+		// note: attach to jquery-core, not jquery, or it won't fire
+		wp_add_inline_script('jquery-core', $js);		
+	}
+	
+	/**
+	 * AJAX hook - records dismissal of the "Pro plugin required" notice.
+	 */
+	function dismiss_pro_plugin_upgrade_notice()
+	{
+		update_option('easy_t_hide_pro_plugin_notice', 1);
+		wp_die('OK');
+	}
+	
+	function pro_activation_hook()
+	{
+		// delete registered name field (no longer needed with 
+		// Pro plugin installed)
+		delete_option('easy_t_registered_name');
+	}
+	
 	/* Avada Compatibility */	
 	//make our own version of the avada blog post content function that doesn't run if the current post type is a testimonial
 	//since avada uses !function_exists correctly, our function will be declared first and will win!
@@ -1584,3 +1761,6 @@ if (is_admin()) {
 	global $EasyT_BikeShed;
 	$EasyT_BikeShed = new Easy_Testimonials_GoldPlugins_BikeShed();
 }
+
+// can now load addons
+do_action('easy_testimonials_bootstrap');

@@ -1,5 +1,156 @@
 [
     {
+        "name": "psr/container",
+        "version": "1.0.0",
+        "version_normalized": "1.0.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/php-fig/container.git",
+            "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/php-fig/container/zipball/b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+            "reference": "b7ce3b176482dbbc1245ebf52b181af44c2cf55f",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0"
+        },
+        "time": "2017-02-14T16:28:37+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Psr\\Container\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "PHP-FIG",
+                "homepage": "http://www.php-fig.org/"
+            }
+        ],
+        "description": "Common Container Interface (PHP FIG PSR-11)",
+        "homepage": "https://github.com/php-fig/container",
+        "keywords": [
+            "PSR-11",
+            "container",
+            "container-interface",
+            "container-interop",
+            "psr"
+        ]
+    },
+    {
+        "name": "pimple/pimple",
+        "version": "v3.2.2",
+        "version_normalized": "3.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/silexphp/Pimple.git",
+            "reference": "4d45fb62d96418396ec58ba76e6f065bca16e10a"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/silexphp/Pimple/zipball/4d45fb62d96418396ec58ba76e6f065bca16e10a",
+            "reference": "4d45fb62d96418396ec58ba76e6f065bca16e10a",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.0",
+            "psr/container": "^1.0"
+        },
+        "require-dev": {
+            "symfony/phpunit-bridge": "^3.2"
+        },
+        "time": "2017-07-23T07:32:15+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Pimple": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            }
+        ],
+        "description": "Pimple, a simple Dependency Injection Container",
+        "homepage": "http://pimple.sensiolabs.org",
+        "keywords": [
+            "container",
+            "dependency injection"
+        ]
+    },
+    {
+        "name": "react/promise",
+        "version": "v2.5.1",
+        "version_normalized": "2.5.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/reactphp/promise.git",
+            "reference": "62785ae604c8d69725d693eb370e1d67e94c4053"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/reactphp/promise/zipball/62785ae604c8d69725d693eb370e1d67e94c4053",
+            "reference": "62785ae604c8d69725d693eb370e1d67e94c4053",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8"
+        },
+        "time": "2017-03-25T12:08:31+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "React\\Promise\\": "src/"
+            },
+            "files": [
+                "src/functions_include.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jan Sorgalla",
+                "email": "jsorgalla@gmail.com"
+            }
+        ],
+        "description": "A lightweight implementation of CommonJS Promises/A for PHP",
+        "keywords": [
+            "promise",
+            "promises"
+        ]
+    },
+    {
         "name": "guzzlehttp/streams",
         "version": "3.0.0",
         "version_normalized": "3.0.0.0",
@@ -20,7 +171,7 @@
         "require-dev": {
             "phpunit/phpunit": "~4.0"
         },
-        "time": "2014-10-12 19:18:40",
+        "time": "2014-10-12T19:18:40+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -78,7 +229,7 @@
         "suggest": {
             "ext-curl": "Guzzle will use specific adapters if cURL is present"
         },
-        "time": "2015-05-20 03:37:09",
+        "time": "2015-05-20T03:37:09+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -127,7 +278,7 @@
             "ext-curl": "*",
             "phpunit/phpunit": "^4.0"
         },
-        "time": "2016-07-15 19:28:39",
+        "time": "2016-07-15T19:28:39+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -159,34 +310,33 @@
         ]
     },
     {
-        "name": "pimple/pimple",
-        "version": "v3.0.2",
-        "version_normalized": "3.0.2.0",
+        "name": "leadpages/leadpages-auth",
+        "version": "1.2.3",
+        "version_normalized": "1.2.3.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/silexphp/Pimple.git",
-            "reference": "a30f7d6e57565a2e1a316e1baf2a483f788b258a"
+            "url": "https://github.com/LeadPages/php_auth_package.git",
+            "reference": "0294a053ce3d1a13a58fea85b0a14ffc98cf5893"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/silexphp/Pimple/zipball/a30f7d6e57565a2e1a316e1baf2a483f788b258a",
-            "reference": "a30f7d6e57565a2e1a316e1baf2a483f788b258a",
+            "url": "https://api.github.com/repos/LeadPages/php_auth_package/zipball/0294a053ce3d1a13a58fea85b0a14ffc98cf5893",
+            "reference": "0294a053ce3d1a13a58fea85b0a14ffc98cf5893",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.3.0"
+            "guzzlehttp/guzzle": "~5 < 6",
+            "php": ">=5.4.0"
         },
-        "time": "2015-09-11 15:10:35",
+        "require-dev": {
+            "phpunit/phpunit": "*"
+        },
+        "time": "2017-06-28T17:09:00+00:00",
         "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.0.x-dev"
-            }
-        },
         "installation-source": "dist",
         "autoload": {
-            "psr-0": {
-                "Pimple": "src/"
+            "psr-4": {
+                "Leadpages\\": "src/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -195,37 +345,118 @@
         ],
         "authors": [
             {
-                "name": "Fabien Potencier",
-                "email": "fabien@symfony.com"
+                "name": "Brandon Braner",
+                "email": "brandon.braner@ave81.com"
             }
         ],
-        "description": "Pimple, a simple Dependency Injection Container",
-        "homepage": "http://pimple.sensiolabs.org",
-        "keywords": [
-            "container",
-            "dependency injection"
-        ]
+        "description": "Authentication package for interfacing with Leadpages API's"
     },
     {
-        "name": "icanboogie/inflector",
-        "version": "v1.4.2",
-        "version_normalized": "1.4.2.0",
+        "name": "leadpages/pages",
+        "version": "1.5.2",
+        "version_normalized": "1.5.2.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/ICanBoogie/Inflector.git",
-            "reference": "d3a2c4930c67fa93dc782f67955b85d56369742c"
+            "url": "https://github.com/LeadPages/php_pages_component.git",
+            "reference": "d128b9313a68a3f071ccfd22b1c76c940792e30d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ICanBoogie/Inflector/zipball/d3a2c4930c67fa93dc782f67955b85d56369742c",
-            "reference": "d3a2c4930c67fa93dc782f67955b85d56369742c",
+            "url": "https://api.github.com/repos/LeadPages/php_pages_component/zipball/d128b9313a68a3f071ccfd22b1c76c940792e30d",
+            "reference": "d128b9313a68a3f071ccfd22b1c76c940792e30d",
+            "shasum": ""
+        },
+        "require": {
+            "guzzlehttp/guzzle": "~5 < 6",
+            "leadpages/leadpages-auth": "*",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "4.8"
+        },
+        "time": "2017-07-21T19:35:49+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Leadpages\\Pages\\": "src/Pages/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Brandon Braner",
+                "email": "brandon.braner@ave81.com"
+            }
+        ],
+        "description": "A package to allow you to easily integrate Leadpages pages into your PHP project"
+    },
+    {
+        "name": "leadpages/leadboxes",
+        "version": "1.2.2",
+        "version_normalized": "1.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/LeadPages/php_leadbox_component.git",
+            "reference": "cfb767994fb219af476b719847b8621fac432327"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/LeadPages/php_leadbox_component/zipball/cfb767994fb219af476b719847b8621fac432327",
+            "reference": "cfb767994fb219af476b719847b8621fac432327",
+            "shasum": ""
+        },
+        "require": {
+            "guzzlehttp/guzzle": "~5 < 6",
+            "leadpages/leadpages-auth": "*",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "4.8"
+        },
+        "time": "2017-06-20T20:09:15+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Leadpages\\Leadboxes\\": "src/Leadboxes/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Brandon Braner",
+                "email": "brandon.braner@ave81.com"
+            }
+        ],
+        "description": "A package to allow you to easily integrate Leadpages Leadboxes into your PHP project"
+    },
+    {
+        "name": "icanboogie/inflector",
+        "version": "v1.4.4",
+        "version_normalized": "1.4.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ICanBoogie/Inflector.git",
+            "reference": "a875d3c16215327e1a2555592b167ae2591c5c2f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ICanBoogie/Inflector/zipball/a875d3c16215327e1a2555592b167ae2591c5c2f",
+            "reference": "a875d3c16215327e1a2555592b167ae2591c5c2f",
             "shasum": ""
         },
         "require": {
             "ext-mbstring": "*",
             "php": ">=5.3.4"
         },
-        "time": "2016-12-15 09:15:25",
+        "time": "2017-06-30T13:16:14+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -261,121 +492,107 @@
         ]
     },
     {
-        "name": "leadpages/leadboxes",
-        "version": "1.1.7",
-        "version_normalized": "1.1.7.0",
+        "name": "twig/twig",
+        "version": "v1.34.4",
+        "version_normalized": "1.34.4.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/LeadPages/php_leadbox_component.git",
-            "reference": "b43a2a3a0dff4b39c0cd9b430d50fd28b7fdc61b"
+            "url": "https://github.com/twigphp/Twig.git",
+            "reference": "f878bab48edb66ad9c6ed626bf817f60c6c096ee"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/LeadPages/php_leadbox_component/zipball/b43a2a3a0dff4b39c0cd9b430d50fd28b7fdc61b",
-            "reference": "b43a2a3a0dff4b39c0cd9b430d50fd28b7fdc61b",
+            "url": "https://api.github.com/repos/twigphp/Twig/zipball/f878bab48edb66ad9c6ed626bf817f60c6c096ee",
+            "reference": "f878bab48edb66ad9c6ed626bf817f60c6c096ee",
             "shasum": ""
         },
         "require": {
-            "guzzlehttp/guzzle": "~5 < 6",
-            "leadpages/leadpages-auth": "*",
-            "php": ">=5.4.0"
+            "php": ">=5.3.3"
         },
         "require-dev": {
-            "phpunit/phpunit": "4.8"
+            "psr/container": "^1.0",
+            "symfony/debug": "~2.7",
+            "symfony/phpunit-bridge": "~3.3@dev"
         },
-        "time": "2017-03-21 19:49:50",
+        "time": "2017-07-04T13:19:31+00:00",
         "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.34-dev"
+            }
+        },
         "installation-source": "dist",
         "autoload": {
+            "psr-0": {
+                "Twig_": "lib/"
+            },
             "psr-4": {
-                "Leadpages\\Leadboxes\\": "src/Leadboxes/"
+                "Twig\\": "src/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "MIT"
+            "BSD-3-Clause"
         ],
         "authors": [
             {
-                "name": "Brandon Braner",
-                "email": "brandon.braner@ave81.com"
-            }
-        ],
-        "description": "A package to allow you to easily integrate Leadpages Leadboxes into your PHP project"
-    },
-    {
-        "name": "leadpages/pages",
-        "version": "1.4.4",
-        "version_normalized": "1.4.4.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/LeadPages/php_pages_component.git",
-            "reference": "8aabe3744f62a674728cc6614823bf1879b6cea2"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/LeadPages/php_pages_component/zipball/8aabe3744f62a674728cc6614823bf1879b6cea2",
-            "reference": "8aabe3744f62a674728cc6614823bf1879b6cea2",
-            "shasum": ""
-        },
-        "require": {
-            "guzzlehttp/guzzle": "~5 < 6",
-            "leadpages/leadpages-auth": "*",
-            "php": ">=5.4.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "4.8"
-        },
-        "time": "2017-03-21 19:49:23",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Leadpages\\Pages\\": "src/Pages/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com",
+                "homepage": "http://fabien.potencier.org",
+                "role": "Lead Developer"
+            },
             {
-                "name": "Brandon Braner",
-                "email": "brandon.braner@ave81.com"
+                "name": "Armin Ronacher",
+                "email": "armin.ronacher@active-4.com",
+                "role": "Project Founder"
+            },
+            {
+                "name": "Twig Team",
+                "homepage": "http://twig.sensiolabs.org/contributors",
+                "role": "Contributors"
             }
         ],
-        "description": "A package to allow you to easily integrate Leadpages pages into your PHP project"
+        "description": "Twig, the flexible, fast, and secure template language for PHP",
+        "homepage": "http://twig.sensiolabs.org",
+        "keywords": [
+            "templating"
+        ]
     },
     {
-        "name": "react/promise",
-        "version": "v2.5.1",
-        "version_normalized": "2.5.1.0",
+        "name": "symfony/polyfill-mbstring",
+        "version": "v1.5.0",
+        "version_normalized": "1.5.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/reactphp/promise.git",
-            "reference": "62785ae604c8d69725d693eb370e1d67e94c4053"
+            "url": "https://github.com/symfony/polyfill-mbstring.git",
+            "reference": "7c8fae0ac1d216eb54349e6a8baa57d515fe8803"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/reactphp/promise/zipball/62785ae604c8d69725d693eb370e1d67e94c4053",
-            "reference": "62785ae604c8d69725d693eb370e1d67e94c4053",
+            "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/7c8fae0ac1d216eb54349e6a8baa57d515fe8803",
+            "reference": "7c8fae0ac1d216eb54349e6a8baa57d515fe8803",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.4.0"
+            "php": ">=5.3.3"
         },
-        "require-dev": {
-            "phpunit/phpunit": "~4.8"
+        "suggest": {
+            "ext-mbstring": "For best performance"
         },
-        "time": "2017-03-25 12:08:31",
+        "time": "2017-06-14T15:44:48+00:00",
         "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.5-dev"
+            }
+        },
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "React\\Promise\\": "src/"
+                "Symfony\\Polyfill\\Mbstring\\": ""
             },
             "files": [
-                "src/functions_include.php"
+                "bootstrap.php"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -384,44 +601,58 @@
         ],
         "authors": [
             {
-                "name": "Jan Sorgalla",
-                "email": "jsorgalla@gmail.com"
+                "name": "Nicolas Grekas",
+                "email": "p@tchwork.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
             }
         ],
-        "description": "A lightweight implementation of CommonJS Promises/A for PHP",
+        "description": "Symfony polyfill for the Mbstring extension",
+        "homepage": "https://symfony.com",
         "keywords": [
-            "promise",
-            "promises"
+            "compatibility",
+            "mbstring",
+            "polyfill",
+            "portable",
+            "shim"
         ]
     },
     {
-        "name": "leadpages/leadpages-auth",
-        "version": "1.1.10",
-        "version_normalized": "1.1.10.0",
+        "name": "nesbot/carbon",
+        "version": "1.22.1",
+        "version_normalized": "1.22.1.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/LeadPages/php_auth_package.git",
-            "reference": "59604bfe4d4fbfab926a324061d097d31b8dcea3"
+            "url": "https://github.com/briannesbitt/Carbon.git",
+            "reference": "7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/LeadPages/php_auth_package/zipball/59604bfe4d4fbfab926a324061d097d31b8dcea3",
-            "reference": "59604bfe4d4fbfab926a324061d097d31b8dcea3",
+            "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc",
+            "reference": "7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc",
             "shasum": ""
         },
         "require": {
-            "guzzlehttp/guzzle": "~5 < 6",
-            "php": ">=5.4.0"
+            "php": ">=5.3.0",
+            "symfony/translation": "~2.6 || ~3.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "*"
+            "friendsofphp/php-cs-fixer": "~2",
+            "phpunit/phpunit": "~4.0 || ~5.0"
         },
-        "time": "2017-03-29 18:34:59",
+        "time": "2017-01-16T07:55:07+00:00",
         "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.23-dev"
+            }
+        },
         "installation-source": "dist",
         "autoload": {
             "psr-4": {
-                "Leadpages\\": "src/"
+                "Carbon\\": "src/Carbon/"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -430,11 +661,85 @@
         ],
         "authors": [
             {
-                "name": "Brandon Braner",
-                "email": "brandon.braner@ave81.com"
+                "name": "Brian Nesbitt",
+                "email": "brian@nesbot.com",
+                "homepage": "http://nesbot.com"
             }
         ],
-        "description": "Authentication package for interfacing with Leadpages API's"
+        "description": "A simple API extension for DateTime.",
+        "homepage": "http://carbon.nesbot.com",
+        "keywords": [
+            "date",
+            "datetime",
+            "time"
+        ]
+    },
+    {
+        "name": "symfony/translation",
+        "version": "v3.3.8",
+        "version_normalized": "3.3.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/symfony/translation.git",
+            "reference": "add53753d978f635492dfe8cd6953f6a7361ef90"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/symfony/translation/zipball/add53753d978f635492dfe8cd6953f6a7361ef90",
+            "reference": "add53753d978f635492dfe8cd6953f6a7361ef90",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.5.9|>=7.0.8",
+            "symfony/polyfill-mbstring": "~1.0"
+        },
+        "conflict": {
+            "symfony/config": "<2.8",
+            "symfony/yaml": "<3.3"
+        },
+        "require-dev": {
+            "psr/log": "~1.0",
+            "symfony/config": "~2.8|~3.0",
+            "symfony/intl": "^2.8.18|^3.2.5",
+            "symfony/yaml": "~3.3"
+        },
+        "suggest": {
+            "psr/log": "To use logging capability in translator",
+            "symfony/config": "",
+            "symfony/yaml": ""
+        },
+        "time": "2017-07-29T21:54:42+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.3-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Symfony\\Component\\Translation\\": ""
+            },
+            "exclude-from-classmap": [
+                "/Tests/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Fabien Potencier",
+                "email": "fabien@symfony.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
+            }
+        ],
+        "description": "Symfony Translation Component",
+        "homepage": "https://symfony.com"
     },
     {
         "name": "rmccue/requests",
@@ -457,7 +762,7 @@
         "require-dev": {
             "requests/test-server": "dev-master"
         },
-        "time": "2016-10-13 00:11:37",
+        "time": "2016-10-13T00:11:37+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {
